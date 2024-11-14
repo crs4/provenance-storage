@@ -7,7 +7,7 @@ https://jena.apache.org/documentation/fuseki2
 
 https://jena.apache.org/documentation/fuseki2/fuseki-docker.html
 
-Download [jena-fuseki-docker-5.1.0.zip](https://repo1.maven.org/maven2/org/apache/jena/jena-fuseki-docker/5.2.0/jena-fuseki-docker-5.2.0.zip)
+Download [jena-fuseki-docker-5.2.0.zip](https://repo1.maven.org/maven2/org/apache/jena/jena-fuseki-docker/5.2.0/jena-fuseki-docker-5.2.0.zip)
 
 ```
 unzip jena-fuseki-docker-5.2.0.zip
