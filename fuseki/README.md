@@ -13,12 +13,24 @@ Download [jena-fuseki-docker-5.2.0.zip](https://repo1.maven.org/maven2/org/apach
 unzip jena-fuseki-docker-5.2.0.zip
 cd jena-fuseki-docker-5.2.0
 docker compose build --build-arg JENA_VERSION=5.2.0
+```
+
+Start Fuseki with an in-memory dataset:
+
+```
 docker compose run --rm --service-ports fuseki --mem /ds
+```
+
+Start fuseki with a persistent database:
+
+```
+mkdir -p logs databases/DB2
+docker compose run -u $(id -u):$(id -g) --rm --service-ports fuseki --tdb2 --update --loc databases/DB2 /ds
 ```
 
 Switch to another terminal window.
 
-```console
+```
 cd ..
 git clone https://github.com/hectorcorrea/fuseki_demo
 cd fuseki_demo
