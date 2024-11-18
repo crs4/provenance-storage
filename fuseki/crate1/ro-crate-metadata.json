@@ -15,7 +15,9 @@
             "@id": "./",
             "@type": "Dataset",
             "datePublished": "2024",
-            "author": "https://orcid.org/0000-0001-8271-5429"
+            "author": {
+                "@id": "https://orcid.org/0000-0001-8271-5429"
+            }
         },
         {
             "@id": "https://orcid.org/0000-0001-8271-5429",
