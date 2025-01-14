@@ -3,7 +3,7 @@ from pathlib import Path
 
 from rdflib import Graph
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
-from rdflib.graph import DATASET_DEFAULT_GRAPH_ID
+from rdflib.term import URIRef
 
 
 FUSEKI_BASE_URL = "http://localhost:3030"
@@ -16,10 +16,10 @@ def main(args):
     if not metadata_path.is_file():
         raise RuntimeError(f"file {metadata_path} not found")
     store = SPARQLUpdateStore()
-    query_endpoint = f"{args.fuseki_url}/{args.fuseki_dataset}/query"
+    query_endpoint = f"{args.fuseki_url}/{args.fuseki_dataset}/sparql"
     update_endpoint = f"{args.fuseki_url}/{args.fuseki_dataset}/update"
     store.open((query_endpoint, update_endpoint))
-    graph = Graph(store, identifier=DATASET_DEFAULT_GRAPH_ID)
+    graph = Graph(store, identifier=URIRef(crate_path.name))
     graph.parse(metadata_path)
 
 

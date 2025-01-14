@@ -1,63 +1,24 @@
-# Apache Jena Fuseki
+# RO-Crate metadata storage with Apache Jena Fuseki
 
 https://jena.apache.org/documentation/fuseki2
 
 
-## Fuseki Docker Tools
-
-https://jena.apache.org/documentation/fuseki2/fuseki-docker.html
-
-Download [jena-fuseki-docker-5.2.0.zip](https://repo1.maven.org/maven2/org/apache/jena/jena-fuseki-docker/5.2.0/jena-fuseki-docker-5.2.0.zip)
-
 ```
-unzip jena-fuseki-docker-5.2.0.zip
-cd jena-fuseki-docker-5.2.0
-docker compose build --build-arg JENA_VERSION=5.2.0
+mkdir fuseki-data
+docker compose up
 ```
 
-Start Fuseki with an in-memory dataset:
-
-```
-docker compose run --rm --service-ports fuseki --mem /ds
-```
-
-Start fuseki with a persistent database:
-
-```
-mkdir -p logs databases/DB2
-docker compose run -u $(id -u):$(id -g) --rm --service-ports fuseki --tdb2 --update --loc databases/DB2 /ds
-```
+Open http://localhost:3030 in a browser window to access the web UI.
 
 Switch to another terminal window.
 
 ```
-cd ..
-git clone https://github.com/hectorcorrea/fuseki_demo
-cd fuseki_demo
-curl -X POST -d @the_raven.n3 localhost:3030/ds/update
-<html>
-<head>
-</head>
-<body>
-<h1>Success</h1>
-<p>
-Update succeeded
-</p>
-</body>
-</html>
-curl -X POST -d "query=select ?s where { ?s ?p ?o . }" localhost:3030/ds/query
-{ "head": {
-    "vars": [ "s" ]
-  } ,
-  "results": {
-    "bindings": [
-      { 
-        "s": { "type": "uri" , "value": "http://demo/book1" }
-      } ,
-      { 
-        "s": { "type": "uri" , "value": "http://demo/book1" }
-      }
-    ]
-  }
-}
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+source venv/bin/activate
+
+python load_crate.py crate1
+python load_crate.py crate2
+python query_store.py query.txt
 ```
