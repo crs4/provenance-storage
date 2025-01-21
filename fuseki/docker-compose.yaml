@@ -1,6 +1,6 @@
 services:
   fuseki:
-    image: secoresearch/fuseki
+    image: secoresearch/fuseki:5.2.0
     user: "1000"
     container_name: fuseki
     ports:
