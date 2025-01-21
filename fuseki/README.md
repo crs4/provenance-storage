@@ -16,7 +16,6 @@ Switch to another terminal window.
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-source venv/bin/activate
 
 python load_crate.py crate1
 python load_crate.py crate2
