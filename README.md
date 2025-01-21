@@ -13,7 +13,7 @@ mkdir fuseki-data
 docker compose up
 ```
 
-Open http://localhost:3030 in a browser window to access the web UI.
+Open http://localhost:3030 in a browser window to access the web UI. The admin password is set in `docker-compose.yaml`.
 
 Switch to another terminal window.
 
