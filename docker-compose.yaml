@@ -14,3 +14,13 @@ services:
     volumes:
       - ./fuseki-data:/fuseki-base/databases
     restart: "no"
+  minio:
+    image: bitnami/minio:2024.12.18
+    user: "1000"
+    container_name: minio
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - ./minio-data:/bitnami/minio/data
+    restart: "no"
