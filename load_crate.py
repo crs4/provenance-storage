@@ -67,6 +67,7 @@ def main(args):
     store.open((query_endpoint, update_endpoint))
     graph = Graph(store, identifier=URIRef(crate_url))
     loc = arcp.arcp_location(crate_url)
+    print("ARCP location:", loc)
     graph.parse(metadata_path, publicID=loc)
 
 
