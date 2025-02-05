@@ -65,7 +65,7 @@ def main(args):
     query_endpoint = f"{args.fuseki_url}/{args.fuseki_dataset}/sparql"
     update_endpoint = f"{args.fuseki_url}/{args.fuseki_dataset}/update"
     store.open((query_endpoint, update_endpoint))
-    graph = Graph(store, identifier=URIRef(crate_path.name))
+    graph = Graph(store, identifier=URIRef(crate_url))
     loc = arcp.arcp_location(crate_url)
     graph.parse(metadata_path, publicID=loc)
 
