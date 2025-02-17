@@ -1,0 +1,12 @@
+slide:
+  class: File
+  path: data/Mirax2-Fluorescence-2.mrxs
+tissue-low-level: 9
+tissue-low-label: tissue_low
+tissue-high-level: 5
+tissue-high-label: tissue_high
+tissue-high-filter: tissue_low>0.9
+gpu: null
+tumor-level: 1
+tumor-label: tumor
+tumor-filter: tissue_low>0.99
