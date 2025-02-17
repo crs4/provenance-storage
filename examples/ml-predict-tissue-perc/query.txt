@@ -1,0 +1,19 @@
+PREFIX bioschemas: <https://bioschemas.org/>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?instrument ?tp_value ?thl_value
+WHERE {
+  ?tp a schema:PropertyValue .
+  ?tp schema:name "tissue_perc" .
+  ?tp schema:value ?tp_value .
+  ?action a schema:CreateAction .
+  ?action schema:result ?tp .
+  ?action schema:instrument ?instrument .
+  ?instrument a bioschemas:ComputationalWorkflow .
+  ?action schema:object ?thl .
+  ?thl a schema:PropertyValue .
+  ?thl schema:name "tissue-high-level" .
+  ?thl schema:value ?thl_value .
+}
+ORDER BY DESC(xsd:double(?tp_value))
