@@ -7,6 +7,7 @@ wget https://openslide.cs.cmu.edu/download/openslide-testdata/Mirax/Mirax2-Fluor
 unzip -d data Mirax2-Fluorescence-2.zip
 
 python3 -m venv venv
-pip install cwltool==3.1.20250110105449
-cwltool --provenance ro predictions.cwl params.yaml
+source venv/bin/activate
+pip install -r requirements.txt
+bash gen_crates.sh
 ```
