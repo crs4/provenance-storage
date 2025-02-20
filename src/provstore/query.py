@@ -2,8 +2,7 @@ from rdflib import Graph
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 from rdflib.term import URIRef
 
-FUSEKI_BASE_URL = "http://localhost:3030"
-FUSEKI_DATASET = "ds"
+from .constants import FUSEKI_BASE_URL, FUSEKI_DATASET
 
 
 def run_query(query_path, fuseki_url=None, fuseki_dataset=None):
