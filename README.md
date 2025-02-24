@@ -31,9 +31,9 @@ The above modifies `~/.mc/config.json`, so it does not need to be re-executed if
 ```
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -e .
 
-python load_crate.py crate1
-python load_crate.py crate2
-python query_store.py query.txt
+provstore load crate1
+provstore load crate2
+provstore query query.txt
 ```
