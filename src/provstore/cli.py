@@ -1,7 +1,9 @@
+import sys
 from pathlib import Path
 
 import click
 
+from . import __version__
 from .load import load_crate_metadata
 from .query import run_query
 
@@ -63,6 +65,14 @@ def query(query_file, fuseki_url, fuseki_dataset):
     QUERY_FILE: SPARQL query file
     """
     run_query(query_file, fuseki_url, fuseki_dataset)
+
+
+@cli.command()
+def version():
+    """\
+    Print version string and exit.
+    """
+    sys.stdout.write(f"{__version__}\n")
 
 
 if __name__ == "__main__":
