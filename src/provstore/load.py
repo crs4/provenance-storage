@@ -7,12 +7,13 @@ import arcp
 from minio import Minio
 from rdflib import Graph
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
-from rdflib.term import URIRef
+from rdflib.term import URIRef, Literal
 
 from .constants import (
     MINIO_STORE, MINIO_USER, MINIO_SECRET, MINIO_BUCKET, MINIO_BUCKET_POLICY,
     FUSEKI_BASE_URL, FUSEKI_DATASET
 )
+from .queries import RDE_QUERY
 
 
 def upload_crate_to_minio(crate_path, crate_name=None, bucket=MINIO_BUCKET):
@@ -49,3 +50,8 @@ def load_crate_metadata(crate_path, fuseki_url=None, fuseki_dataset=None):
     loc = arcp.arcp_location(crate_url)
     print("ARCP location:", loc)
     graph.parse(metadata_path, publicID=loc)
+    # store crate url as root data entity "url"
+    qres = graph.query(RDE_QUERY)
+    assert len(qres) == 1
+    rde = list(qres)[0][0]
+    graph.add((rde, URIRef("http://schema.org/url"), Literal(crate_url)))
