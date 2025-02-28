@@ -33,7 +33,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -e .
 
-provstore load crate1
-provstore load crate2
-provstore query query.txt
+provstor load crate1
+provstor load crate2
+provstor query query.txt
 ```

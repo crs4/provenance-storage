@@ -3,7 +3,7 @@ requires = ["setuptools>=61.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "provstore"
+name = "provstor"
 description = "Store provenance as an RDF graph"
 keywords = ["provenance", "RDF", "graph"]
 authors = [{name = "CRS4", email = "ro-crate@elixir-europe.org"}, {name = "RO-Crate community"}]
@@ -20,7 +20,7 @@ dynamic = ["version"]
 homepage = "https://repolab.crs4.it/sca/provenance-storage"
 
 [project.scripts]
-provstore = "provstore.cli:cli"
+provstor = "provstor.cli:cli"
 
 [tool.setuptools]
 include-package-data = true
@@ -31,4 +31,4 @@ where = ["src"]
 namespaces = false
 
 [tool.setuptools.dynamic]
-version = {attr = "provstore.__version__"}
+version = {attr = "provstor.__version__"}
