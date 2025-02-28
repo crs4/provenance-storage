@@ -4,6 +4,7 @@ from pathlib import Path
 import click
 
 from . import __version__
+from .get import get_crate as get_crate_f
 from .load import load_crate_metadata
 from .query import run_query
 
@@ -65,6 +66,38 @@ def query(query_file, fuseki_url, fuseki_dataset):
     QUERY_FILE: SPARQL query file
     """
     run_query(query_file, fuseki_url, fuseki_dataset)
+
+
+@cli.command()
+@click.argument(
+    "rde_id",
+    metavar="ROOT_DATA_ENTITY_ID"
+)
+@click.option(
+    "-u",
+    "--fuseki-url",
+    metavar="STRING",
+    help="Fuseki base url",
+)
+@click.option(
+    "-d",
+    "--fuseki-dataset",
+    metavar="STRING",
+    help="Fuseki dataset",
+)
+@click.option(
+    "-o",
+    "--outdir",
+    type=click.Path(path_type=Path),
+    help="directory where the crate should be saved",
+)
+def get_crate(rde_id, fuseki_url, fuseki_dataset, outdir):
+    """\
+    Download the crate corresponding to the given root data entity id.
+
+    ROOT_DATA_ENTITY_ID: @id of the RO-Crate's Root Data Entity
+    """
+    get_crate_f(rde_id, fuseki_url, fuseki_dataset, outdir)
 
 
 @cli.command()
