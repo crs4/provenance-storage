@@ -4,6 +4,7 @@
         {
             "@type": "CreativeWork",
             "@id": "ro-crate-metadata.json",
+            "license": "https://opensource.org/license/GPL-3.0",
             "conformsTo": {
                 "@id": "https://w3id.org/ro/crate/1.1"
             },

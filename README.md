@@ -38,7 +38,16 @@ provstor load crate2
 provstor query query.txt
 ```
 
+## License
+
+This code is distributed under the terms of the [GNU GPL-3.0 license](https://opensource.org/license/GPL-3.0).  See [COPYING](./COPYING) for details.
+
+
 ## Acknowledgements
 
 This work has been partially funded by the [Italian Research Center on High Performance Computing, Big Data and Quantum Computing - Spoke
 9](https://www.supercomputing-icsc.it/en/spoke-9-digital-society-smart-cities-en/).
+
+## Copyright
+
+Copyright © 2024-2025 [CRS4](https://www.crs4.it/)
