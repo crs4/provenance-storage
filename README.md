@@ -38,6 +38,18 @@ provstor load crate2
 provstor query query.txt
 ```
 
+## Authors
+
+* [Simone Leo](https://www.crs4.it/peopledetails/31/simone-leo/) (orcid: [0000-0001-8271-5429](https://orcid.org/0000-0001-8271-5429))
+* [Luca Pireddu](https://www.crs4.it/peopledetails/148/luca-pireddu/) (orcid: [0000-0001-8271-5429](https://orcid.org/0000-0002-4663-5613))
+
+Copyright © 2024-2025 [CRS4](https://www.crs4.it/)
+
+## License
+
+This code is distributed under the terms of the [GNU GPL-3.0 license](https://opensource.org/license/GPL-3.0).  See [COPYING](./COPYING) for details.
+
+
 ## Acknowledgements
 
 This work has been partially funded by the [Italian Research Center on High Performance Computing, Big Data and Quantum Computing - Spoke
