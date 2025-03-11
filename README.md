@@ -37,3 +37,8 @@ provstor load crate1
 provstor load crate2
 provstor query query.txt
 ```
+
+## Acknowledgements
+
+This work has been partially funded by the [Italian Research Center on High Performance Computing, Big Data and Quantum Computing - Spoke
+9](https://www.supercomputing-icsc.it/en/spoke-9-digital-society-smart-cities-en/).
