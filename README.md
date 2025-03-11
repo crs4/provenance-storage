@@ -1,4 +1,4 @@
-# provenance-storage
+# CN-HPC Spoke 9 WP4: ProvStor provenance storage prototype
 
 Store provenance data as an RDF graph.
 
