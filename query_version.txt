@@ -1,7 +1,0 @@
-PREFIX schema: <http://schema.org/>
-
-SELECT ?app ?version
-WHERE {
-  ?app a schema:SoftwareApplication.
-  ?app schema:softwareVersion ?version
-}
