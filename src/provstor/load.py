@@ -68,12 +68,10 @@ def load_crate_metadata(crate_path, fuseki_url=None, fuseki_dataset=None):
     if not fuseki_dataset:
         fuseki_dataset = FUSEKI_DATASET
     if is_zipped:
-        crate_dir = tmp_dir / "crate"
         with zipfile.ZipFile(crate_path, "r") as zf:
-            zf.extractall(crate_dir)
+            metadata_path = Path(zf.extract("ro-crate-metadata.json", path=tmp_dir))
     else:
-        crate_dir = crate_path
-    metadata_path = crate_dir / "ro-crate-metadata.json"
+        metadata_path = crate_path / "ro-crate-metadata.json"
     if not metadata_path.is_file():
         raise RuntimeError(f"file {metadata_path} not found")
     store = SPARQLUpdateStore()
