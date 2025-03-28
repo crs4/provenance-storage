@@ -53,7 +53,7 @@ def load(crate, fuseki_url, fuseki_dataset):
     """\
     Load RO-Crate metadata into Fuseki and upload zipped crate to MinIO.
 
-    RO_CRATE: RO-Crate directory.
+    RO_CRATE: RO-Crate directory or ZIP archive.
     """
     load_crate_metadata(crate, fuseki_url, fuseki_dataset)
 
