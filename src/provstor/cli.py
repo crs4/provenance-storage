@@ -35,7 +35,7 @@ def cli():
 @click.argument(
     "crate",
     metavar="RO_CRATE",
-    type=click.Path(exists=True, file_okay=False, readable=True, path_type=Path),
+    type=click.Path(exists=True, readable=True, path_type=Path),
 )
 @click.option(
     "-u",
