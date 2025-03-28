@@ -35,7 +35,7 @@ def cli():
 @click.argument(
     "crate",
     metavar="RO_CRATE",
-    type=click.Path(exists=True, file_okay=False, readable=True, path_type=Path),
+    type=click.Path(exists=True, readable=True, path_type=Path),
 )
 @click.option(
     "-u",
@@ -53,7 +53,7 @@ def load(crate, fuseki_url, fuseki_dataset):
     """\
     Load RO-Crate metadata into Fuseki and upload zipped crate to MinIO.
 
-    RO_CRATE: RO-Crate directory.
+    RO_CRATE: RO-Crate directory or ZIP archive.
     """
     load_crate_metadata(crate, fuseki_url, fuseki_dataset)
 
