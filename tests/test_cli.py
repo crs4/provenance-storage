@@ -1,4 +1,3 @@
-
 # Copyright © 2024-2025 CRS4
 #
 # This file is part of ProvStor.
@@ -15,33 +14,21 @@
 # You should have received a copy of the GNU General Public License
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
+from click.testing import CliRunner
+from provstor.cli import cli
 
-services:
-  fuseki:
-    image: secoresearch/fuseki:5.2.0
-    user: "1000"
-    container_name: fuseki
-    ports:
-      - "3030:3030"
-    environment:
-      - ADMIN_PASSWORD=admin
-      - ENABLE_DATA_WRITE=true
-      - ENABLE_UPDATE=true
-      - ENABLE_SHACL=false
-      - QUERY_TIMEOUT=60000
-    volumes:
-      - fuseki-data:/fuseki-base/databases
-    restart: "no"
-  minio:
-    image: bitnami/minio:2024.12.18
-    user: "1000"
-    container_name: minio
-    ports:
-      - 9000:9000
-      - 9001:9001
-    volumes:
-      - minio-data:/bitnami/minio/data
-    restart: "no"
-volumes:
-  fuseki-data:
-  minio-data:
+
+def test_cli_load(data_dir):
+    crate1 = data_dir / "crate1"
+    runner = CliRunner()
+    args = ["load", str(crate1)]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+
+
+def test_cli_query(data_dir):
+    query_path = data_dir / "query.txt"
+    runner = CliRunner()
+    args = ["query", str(query_path)]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
