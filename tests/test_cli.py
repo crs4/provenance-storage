@@ -14,14 +14,22 @@
 # You should have received a copy of the GNU General Public License
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
+import shutil
+
 from click.testing import CliRunner
+import pytest
 from provstor.cli import cli
 
 
-def test_cli_load(data_dir):
-    crate1 = data_dir / "crate1"
+@pytest.mark.parametrize("zipped", [False, True])
+def test_cli_load(data_dir, tmpdir, zipped):
     runner = CliRunner()
-    args = ["load", str(crate1)]
+    if zipped:
+        unzipped_crate = data_dir / "crate2"
+        crate = shutil.make_archive(tmpdir / "crate2", "zip", unzipped_crate)
+    else:
+        crate = data_dir / "crate1"
+    args = ["load", str(crate)]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
 
