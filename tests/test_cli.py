@@ -54,7 +54,22 @@ def test_cli_get_crate(data_dir, tmpdir):
     crate_url = f"http://{MINIO_STORE}/{MINIO_BUCKET}/{crate_name}.zip"
     rde_id = arcp.arcp_location(crate_url)
     args = ["get-crate", rde_id, "-o", tmpdir]
-    print("args:", args)
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
     assert (tmpdir / f"{crate_name}.zip").is_file()
+
+
+def test_cli_get_file(data_dir, tmpdir):
+    runner = CliRunner()
+    crate_name = "crate1"
+    crate = data_dir / crate_name
+    args = ["load", str(crate)]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    crate_url = f"http://{MINIO_STORE}/{MINIO_BUCKET}/{crate_name}.zip"
+    rde_id = arcp.arcp_location(crate_url)
+    file_id = rde_id + "ro-crate-metadata.json"
+    args = ["get-file", file_id, "-o", tmpdir]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert (tmpdir / "ro-crate-metadata.json").is_file()
