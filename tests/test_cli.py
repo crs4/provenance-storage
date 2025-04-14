@@ -16,9 +16,11 @@
 
 import shutil
 
+import arcp
 from click.testing import CliRunner
 import pytest
 from provstor.cli import cli
+from provstor.constants import MINIO_STORE, MINIO_BUCKET
 
 
 @pytest.mark.parametrize("zipped", [False, True])
@@ -40,3 +42,19 @@ def test_cli_query(data_dir):
     args = ["query", str(query_path)]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
+
+
+def test_cli_get_crate(data_dir, tmpdir):
+    runner = CliRunner()
+    crate_name = "crate1"
+    crate = data_dir / crate_name
+    args = ["load", str(crate)]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    crate_url = f"http://{MINIO_STORE}/{MINIO_BUCKET}/{crate_name}.zip"
+    rde_id = arcp.arcp_location(crate_url)
+    args = ["get-crate", rde_id, "-o", tmpdir]
+    print("args:", args)
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert (tmpdir / f"{crate_name}.zip").is_file()
