@@ -34,6 +34,6 @@ jobs:
     - name: Test
       run: |
         pip install pytest
-        pytest -sv test
+        pytest -sv tests
     - name: Docker teardown
       run: docker compose down -v
