@@ -9,7 +9,6 @@ Fuseki docs: https://jena.apache.org/documentation/fuseki2
 
 
 ```
-mkdir fuseki-data minio-data
 docker compose up
 ```
 
@@ -33,9 +32,9 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -e .
 
-provstor load crate1
-provstor load crate2
-provstor query query.txt
+provstor load tests/data/crate1
+provstor load tests/data/crate2
+provstor query tests/data/query.txt
 ```
 
 ## License
