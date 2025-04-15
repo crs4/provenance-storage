@@ -15,10 +15,20 @@
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
 from click.testing import CliRunner
-from rdflib.term import Literal
+from rdflib.term import Literal, URIRef
 
 from provstor.cli import cli
 from provstor.query import run_query
+
+PERSON_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?person ?name
+WHERE {
+  ?person a schema:Person .
+  ?person schema:name ?name
+}
+"""
 
 
 def test_run_query(data_dir, tmpdir):
@@ -28,7 +38,8 @@ def test_run_query(data_dir, tmpdir):
     args = ["load", str(crate)]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
-    query_path = data_dir / "query.txt"
-    qres = run_query(query_path)
+    qres = run_query(PERSON_QUERY)
+    person_ids = set(row.person for row in qres)
     person_names = set(row.name for row in qres)
+    assert URIRef("https://orcid.org/0000-0002-1825-0097") in person_ids
     assert Literal("Josiah Carberry") in person_names

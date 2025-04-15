@@ -82,7 +82,8 @@ def query(query_file, fuseki_url, fuseki_dataset):
 
     QUERY_FILE: SPARQL query file
     """
-    qres = run_query(query_file, fuseki_url, fuseki_dataset)
+    query = query_file.read_text()
+    qres = run_query(query, fuseki_url, fuseki_dataset)
     for row in qres:
         sys.stdout.write(f"{row}\n")
 
