@@ -76,13 +76,22 @@ def load(crate, fuseki_url, fuseki_dataset):
     metavar="STRING",
     help="Fuseki dataset",
 )
-def query(query_file, fuseki_url, fuseki_dataset):
+@click.option(
+    "-g",
+    "--graph",
+    metavar="STRING",
+    help="Graph name (crate basename without extension)",
+)
+def query(query_file, fuseki_url, fuseki_dataset, graph):
     """\
     Run the SPARQL query in the provided file on the Fuseki store.
 
     QUERY_FILE: SPARQL query file
     """
-    run_query(query_file, fuseki_url, fuseki_dataset)
+    query = query_file.read_text()
+    qres = run_query(query, fuseki_url, fuseki_dataset, graph)
+    for row in qres:
+        sys.stdout.write(f"{row}\n")
 
 
 @cli.command()

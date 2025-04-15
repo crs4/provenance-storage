@@ -19,23 +19,24 @@ from rdflib import Graph
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 from rdflib.term import URIRef
 
-from .constants import FUSEKI_BASE_URL, FUSEKI_DATASET
+from .constants import (
+    FUSEKI_BASE_URL, FUSEKI_DATASET, FUSEKI_UNION_GRAPH,
+    MINIO_STORE, MINIO_BUCKET
+)
 
 
-def run_query(query_path, fuseki_url=None, fuseki_dataset=None):
+def run_query(query, fuseki_url=None, fuseki_dataset=None, graph=None):
     if not fuseki_url:
         fuseki_url = FUSEKI_BASE_URL
     if not fuseki_dataset:
         fuseki_dataset = FUSEKI_DATASET
-    if not query_path.is_file():
-        raise RuntimeError(f"file {query_path} not found")
-    with open(query_path, "rt") as f:
-        query = f.read()
+    if not graph:
+        graph_name = FUSEKI_UNION_GRAPH
+    else:
+        graph_name = f"http://{MINIO_STORE}/{MINIO_BUCKET}/{graph}.zip"
     store = SPARQLUpdateStore()
     query_endpoint = f"{fuseki_url}/{fuseki_dataset}/sparql"
     store.open((query_endpoint))
-    # graph = Graph(store, identifier=URIRef("urn:x-arq:DefaultGraph"))
-    graph = Graph(store, identifier=URIRef("urn:x-arq:UnionGraph"))
+    graph = Graph(store, identifier=URIRef(graph_name))
     qres = graph.query(query)
-    for row in qres:
-        print(row)
+    return qres
