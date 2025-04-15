@@ -17,6 +17,8 @@
 
 FUSEKI_BASE_URL = "http://localhost:3030"
 FUSEKI_DATASET = "ds"
+FUSEKI_DEFAULT_GRAPH = "urn:x-arq:DefaultGraph"
+FUSEKI_UNION_GRAPH = "urn:x-arq:UnionGraph"
 
 MINIO_STORE = "localhost:9000"
 MINIO_USER = "minio"
