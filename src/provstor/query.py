@@ -37,5 +37,4 @@ def run_query(query_path, fuseki_url=None, fuseki_dataset=None):
     # graph = Graph(store, identifier=URIRef("urn:x-arq:DefaultGraph"))
     graph = Graph(store, identifier=URIRef("urn:x-arq:UnionGraph"))
     qres = graph.query(query)
-    for row in qres:
-        print(row)
+    return qres
