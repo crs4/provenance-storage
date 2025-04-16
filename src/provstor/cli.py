@@ -15,6 +15,7 @@
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
 
+import logging
 import sys
 from pathlib import Path
 
@@ -26,9 +27,18 @@ from .load import load_crate_metadata
 from .query import run_query
 
 
+LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+
+
 @click.group()
-def cli():
-    pass
+@click.option(
+    "-l",
+    "--log-level",
+    type=click.Choice(LOG_LEVELS),
+    default="WARNING"
+)
+def cli(log_level):
+    logging.basicConfig(level=getattr(logging, log_level))
 
 
 @cli.command()
