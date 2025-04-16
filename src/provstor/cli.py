@@ -55,7 +55,8 @@ def load(crate, fuseki_url, fuseki_dataset):
 
     RO_CRATE: RO-Crate directory or ZIP archive.
     """
-    load_crate_metadata(crate, fuseki_url, fuseki_dataset)
+    crate_url = load_crate_metadata(crate, fuseki_url, fuseki_dataset)
+    sys.stdout.write(f"Crate URL: {crate_url}\n")
 
 
 @cli.command()
@@ -123,7 +124,8 @@ def get_crate(rde_id, fuseki_url, fuseki_dataset, outdir):
 
     ROOT_DATA_ENTITY_ID: @id of the RO-Crate's Root Data Entity
     """
-    get_crate_f(rde_id, fuseki_url, fuseki_dataset, outdir)
+    out_path = get_crate_f(rde_id, fuseki_url, fuseki_dataset, outdir)
+    sys.stdout.write(f"crate downloaded to {out_path}\n")
 
 
 @cli.command()
@@ -155,7 +157,8 @@ def get_file(file_uri, fuseki_url, fuseki_dataset, outdir):
 
     FILE_URI: URI of the file.
     """
-    get_file_f(file_uri, fuseki_url, fuseki_dataset, outdir)
+    out_path = get_file_f(file_uri, fuseki_url, fuseki_dataset, outdir)
+    sys.stdout.write(f"file extracted to {out_path}\n")
 
 
 @cli.command()

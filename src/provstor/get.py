@@ -19,6 +19,7 @@ from pathlib import Path
 from shutil import copyfileobj
 from urllib.parse import urlsplit
 from urllib.request import urlopen
+import logging
 import tempfile
 import shutil
 import zipfile
@@ -27,7 +28,7 @@ from rdflib import Graph
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 from rdflib.term import URIRef
 
-from .constants import FUSEKI_BASE_URL, FUSEKI_DATASET
+from .constants import FUSEKI_BASE_URL, FUSEKI_DATASET, FUSEKI_UNION_GRAPH
 
 QUERY = """\
 PREFIX schema: <http://schema.org/>
@@ -51,13 +52,13 @@ def get_crate(rde_id, fuseki_url=None, fuseki_dataset=None, outdir=None):
     store = SPARQLUpdateStore()
     query_endpoint = f"{fuseki_url}/{fuseki_dataset}/sparql"
     store.open((query_endpoint))
-    graph = Graph(store, identifier=URIRef("urn:x-arq:UnionGraph"))
+    graph = Graph(store, identifier=URIRef(FUSEKI_UNION_GRAPH))
     qres = graph.query(query)
     assert len(qres) >= 1
     crate_url = str(list(qres)[0][0])
-    print("crate URL:", crate_url)
+    logging.info("crate URL: %s", crate_url)
     out_path = outdir / crate_url.rsplit("/", 1)[-1]
-    print("downloading to:", out_path)
+    logging.info("downloading to: %s", out_path)
     outdir.mkdir(parents=True, exist_ok=True)
     with urlopen(crate_url) as response, out_path.open("wb") as f:
         copyfileobj(response, f)
@@ -89,7 +90,7 @@ def get_file(file_uri, fuseki_url=None, fuseki_dataset=None, outdir=None):
         outdir=zip_dir
     )
     zip_member = res.path.lstrip("/")
-    print("extracting:", zip_member)
+    logging.info("extracting: %s", zip_member)
     with zipfile.ZipFile(zip_path, "r") as zipf:
         out_path = zipf.extract(zip_member, path=outdir)
     shutil.rmtree(zip_dir)

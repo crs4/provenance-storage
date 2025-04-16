@@ -16,6 +16,7 @@
 
 
 import json
+import logging
 import shutil
 import tempfile
 import zipfile
@@ -34,7 +35,7 @@ from .constants import (
 from .queries import RDE_QUERY
 
 
-def upload_crate_to_minio(crate_path, tmp_dir):
+def _upload_crate_to_minio(crate_path, tmp_dir):
     is_zipped = False
     if zipfile.is_zipfile(crate_path):
         is_zipped = True
@@ -48,7 +49,7 @@ def upload_crate_to_minio(crate_path, tmp_dir):
     client = Minio(MINIO_STORE, MINIO_USER, MINIO_SECRET, secure=False)
     if not client.bucket_exists(MINIO_BUCKET):
         client.make_bucket(MINIO_BUCKET)
-        print(f'created bucket "{MINIO_BUCKET}"')
+        logging.info('created bucket "%s"', MINIO_BUCKET)
         client.set_bucket_policy(MINIO_BUCKET, json.dumps(MINIO_BUCKET_POLICY))
     if is_zipped:
         archive = crate_path
@@ -56,13 +57,13 @@ def upload_crate_to_minio(crate_path, tmp_dir):
         archive = shutil.make_archive(tmp_dir / crate_name, "zip", crate_path)
     client.fput_object(MINIO_BUCKET, zipped_crate_name, archive)
     crate_url = f"http://{MINIO_STORE}/{MINIO_BUCKET}/{zipped_crate_name}"
-    print("Crate URL:", crate_url)
+    logging.info("Crate URL: %s", crate_url)
     return crate_url, is_zipped
 
 
 def load_crate_metadata(crate_path, fuseki_url=None, fuseki_dataset=None):
     tmp_dir = Path(tempfile.mkdtemp(prefix="provstor_"))
-    crate_url, is_zipped = upload_crate_to_minio(crate_path, tmp_dir)
+    crate_url, is_zipped = _upload_crate_to_minio(crate_path, tmp_dir)
     if not fuseki_url:
         fuseki_url = FUSEKI_BASE_URL
     if not fuseki_dataset:
@@ -80,7 +81,7 @@ def load_crate_metadata(crate_path, fuseki_url=None, fuseki_dataset=None):
     store.open((query_endpoint, update_endpoint))
     graph = Graph(store, identifier=URIRef(crate_url))
     loc = arcp.arcp_location(crate_url)
-    print("ARCP location:", loc)
+    logging.info("ARCP location: %s", loc)
     graph.parse(metadata_path, publicID=loc)
     # store crate url as root data entity "url"
     qres = graph.query(RDE_QUERY)
@@ -88,3 +89,4 @@ def load_crate_metadata(crate_path, fuseki_url=None, fuseki_dataset=None):
     rde = list(qres)[0][0]
     graph.add((rde, URIRef("http://schema.org/url"), Literal(crate_url)))
     shutil.rmtree(tmp_dir)
+    return crate_url
