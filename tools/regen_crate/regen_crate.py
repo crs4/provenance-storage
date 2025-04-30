@@ -20,11 +20,16 @@ Regenerate an nf-prov WRROC, linking pipeline outputs as file:// URIs.
 
 from pathlib import Path
 import argparse
+import json
 import os
 import shutil
 
 from rocrate.rocrate import ROCrate
 from rocrate.utils import as_list
+
+
+def as_file_uri(id_, crate_path):
+    return "file://" + str((crate_path / id_).resolve())
 
 
 def main(args):
@@ -65,6 +70,22 @@ def main(args):
                 shutil.copyfile(in_path, out_path)
             else:
                 print("EXCLUDING FILE", in_path.relative_to(in_crate_path))
+    with open(in_crate_path / "ro-crate-metadata.json") as f:
+        metadata = json.load(f)
+    for entity in metadata["@graph"]:
+        if entity["@id"] in results_map:
+            entity["@id"] = as_file_uri(entity["@id"], in_crate_path)
+        for k, values in entity.items():
+            if k.startswith("@"):
+                continue
+            if isinstance(values, dict) and values["@id"] in results_map:
+                entity[k]["@id"] = as_file_uri(values["@id"], in_crate_path)
+            elif isinstance(values, list):
+                for i, v in enumerate(values):
+                    if isinstance(v, dict) and v["@id"] in results_map:
+                        entity[k][i]["@id"] = as_file_uri(v["@id"], in_crate_path)
+    with open(out_crate_path / "ro-crate-metadata.json", "w") as f:
+        json.dump(metadata, f, indent=4)
 
 
 if __name__ == "__main__":
