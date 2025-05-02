@@ -38,3 +38,17 @@ WHERE {
   ?rde schema:hasPart <%s> .
 }
 """
+
+RUN_RESULTS_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?result
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:mainEntity ?workflow .
+  ?action schema:instrument ?workflow .
+  ?action schema:result ?result .
+}
+"""
