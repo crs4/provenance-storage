@@ -29,7 +29,11 @@ from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 from rdflib.term import URIRef
 
 from .constants import FUSEKI_BASE_URL, FUSEKI_DATASET, FUSEKI_UNION_GRAPH
-from .queries import GRAPH_ID_FOR_FILE_QUERY, RUN_RESULTS_QUERY
+from .queries import (
+    GRAPH_ID_FOR_FILE_QUERY,
+    RUN_RESULTS_QUERY,
+    RUN_OBJECTS_QUERY
+)
 
 QUERY = """\
 PREFIX schema: <http://schema.org/>
@@ -120,6 +124,20 @@ def get_run_results(graph_id, fuseki_url=None, fuseki_dataset=None):
     if not fuseki_dataset:
         fuseki_dataset = FUSEKI_DATASET
     query = RUN_RESULTS_QUERY
+    store = SPARQLUpdateStore()
+    query_endpoint = f"{fuseki_url}/{fuseki_dataset}/sparql"
+    store.open((query_endpoint))
+    graph = Graph(store, identifier=URIRef(graph_id))
+    qres = graph.query(query)
+    return (str(_[0]) for _ in qres)
+
+
+def get_run_objects(graph_id, fuseki_url=None, fuseki_dataset=None):
+    if not fuseki_url:
+        fuseki_url = FUSEKI_BASE_URL
+    if not fuseki_dataset:
+        fuseki_dataset = FUSEKI_DATASET
+    query = RUN_OBJECTS_QUERY
     store = SPARQLUpdateStore()
     query_endpoint = f"{fuseki_url}/{fuseki_dataset}/sparql"
     store.open((query_endpoint))

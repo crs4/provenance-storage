@@ -26,7 +26,8 @@ from .get import (
     get_crate as get_crate_f,
     get_file as get_file_f,
     get_graph_id as get_graph_id_f,
-    get_run_results as get_run_results_f
+    get_run_results as get_run_results_f,
+    get_run_objects as get_run_objects_f
 )
 from .load import load_crate_metadata
 from .query import run_query
@@ -222,12 +223,42 @@ def get_graph_id(file_id, fuseki_url, fuseki_dataset):
 )
 def get_run_results(graph_id, fuseki_url, fuseki_dataset):
     """\
-    Get the workflow run results corresponding to the given graph id.
+    Get the workflow run results that are either files or directories
+    corresponding to the given graph id.
 
     GRAPH_ID: id of the graph in the triple store.
     """
     results = get_run_results_f(graph_id, fuseki_url, fuseki_dataset)
     for r in results:
+        sys.stdout.write(f"{r}\n")
+
+
+@cli.command()
+@click.argument(
+    "graph_id",
+    metavar="GRAPH_ID"
+)
+@click.option(
+    "-u",
+    "--fuseki-url",
+    metavar="STRING",
+    help="Fuseki base url",
+)
+@click.option(
+    "-d",
+    "--fuseki-dataset",
+    metavar="STRING",
+    help="Fuseki dataset",
+)
+def get_run_objects(graph_id, fuseki_url, fuseki_dataset):
+    """\
+    Get the workflow run objects that are either files or directories
+    corresponding to the given graph id.
+
+    GRAPH_ID: id of the graph in the triple store.
+    """
+    objects = get_run_objects_f(graph_id, fuseki_url, fuseki_dataset)
+    for r in objects:
         sys.stdout.write(f"{r}\n")
 
 

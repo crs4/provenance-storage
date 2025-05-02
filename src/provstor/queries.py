@@ -50,5 +50,21 @@ WHERE {
   ?rde schema:mainEntity ?workflow .
   ?action schema:instrument ?workflow .
   ?action schema:result ?result .
+  { ?result a schema:MediaObject } UNION { ?result a schema:Dataset }
+}
+"""
+
+RUN_OBJECTS_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?object
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:mainEntity ?workflow .
+  ?action schema:instrument ?workflow .
+  ?action schema:object ?object .
+  { ?object a schema:MediaObject } UNION { ?object a schema:Dataset }
 }
 """
