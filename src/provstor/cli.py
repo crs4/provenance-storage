@@ -22,7 +22,11 @@ from pathlib import Path
 import click
 
 from . import __version__
-from .get import get_crate as get_crate_f, get_file as get_file_f
+from .get import (
+    get_crate as get_crate_f,
+    get_file as get_file_f,
+    get_graph_id as get_graph_id_f
+)
 from .load import load_crate_metadata
 from .query import run_query
 
@@ -169,6 +173,33 @@ def get_file(file_uri, fuseki_url, fuseki_dataset, outdir):
     """
     out_path = get_file_f(file_uri, fuseki_url, fuseki_dataset, outdir)
     sys.stdout.write(f"file extracted to {out_path}\n")
+
+
+@cli.command()
+@click.argument(
+    "file_id",
+    metavar="FILE_ID"
+)
+@click.option(
+    "-u",
+    "--fuseki-url",
+    metavar="STRING",
+    help="Fuseki base url",
+)
+@click.option(
+    "-d",
+    "--fuseki-dataset",
+    metavar="STRING",
+    help="Fuseki dataset",
+)
+def get_graph_id(file_id, fuseki_url, fuseki_dataset):
+    """\
+    Get the graph id corresponding to the given file.
+
+    FILE_ID: full URI of the file (e.g. file://...).
+    """
+    graph_id = get_graph_id_f(file_id, fuseki_url, fuseki_dataset)
+    sys.stdout.write(f"{graph_id}\n")
 
 
 @cli.command()

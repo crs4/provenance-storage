@@ -25,3 +25,16 @@ WHERE {
   ?md schema:about ?rde
 }
 """
+
+GRAPH_ID_FOR_FILE_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?url
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:url ?url .
+  ?rde schema:hasPart <%s> .
+}
+"""
