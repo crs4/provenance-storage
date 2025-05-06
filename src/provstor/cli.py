@@ -28,7 +28,8 @@ from .get import (
     get_graph_id as get_graph_id_f,
     get_run_results as get_run_results_f,
     get_run_objects as get_run_objects_f,
-    get_run_params as get_run_params_f
+    get_run_params as get_run_params_f,
+    get_workflow as get_workflow_f
 )
 from .load import load_crate_metadata
 from .query import run_query
@@ -203,6 +204,33 @@ def get_graph_id(file_id, fuseki_url, fuseki_dataset):
     """
     graph_id = get_graph_id_f(file_id, fuseki_url, fuseki_dataset)
     sys.stdout.write(f"{graph_id}\n")
+
+
+@cli.command()
+@click.argument(
+    "graph_id",
+    metavar="GRAPH_ID"
+)
+@click.option(
+    "-u",
+    "--fuseki-url",
+    metavar="STRING",
+    help="Fuseki base url",
+)
+@click.option(
+    "-d",
+    "--fuseki-dataset",
+    metavar="STRING",
+    help="Fuseki dataset",
+)
+def get_workflow(graph_id, fuseki_url, fuseki_dataset):
+    """\
+    Get the workflow id corresponding to the given graph id.
+
+    GRAPH_ID: id of the graph in the triple store.
+    """
+    workflow = get_workflow_f(graph_id, fuseki_url, fuseki_dataset)
+    sys.stdout.write(f"{workflow}\n")
 
 
 @cli.command()

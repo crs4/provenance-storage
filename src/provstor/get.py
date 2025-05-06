@@ -31,6 +31,7 @@ from rdflib.term import URIRef
 from .constants import FUSEKI_BASE_URL, FUSEKI_DATASET, FUSEKI_UNION_GRAPH
 from .queries import (
     GRAPH_ID_FOR_FILE_QUERY,
+    WORKFLOW_QUERY,
     RUN_RESULTS_QUERY,
     RUN_OBJECTS_QUERY,
     RUN_PARAMS_QUERY
@@ -113,6 +114,22 @@ def get_graph_id(file_id, fuseki_url=None, fuseki_dataset=None):
     query_endpoint = f"{fuseki_url}/{fuseki_dataset}/sparql"
     store.open((query_endpoint))
     graph = Graph(store, identifier=URIRef(FUSEKI_UNION_GRAPH))
+    qres = graph.query(query)
+    assert len(qres) >= 1
+    graph_id = str(list(qres)[0][0])
+    return graph_id
+
+
+def get_workflow(graph_id, fuseki_url=None, fuseki_dataset=None):
+    if not fuseki_url:
+        fuseki_url = FUSEKI_BASE_URL
+    if not fuseki_dataset:
+        fuseki_dataset = FUSEKI_DATASET
+    query = WORKFLOW_QUERY
+    store = SPARQLUpdateStore()
+    query_endpoint = f"{fuseki_url}/{fuseki_dataset}/sparql"
+    store.open((query_endpoint))
+    graph = Graph(store, identifier=URIRef(graph_id))
     qres = graph.query(query)
     assert len(qres) >= 1
     graph_id = str(list(qres)[0][0])

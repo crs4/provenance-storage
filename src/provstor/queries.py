@@ -39,6 +39,18 @@ WHERE {
 }
 """
 
+WORKFLOW_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?workflow
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:mainEntity ?workflow .
+}
+"""
+
 RUN_RESULTS_QUERY = """\
 PREFIX schema: <http://schema.org/>
 
