@@ -68,3 +68,20 @@ WHERE {
   { ?object a schema:MediaObject } UNION { ?object a schema:Dataset }
 }
 """
+
+RUN_PARAMS_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?name ?value
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:mainEntity ?workflow .
+  ?action schema:instrument ?workflow .
+  ?action schema:object ?object .
+  ?object a schema:PropertyValue .
+  ?object schema:name ?name .
+  ?object schema:value ?value .
+}
+"""

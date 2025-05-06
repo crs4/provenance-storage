@@ -32,7 +32,8 @@ from .constants import FUSEKI_BASE_URL, FUSEKI_DATASET, FUSEKI_UNION_GRAPH
 from .queries import (
     GRAPH_ID_FOR_FILE_QUERY,
     RUN_RESULTS_QUERY,
-    RUN_OBJECTS_QUERY
+    RUN_OBJECTS_QUERY,
+    RUN_PARAMS_QUERY
 )
 
 QUERY = """\
@@ -144,3 +145,17 @@ def get_run_objects(graph_id, fuseki_url=None, fuseki_dataset=None):
     graph = Graph(store, identifier=URIRef(graph_id))
     qres = graph.query(query)
     return (str(_[0]) for _ in qres)
+
+
+def get_run_params(graph_id, fuseki_url=None, fuseki_dataset=None):
+    if not fuseki_url:
+        fuseki_url = FUSEKI_BASE_URL
+    if not fuseki_dataset:
+        fuseki_dataset = FUSEKI_DATASET
+    query = RUN_PARAMS_QUERY
+    store = SPARQLUpdateStore()
+    query_endpoint = f"{fuseki_url}/{fuseki_dataset}/sparql"
+    store.open((query_endpoint))
+    graph = Graph(store, identifier=URIRef(graph_id))
+    qres = graph.query(query)
+    return ((str(_.name), str(_.value)) for _ in qres)
