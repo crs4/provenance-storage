@@ -32,9 +32,7 @@ def as_file_uri(id_, crate_path):
     return "file://" + str((crate_path / id_).resolve())
 
 
-def main(args):
-    in_crate_path = Path(args.in_crate)
-    out_crate_path = Path(args.out_crate)
+def get_results(in_crate_path):
     in_crate = ROCrate(in_crate_path)
     all_actions = [_ for _ in in_crate.contextual_entities
                    if _.type == "CreateAction"]
@@ -51,6 +49,10 @@ def main(args):
     results_map = {_.id.rstrip("/"): _ for _ in results}
     for t in sorted([(e.type, id_) for id_, e in results_map.items()]):
         print(" ", t)
+    return results_map
+
+
+def copy_files(in_crate_path, out_crate_path, results_map):
     out_crate_path.mkdir(parents=True, exist_ok=True)
     for root, dirs, files in os.walk(in_crate_path):
         root = Path(root)
@@ -70,6 +72,9 @@ def main(args):
                 shutil.copyfile(in_path, out_path)
             else:
                 print("EXCLUDING FILE", in_path.relative_to(in_crate_path))
+
+
+def regen_metadata(in_crate_path, out_crate_path, results_map):
     with open(in_crate_path / "ro-crate-metadata.json") as f:
         metadata = json.load(f)
     for entity in metadata["@graph"]:
@@ -86,6 +91,14 @@ def main(args):
                         entity[k][i]["@id"] = as_file_uri(v["@id"], in_crate_path)
     with open(out_crate_path / "ro-crate-metadata.json", "w") as f:
         json.dump(metadata, f, indent=4)
+
+
+def main(args):
+    in_crate_path = Path(args.in_crate)
+    out_crate_path = Path(args.out_crate)
+    results_map = get_results(in_crate_path)
+    copy_files(in_crate_path, out_crate_path, results_map)
+    regen_metadata(in_crate_path, out_crate_path, results_map)
 
 
 if __name__ == "__main__":
