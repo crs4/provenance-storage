@@ -20,6 +20,7 @@ Regenerate an nf-prov WRROC, linking pipeline outputs as file:// URIs.
 
 from pathlib import Path
 import argparse
+import hashlib
 import json
 import os
 import shutil
@@ -27,9 +28,19 @@ import shutil
 from rocrate.rocrate import ROCrate
 from rocrate.utils import as_list
 
+CHUNK_SIZE = 16384
+
 
 def as_file_uri(id_, crate_path):
     return "file://" + str((crate_path / id_).resolve())
+
+
+def sha256sum(path):
+    m = hashlib.sha256()
+    with open(path, "rb") as f:
+        while chunk := f.read(CHUNK_SIZE):
+            m.update(chunk)
+    return m.hexdigest()
 
 
 def get_results(in_crate_path):
@@ -70,11 +81,16 @@ def copy_files(in_crate_path, out_crate_path, results):
                 print("Excluding file:", in_path.relative_to(in_crate_path))
 
 
-def regen_metadata(in_crate_path, out_crate_path, results):
+def regen_metadata(in_crate_path, out_crate_path, results, checksums=False):
     with open(in_crate_path / "ro-crate-metadata.json") as f:
         metadata = json.load(f)
     for entity in metadata["@graph"]:
         if entity["@id"] in results:
+            if checksums:
+                path = in_crate_path / entity["@id"]
+                if path.is_file():
+                    print("computing sha256 checksum:", entity["@id"])
+                    entity["sha256"] = sha256sum(path)
             entity["@id"] = as_file_uri(entity["@id"], in_crate_path)
         for k, values in entity.items():
             if k.startswith("@"):
@@ -94,7 +110,7 @@ def main(args):
     out_crate_path = Path(args.out_crate)
     results = get_results(in_crate_path)
     copy_files(in_crate_path, out_crate_path, results)
-    regen_metadata(in_crate_path, out_crate_path, results)
+    regen_metadata(in_crate_path, out_crate_path, results, args.checksums)
 
 
 if __name__ == "__main__":
@@ -105,4 +121,6 @@ if __name__ == "__main__":
                         help="Input RO-Crate directory")
     parser.add_argument("out_crate", metavar="OUT_RO_CRATE",
                         help="Output RO-Crate directory")
+    parser.add_argument("--checksums", action="store_true",
+                        help="add checksums of excluded files to the metadata")
     main(parser.parse_args())
