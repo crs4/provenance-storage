@@ -45,14 +45,10 @@ def get_results(in_crate_path):
     # in nf-prov, intermediate output ids have a leading "#"
     results = set([_ for _ in results if not _.id.startswith("#")])
     assert results == set(wf_action["result"])
-    print("pipeline-generated outputs:", len(results))
-    results_map = {_.id.rstrip("/"): _ for _ in results}
-    for t in sorted([(e.type, id_) for id_, e in results_map.items()]):
-        print(" ", t)
-    return results_map
+    return set([_.id.rstrip("/") for _ in results])
 
 
-def copy_files(in_crate_path, out_crate_path, results_map):
+def copy_files(in_crate_path, out_crate_path, results):
     out_crate_path.mkdir(parents=True, exist_ok=True)
     for root, dirs, files in os.walk(in_crate_path):
         root = Path(root)
@@ -60,34 +56,34 @@ def copy_files(in_crate_path, out_crate_path, results_map):
         exclude = []
         for name in dirs:
             in_path = root / name
-            if str(in_path.relative_to(in_crate_path)) in results_map:
+            if str(in_path.relative_to(in_crate_path)) in results:
                 exclude.append(name)
-                print("EXCLUDING DIR", in_path.relative_to(in_crate_path))
+                print("Excluding dir:", in_path.relative_to(in_crate_path))
         dirs[:] = [_ for _ in dirs if _ not in exclude]
         for name in files:
             in_path = root / name
-            if str(in_path.relative_to(in_crate_path)) not in results_map:
+            if str(in_path.relative_to(in_crate_path)) not in results:
                 out_path = out_root / name
                 out_root.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(in_path, out_path)
             else:
-                print("EXCLUDING FILE", in_path.relative_to(in_crate_path))
+                print("Excluding file:", in_path.relative_to(in_crate_path))
 
 
-def regen_metadata(in_crate_path, out_crate_path, results_map):
+def regen_metadata(in_crate_path, out_crate_path, results):
     with open(in_crate_path / "ro-crate-metadata.json") as f:
         metadata = json.load(f)
     for entity in metadata["@graph"]:
-        if entity["@id"] in results_map:
+        if entity["@id"] in results:
             entity["@id"] = as_file_uri(entity["@id"], in_crate_path)
         for k, values in entity.items():
             if k.startswith("@"):
                 continue
-            if isinstance(values, dict) and values["@id"] in results_map:
+            if isinstance(values, dict) and values["@id"] in results:
                 entity[k]["@id"] = as_file_uri(values["@id"], in_crate_path)
             elif isinstance(values, list):
                 for i, v in enumerate(values):
-                    if isinstance(v, dict) and v["@id"] in results_map:
+                    if isinstance(v, dict) and v["@id"] in results:
                         entity[k][i]["@id"] = as_file_uri(v["@id"], in_crate_path)
     with open(out_crate_path / "ro-crate-metadata.json", "w") as f:
         json.dump(metadata, f, indent=4)
@@ -96,9 +92,9 @@ def regen_metadata(in_crate_path, out_crate_path, results_map):
 def main(args):
     in_crate_path = Path(args.in_crate)
     out_crate_path = Path(args.out_crate)
-    results_map = get_results(in_crate_path)
-    copy_files(in_crate_path, out_crate_path, results_map)
-    regen_metadata(in_crate_path, out_crate_path, results_map)
+    results = get_results(in_crate_path)
+    copy_files(in_crate_path, out_crate_path, results)
+    regen_metadata(in_crate_path, out_crate_path, results)
 
 
 if __name__ == "__main__":
