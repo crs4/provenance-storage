@@ -29,6 +29,7 @@ from rocrate.rocrate import ROCrate
 from rocrate.utils import as_list
 
 CHUNK_SIZE = 16384
+WRROC_CONTEXT = "https://w3id.org/ro/terms/workflow-run/context"
 
 
 def as_file_uri(id_, crate_path):
@@ -37,10 +38,12 @@ def as_file_uri(id_, crate_path):
 
 def sha256sum(path):
     m = hashlib.sha256()
+    size = 0
     with open(path, "rb") as f:
         while chunk := f.read(CHUNK_SIZE):
             m.update(chunk)
-    return m.hexdigest()
+            size += len(chunk)
+    return m.hexdigest(), size
 
 
 def get_results(in_crate_path):
@@ -84,13 +87,18 @@ def copy_files(in_crate_path, out_crate_path, results):
 def regen_metadata(in_crate_path, out_crate_path, results, checksums=False):
     with open(in_crate_path / "ro-crate-metadata.json") as f:
         metadata = json.load(f)
+    context = as_list(metadata["@context"])
+    if WRROC_CONTEXT not in context:
+        metadata["@context"] = context + [WRROC_CONTEXT]
     for entity in metadata["@graph"]:
         if entity["@id"] in results:
             if checksums:
                 path = in_crate_path / entity["@id"]
                 if path.is_file():
                     print("computing sha256 checksum:", entity["@id"])
-                    entity["sha256"] = sha256sum(path)
+                    cs, size = sha256sum(path)
+                    entity["sha256"] = cs
+                    entity["contentSize"] = size
             entity["@id"] = as_file_uri(entity["@id"], in_crate_path)
         for k, values in entity.items():
             if k.startswith("@"):
