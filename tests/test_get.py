@@ -17,7 +17,8 @@
 import filecmp
 import zipfile
 
-from provstor.get import get_crate, get_file
+from provstor.constants import MINIO_STORE, MINIO_BUCKET
+from provstor.get import get_crate, get_file, get_graph_id, get_workflow
 from provstor.load import load_crate_metadata
 from provstor.queries import RDE_QUERY
 from provstor.query import run_query
@@ -47,3 +48,18 @@ def test_get_file(data_dir, tmpdir):
     rde_id = _load_and_get_rde_id(crate_path)
     out_md_path = get_file(f"{rde_id}/ro-crate-metadata.json", outdir=tmpdir)
     assert filecmp.cmp(out_md_path, md_path)
+
+
+def test_get_graph_id(data_dir):
+    crate_path = data_dir / "provcrate1"
+    _load_and_get_rde_id(crate_path)
+    graph_id = get_graph_id("file:///path/to/FOOBAR123.md.cram")
+    assert graph_id == f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip"
+
+
+def test_get_workflow(data_dir):
+    crate_path = data_dir / "provcrate1"
+    rde_id = _load_and_get_rde_id(crate_path)
+    graph_id = get_graph_id("file:///path/to/FOOBAR123.md.cram")
+    workflow = get_workflow(graph_id)
+    assert workflow == f"{rde_id.rstrip('/')}/main.nf"
