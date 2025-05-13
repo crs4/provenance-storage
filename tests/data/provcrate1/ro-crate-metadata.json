@@ -1,0 +1,439 @@
+{
+    "@context": [
+        "https://w3id.org/ro/crate/1.1/context",
+        "https://w3id.org/ro/terms/workflow-run/context"
+    ],
+    "@graph": [
+        {
+            "@id": "ro-crate-metadata.json",
+            "@type": "CreativeWork",
+            "about": {
+                "@id": "./"
+            },
+            "conformsTo": [
+                {
+                    "@id": "https://w3id.org/ro/crate/1.1"
+                },
+                {
+                    "@id": "https://w3id.org/workflowhub/workflow-ro-crate/1.0"
+                }
+            ]
+        },
+        {
+            "@id": "./",
+            "@type": "Dataset",
+            "datePublished": "2025-05-12",
+            "conformsTo": [
+                {
+                    "@id": "https://w3id.org/ro/wfrun/process/0.1"
+                },
+                {
+                    "@id": "https://w3id.org/ro/wfrun/workflow/0.1"
+                },
+                {
+                    "@id": "https://w3id.org/ro/wfrun/provenance/0.1"
+                },
+                {
+                    "@id": "https://w3id.org/workflowhub/workflow-ro-crate/1.0"
+                }
+            ],
+            "name": "test provenance run crate",
+            "description": "a provenance run crate for testing",
+            "hasPart": [
+                {
+                    "@id": "main.nf"
+                },
+                {
+                    "@id": "https://spdx.org/licenses/MIT"
+                },
+                {
+                    "@id": "README.md"
+                },
+                {
+                    "@id": "nextflow.config"
+                },
+                {
+                    "@id": "file:///path/to/FOOBAR123_1.fastq.gz"
+                },
+                {
+                    "@id": "file:///path/to/FOOBAR123_2.fastq.gz"
+                },
+                {
+                    "@id": "file:///path/to/pipeline_info/software_versions.yml"
+                },
+                {
+                    "@id": "http://example.com/fooconfig.yml"
+                },
+                {
+                    "@id": "sample.csv"
+                },
+                {
+                    "@id": "file:///path/to/FOOBAR123.md.cram.crai"
+                },
+                {
+                    "@id": "file:///path/to/FOOBAR123.md.cram"
+                }
+            ],
+            "mainEntity": {
+                "@id": "main.nf"
+            },
+            "mentions": [
+                {
+                    "@id": "#12204f1e-758f-46e7-bad7-162768de3a5d"
+                },
+                {
+                    "@id": "#task/79b298ee24dcd6b6dade4a0c82c4adc3"
+                },
+                {
+                    "@id": "#task/79b298ee24dcd6b6dade4a0c82c4adc3/versions.yml"
+                }
+            ],
+            "license": "https://spdx.org/licenses/MIT"
+        },
+        {
+            "@id": "https://w3id.org/ro/wfrun/process/0.1",
+            "@type": "CreativeWork",
+            "name": "Process Run Crate",
+            "version": "0.1"
+        },
+        {
+            "@id": "https://w3id.org/ro/wfrun/workflow/0.1",
+            "@type": "CreativeWork",
+            "name": "Workflow Run Crate",
+            "version": "0.1"
+        },
+        {
+            "@id": "https://w3id.org/ro/wfrun/provenance/0.1",
+            "@type": "CreativeWork",
+            "name": "Provenance Run Crate",
+            "version": "0.1"
+        },
+        {
+            "@id": "https://w3id.org/workflowhub/workflow-ro-crate/1.0",
+            "@type": "CreativeWork",
+            "name": "Workflow RO-Crate",
+            "version": "1.0"
+        },
+        {
+            "@id": "main.nf",
+            "@type": [
+                "File",
+                "SoftwareSourceCode",
+                "ComputationalWorkflow",
+                "HowTo"
+            ],
+            "conformsTo": {
+                "@id": "https://bioschemas.org/profiles/ComputationalWorkflow/1.0-RELEASE"
+            },
+            "name": "foo/bar",
+            "description": "Lorem Ipsum Analysis Pipeline",
+            "programmingLanguage": {
+                "@id": "https://w3id.org/workflowhub/workflow-ro-crate#nextflow"
+            },
+            "hasPart": [
+                {
+                    "@id": "#module/FOO_BAR"
+                }
+            ],
+            "input": [
+                {
+                    "@id": "#param/input"
+                },
+                {
+                    "@id": "#param/foo"
+                }
+            ],
+            "output": [],
+            "step": [
+                {
+                    "@id": "#process-step/FOO:FOO_BAR"
+                }
+            ]
+        },
+        {
+            "@id": "https://w3id.org/workflowhub/workflow-ro-crate#nextflow",
+            "@type": "ComputerLanguage",
+            "name": "Nextflow",
+            "identifier": "https://www.nextflow.io/",
+            "url": "https://www.nextflow.io/",
+            "version": "24.10.6"
+        },
+        {
+            "@id": "main.nf#software-application",
+            "@type": "SoftwareApplication",
+            "name": "Nextflow 24.10.6"
+        },
+        {
+            "@id": "#module/FOO_BAR",
+            "@type": "SoftwareApplication",
+            "name": "FOO_BAR",
+            "url": "https://github.com/foo_bar/main.nf"
+        },
+        {
+            "@id": "#param/input",
+            "@type": "FormalParameter",
+            "additionalType": "File",
+            "conformsTo": {
+                "@id": "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE"
+            },
+            "encodingFormat": "text/csv",
+            "name": "input",
+            "description": "Path to comma-separated file containing information about the samples in the experiment."
+        },
+        {
+            "@id": "#param/foo",
+            "@type": "FormalParameter",
+            "additionalType": "Text",
+            "conformsTo": {
+                "@id": "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE"
+            },
+            "name": "foo",
+            "description": "Foo description"
+        },
+        {
+            "@id": "#process-step/FOO:FOO_BAR",
+            "@type": "HowToStep",
+            "workExample": {
+                "@id": "#module/FOO_BAR"
+            },
+            "position": 1
+        },
+        {
+            "@id": "main.nf#organize",
+            "@type": "OrganizeAction",
+            "agent": {
+                "@id": "https://orcid.org/0000-0001-8271-5429"
+            },
+            "instrument": {
+                "@id": "main.nf#software-application"
+            },
+            "name": "Run of Nextflow 24.10.6",
+            "object": [
+                {
+                    "@id": "#process-control/FOO:FOO_BAR"
+                }
+            ],
+            "result": {
+                "@id": "#12204f1e-758f-46e7-bad7-162768de3a5d"
+            },
+            "startTime": "2025-05-07T12:10:39.979611152+02:00",
+            "endTime": "2025-05-08T05:26:06.667593641+02:00"
+        },
+        {
+            "@id": "#12204f1e-758f-46e7-bad7-162768de3a5d",
+            "@type": "CreateAction",
+            "agent": {
+                "@id": "https://orcid.org/0000-0001-8271-5429"
+            },
+            "name": "Nextflow workflow run 12204f1e-758f-46e7-bad7-162768de3a5d",
+            "startTime": "2025-05-07T12:10:39.979611152+02:00",
+            "endTime": "2025-05-08T05:26:06.667593641+02:00",
+            "instrument": {
+                "@id": "main.nf"
+            },
+            "object": [
+                {
+                    "@id": "#param/input/value"
+                },
+                {
+                    "@id": "#param/foo/value"
+                },
+                {
+                    "@id": "file:///path/to/FOOBAR123_1.fastq.gz"
+                },
+                {
+                    "@id": "file:///path/to/FOOBAR123_2.fastq.gz"
+                },
+                {
+                    "@id": "file:///path/to/pipeline_info/software_versions.yml"
+                },
+                {
+                    "@id": "http://example.com/fooconfig.yml"
+                },
+                {
+                    "@id": "sample.csv"
+                }
+            ],
+            "result": [
+                {
+                    "@id": "file:///path/to/FOOBAR123.md.cram.crai"
+                },
+                {
+                    "@id": "file:///path/to/FOOBAR123.md.cram"
+                }
+            ]
+        },
+        {
+            "@id": "https://orcid.org/0000-0001-8271-5429",
+            "@type": "Person",
+            "name": "Simone Leo"
+        },
+        {
+            "@id": "https://spdx.org/licenses/MIT",
+            "@type": "CreativeWork"
+        },
+        {
+            "@id": "README.md",
+            "@type": "File",
+            "name": "README.md",
+            "description": "The README file of the workflow.",
+            "encodingFormat": "text/markdown"
+        },
+        {
+            "@id": "nextflow.config",
+            "@type": "File",
+            "name": "Resolved Nextflow configuration",
+            "description": "The resolved Nextflow configuration for the workflow run.",
+            "encodingFormat": "text/plain"
+        },
+        {
+            "@id": "#param/input/value",
+            "@type": "PropertyValue",
+            "exampleOfWork": {
+                "@id": "#param/input"
+            },
+            "name": "input",
+            "value": "sample.csv"
+        },
+        {
+            "@id": "#param/foo/value",
+            "@type": "PropertyValue",
+            "exampleOfWork": {
+                "@id": "#param/foo"
+            },
+            "name": "foo",
+            "value": "foo_value"
+        },
+        {
+            "@id": "#process-control/FOO:FOO_BAR",
+            "@type": "ControlAction",
+            "instrument": {
+                "@id": "#process-step/FOO:FOO_BAR"
+            },
+            "name": "Orchestrate process FOO:FOO_BAR",
+            "object": [
+                {
+                    "@id": "#task/79b298ee24dcd6b6dade4a0c82c4adc3"
+                }
+            ]
+        },
+        {
+            "@id": "#stage/cc/238bcc412fefdd16de5963354aee96/foobar.bed",
+            "@type": "CreativeWork",
+            "name": "cc/238bcc412fefdd16de5963354aee96/foobar.bed",
+            "encodingFormat": "application/vnd.realvnc.bed"
+        },
+        {
+            "@id": "#task/79b298ee24dcd6b6dade4a0c82c4adc3",
+            "@type": "CreateAction",
+            "name": "FOO:FOO_BAR (foobar.bed)",
+            "instrument": {
+                "@id": "#module/FOO_BAR"
+            },
+            "agent": {
+                "@id": "https://orcid.org/0000-0001-8271-5429"
+            },
+            "object": [
+                {
+                    "@id": "#stage/cc/238bcc412fefdd16de5963354aee96/foobar.bed"
+                }
+            ],
+            "result": [
+                {
+                    "@id": "#task/79b298ee24dcd6b6dade4a0c82c4adc3/versions.yml"
+                }
+            ],
+            "actionStatus": "http://schema.org/CompletedActionStatus"
+        },
+        {
+            "@id": "#task/79b298ee24dcd6b6dade4a0c82c4adc3/versions.yml",
+            "@type": "CreativeWork",
+            "name": "versions.yml",
+            "encodingFormat": "application/yaml"
+        },
+        {
+            "@id": "#task/13fc2459df3405bf049e575f063aef3d/FOOBAR123.md.cram.crai",
+            "@type": "CreativeWork",
+            "name": "FOOBAR123.md.cram.crai"
+        },
+        {
+            "@id": "#task/13fc2459df3405bf049e575f063aef3d/FOOBAR123.md.cram",
+            "@type": "CreativeWork",
+            "name": "FOOBAR123.md.cram"
+        },
+        {
+            "@id": "#publish/13fc2459df3405bf049e575f063aef3d/FOOBAR123.md.cram.crai",
+            "@type": "CreateAction",
+            "name": "publish",
+            "instrument": {
+                "@id": "main.nf#software-application"
+            },
+            "object": {
+                "@id": "#task/13fc2459df3405bf049e575f063aef3d/FOOBAR123.md.cram.crai"
+            },
+            "result": {
+                "@id": "file:///path/to/FOOBAR123.md.cram.crai"
+            },
+            "actionStatus": "http://schema.org/CompletedActionStatus"
+        },
+        {
+            "@id": "#publish/13fc2459df3405bf049e575f063aef3d/FOOBAR123.md.cram",
+            "@type": "CreateAction",
+            "name": "publish",
+            "instrument": {
+                "@id": "main.nf#software-application"
+            },
+            "object": {
+                "@id": "#task/13fc2459df3405bf049e575f063aef3d/FOOBAR123.md.cram"
+            },
+            "result": {
+                "@id": "file:///path/to/FOOBAR123.md.cram"
+            },
+            "actionStatus": "http://schema.org/CompletedActionStatus"
+        },
+        {
+            "@id": "file:///path/to/FOOBAR123_1.fastq.gz",
+            "@type": "File",
+            "name": "FOOBAR123_1.fastq.gz",
+            "encodingFormat": "application/gzip"
+        },
+        {
+            "@id": "file:///path/to/FOOBAR123_2.fastq.gz",
+            "@type": "File",
+            "name": "FOOBAR123_2.fastq.gz",
+            "encodingFormat": "application/gzip"
+        },
+        {
+            "@id": "file:///path/to/pipeline_info/software_versions.yml",
+            "@type": "File",
+            "name": "software_versions.yml",
+            "encodingFormat": "application/yaml"
+        },
+        {
+            "@id": "http://example.com/fooconfig.yml",
+            "@type": "File",
+            "name": "fooconfig.yml",
+            "encodingFormat": "application/yaml"
+        },
+        {
+            "@id": "sample.csv",
+            "@type": "File",
+            "description": "Input file",
+            "encodingFormat": "text/csv"
+        },
+        {
+            "@id": "file:///path/to/FOOBAR123.md.cram.crai",
+            "@type": "File",
+            "name": "FOOBAR123.md.cram.crai",
+            "sha256": "38fdf473549d817821bfc8e78242b592ac2d9f02fd2213cf955c5e409135fc7e",
+            "contentSize": 3950691
+        },
+        {
+            "@id": "file:///path/to/FOOBAR123.md.cram",
+            "@type": "File",
+            "name": "FOOBAR123.md.cram",
+            "sha256": "bf48e57bad6e0fc56e976b4344da8a386319a4bfafc285cb200564451a503158",
+            "contentSize": 31871057156
+        }
+    ]
+}

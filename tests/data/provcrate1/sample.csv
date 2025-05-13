@@ -1,0 +1,2 @@
+patient,sample,lane,fastq_1,fastq_2
+FOOBAR123,FOOBAR123,R,/path/to/FOOBAR123_1.fastq.gz,/path/to/FOOBAR123_2.fastq.gz

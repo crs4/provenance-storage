@@ -29,6 +29,13 @@ from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 from rdflib.term import URIRef
 
 from .constants import FUSEKI_BASE_URL, FUSEKI_DATASET, FUSEKI_UNION_GRAPH
+from .queries import (
+    GRAPH_ID_FOR_FILE_QUERY,
+    WORKFLOW_QUERY,
+    RUN_RESULTS_QUERY,
+    RUN_OBJECTS_QUERY,
+    RUN_PARAMS_QUERY
+)
 
 QUERY = """\
 PREFIX schema: <http://schema.org/>
@@ -95,3 +102,77 @@ def get_file(file_uri, fuseki_url=None, fuseki_dataset=None, outdir=None):
         out_path = zipf.extract(zip_member, path=outdir)
     shutil.rmtree(zip_dir)
     return Path(out_path)
+
+
+def get_graph_id(file_id, fuseki_url=None, fuseki_dataset=None):
+    if not fuseki_url:
+        fuseki_url = FUSEKI_BASE_URL
+    if not fuseki_dataset:
+        fuseki_dataset = FUSEKI_DATASET
+    query = GRAPH_ID_FOR_FILE_QUERY % file_id
+    store = SPARQLUpdateStore()
+    query_endpoint = f"{fuseki_url}/{fuseki_dataset}/sparql"
+    store.open((query_endpoint))
+    graph = Graph(store, identifier=URIRef(FUSEKI_UNION_GRAPH))
+    qres = graph.query(query)
+    assert len(qres) >= 1
+    graph_id = str(list(qres)[0][0])
+    return graph_id
+
+
+def get_workflow(graph_id, fuseki_url=None, fuseki_dataset=None):
+    if not fuseki_url:
+        fuseki_url = FUSEKI_BASE_URL
+    if not fuseki_dataset:
+        fuseki_dataset = FUSEKI_DATASET
+    query = WORKFLOW_QUERY
+    store = SPARQLUpdateStore()
+    query_endpoint = f"{fuseki_url}/{fuseki_dataset}/sparql"
+    store.open((query_endpoint))
+    graph = Graph(store, identifier=URIRef(graph_id))
+    qres = graph.query(query)
+    assert len(qres) >= 1
+    workflow = str(list(qres)[0][0])
+    return workflow
+
+
+def get_run_results(graph_id, fuseki_url=None, fuseki_dataset=None):
+    if not fuseki_url:
+        fuseki_url = FUSEKI_BASE_URL
+    if not fuseki_dataset:
+        fuseki_dataset = FUSEKI_DATASET
+    query = RUN_RESULTS_QUERY
+    store = SPARQLUpdateStore()
+    query_endpoint = f"{fuseki_url}/{fuseki_dataset}/sparql"
+    store.open((query_endpoint))
+    graph = Graph(store, identifier=URIRef(graph_id))
+    qres = graph.query(query)
+    return (str(_[0]) for _ in qres)
+
+
+def get_run_objects(graph_id, fuseki_url=None, fuseki_dataset=None):
+    if not fuseki_url:
+        fuseki_url = FUSEKI_BASE_URL
+    if not fuseki_dataset:
+        fuseki_dataset = FUSEKI_DATASET
+    query = RUN_OBJECTS_QUERY
+    store = SPARQLUpdateStore()
+    query_endpoint = f"{fuseki_url}/{fuseki_dataset}/sparql"
+    store.open((query_endpoint))
+    graph = Graph(store, identifier=URIRef(graph_id))
+    qres = graph.query(query)
+    return (str(_[0]) for _ in qres)
+
+
+def get_run_params(graph_id, fuseki_url=None, fuseki_dataset=None):
+    if not fuseki_url:
+        fuseki_url = FUSEKI_BASE_URL
+    if not fuseki_dataset:
+        fuseki_dataset = FUSEKI_DATASET
+    query = RUN_PARAMS_QUERY
+    store = SPARQLUpdateStore()
+    query_endpoint = f"{fuseki_url}/{fuseki_dataset}/sparql"
+    store.open((query_endpoint))
+    graph = Graph(store, identifier=URIRef(graph_id))
+    qres = graph.query(query)
+    return ((str(_.name), str(_.value)) for _ in qres)

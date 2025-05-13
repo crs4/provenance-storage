@@ -25,3 +25,75 @@ WHERE {
   ?md schema:about ?rde
 }
 """
+
+GRAPH_ID_FOR_FILE_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?url
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:url ?url .
+  ?rde schema:hasPart <%s> .
+}
+"""
+
+WORKFLOW_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?workflow
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:mainEntity ?workflow .
+}
+"""
+
+RUN_RESULTS_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?result
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:mainEntity ?workflow .
+  ?action schema:instrument ?workflow .
+  ?action schema:result ?result .
+  { ?result a schema:MediaObject } UNION { ?result a schema:Dataset }
+}
+"""
+
+RUN_OBJECTS_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?object
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:mainEntity ?workflow .
+  ?action schema:instrument ?workflow .
+  ?action schema:object ?object .
+  { ?object a schema:MediaObject } UNION { ?object a schema:Dataset }
+}
+"""
+
+RUN_PARAMS_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?name ?value
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:mainEntity ?workflow .
+  ?action schema:instrument ?workflow .
+  ?action schema:object ?object .
+  ?object a schema:PropertyValue .
+  ?object schema:name ?name .
+  ?object schema:value ?value .
+}
+"""

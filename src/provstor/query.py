@@ -25,18 +25,18 @@ from .constants import (
 )
 
 
-def run_query(query, fuseki_url=None, fuseki_dataset=None, graph=None):
+def run_query(query, fuseki_url=None, fuseki_dataset=None, graph_id=None):
     if not fuseki_url:
         fuseki_url = FUSEKI_BASE_URL
     if not fuseki_dataset:
         fuseki_dataset = FUSEKI_DATASET
-    if not graph:
-        graph_name = FUSEKI_UNION_GRAPH
-    else:
-        graph_name = f"http://{MINIO_STORE}/{MINIO_BUCKET}/{graph}.zip"
+    if not graph_id:
+        graph_id = FUSEKI_UNION_GRAPH
+    elif not graph_id.startswith("http://"):
+        graph_id = f"http://{MINIO_STORE}/{MINIO_BUCKET}/{graph_id}.zip"
     store = SPARQLUpdateStore()
     query_endpoint = f"{fuseki_url}/{fuseki_dataset}/sparql"
     store.open((query_endpoint))
-    graph = Graph(store, identifier=URIRef(graph_name))
+    graph = Graph(store, identifier=URIRef(graph_id))
     qres = graph.query(query)
     return qres
