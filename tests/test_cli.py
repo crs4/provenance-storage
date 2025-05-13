@@ -73,3 +73,87 @@ def test_cli_get_file(data_dir, tmpdir):
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
     assert (tmpdir / "ro-crate-metadata.json").is_file()
+
+
+def test_cli_get_graph_id(data_dir):
+    runner = CliRunner()
+    crate_name = "provcrate1"
+    crate = data_dir / crate_name
+    args = ["load", str(crate)]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    crate_url = f"http://{MINIO_STORE}/{MINIO_BUCKET}/{crate_name}.zip"
+    args = ["get-graph-id", "file:///path/to/FOOBAR123.md.cram"]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert result.stdout.rstrip() == crate_url
+
+
+def test_cli_get_workflow(data_dir):
+    runner = CliRunner()
+    crate_name = "provcrate1"
+    crate = data_dir / crate_name
+    args = ["load", str(crate)]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    crate_url = f"http://{MINIO_STORE}/{MINIO_BUCKET}/{crate_name}.zip"
+    rde_id = arcp.arcp_location(crate_url)
+    args = ["get-workflow", crate_url]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert result.stdout.rstrip() == rde_id + "main.nf"
+
+
+def test_cli_get_run_results(data_dir):
+    runner = CliRunner()
+    crate_name = "provcrate1"
+    crate = data_dir / crate_name
+    args = ["load", str(crate)]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    crate_url = f"http://{MINIO_STORE}/{MINIO_BUCKET}/{crate_name}.zip"
+    args = ["get-run-results", crate_url]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert set(result.stdout.splitlines()) == {
+        "file:///path/to/FOOBAR123.md.cram.crai",
+        "file:///path/to/FOOBAR123.md.cram"
+    }
+
+
+def test_cli_get_run_objects(data_dir):
+    runner = CliRunner()
+    crate_name = "provcrate1"
+    crate = data_dir / crate_name
+    args = ["load", str(crate)]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    crate_url = f"http://{MINIO_STORE}/{MINIO_BUCKET}/{crate_name}.zip"
+    rde_id = arcp.arcp_location(crate_url)
+    args = ["get-run-objects", crate_url]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert set(result.stdout.splitlines()) == {
+        "file:///path/to/FOOBAR123_1.fastq.gz",
+        "file:///path/to/FOOBAR123_2.fastq.gz",
+        "file:///path/to/pipeline_info/software_versions.yml",
+        "http://example.com/fooconfig.yml",
+        f"{rde_id}sample.csv"
+    }
+
+
+def test_cli_get_run_params(data_dir):
+    runner = CliRunner()
+    crate_name = "provcrate1"
+    crate = data_dir / crate_name
+    args = ["load", str(crate)]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    crate_url = f"http://{MINIO_STORE}/{MINIO_BUCKET}/{crate_name}.zip"
+    args = ["get-run-params", crate_url]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert set(result.stdout.splitlines()) == {
+        "input: sample.csv",
+        "foo: foo_value"
+    }
