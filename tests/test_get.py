@@ -18,7 +18,15 @@ import filecmp
 import zipfile
 
 from provstor.constants import MINIO_STORE, MINIO_BUCKET
-from provstor.get import get_crate, get_file, get_graph_id, get_workflow
+from provstor.get import (
+    get_crate,
+    get_file,
+    get_graph_id,
+    get_workflow,
+    get_run_results,
+    get_run_objects,
+    get_run_params
+)
 from provstor.load import load_crate_metadata
 from provstor.queries import RDE_QUERY
 from provstor.query import run_query
@@ -60,6 +68,42 @@ def test_get_graph_id(data_dir):
 def test_get_workflow(data_dir):
     crate_path = data_dir / "provcrate1"
     rde_id = _load_and_get_rde_id(crate_path)
-    graph_id = get_graph_id("file:///path/to/FOOBAR123.md.cram")
+    graph_id = f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip"
     workflow = get_workflow(graph_id)
-    assert workflow == f"{rde_id.rstrip('/')}/main.nf"
+    assert workflow == f"{rde_id}main.nf"
+
+
+def test_get_run_results(data_dir):
+    crate_path = data_dir / "provcrate1"
+    _load_and_get_rde_id(crate_path)
+    graph_id = f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip"
+    results = set(get_run_results(graph_id))
+    assert results == {
+        "file:///path/to/FOOBAR123.md.cram.crai",
+        "file:///path/to/FOOBAR123.md.cram"
+    }
+
+
+def test_get_run_objects(data_dir):
+    crate_path = data_dir / "provcrate1"
+    rde_id = _load_and_get_rde_id(crate_path)
+    graph_id = f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip"
+    objects = set(get_run_objects(graph_id))
+    assert objects == {
+        "file:///path/to/FOOBAR123_1.fastq.gz",
+        "file:///path/to/FOOBAR123_2.fastq.gz",
+        "file:///path/to/pipeline_info/software_versions.yml",
+        "http://example.com/fooconfig.yml",
+        f"{rde_id}sample.csv"
+    }
+
+
+def test_get_run_params(data_dir):
+    crate_path = data_dir / "provcrate1"
+    _load_and_get_rde_id(crate_path)
+    graph_id = f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip"
+    params = set(get_run_params(graph_id))
+    assert params == {
+        ("input", "sample.csv"),
+        ("foo", "foo_value")
+    }

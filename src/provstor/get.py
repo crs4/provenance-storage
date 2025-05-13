@@ -132,8 +132,8 @@ def get_workflow(graph_id, fuseki_url=None, fuseki_dataset=None):
     graph = Graph(store, identifier=URIRef(graph_id))
     qres = graph.query(query)
     assert len(qres) >= 1
-    graph_id = str(list(qres)[0][0])
-    return graph_id
+    workflow = str(list(qres)[0][0])
+    return workflow
 
 
 def get_run_results(graph_id, fuseki_url=None, fuseki_dataset=None):
