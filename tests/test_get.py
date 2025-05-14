@@ -17,6 +17,8 @@
 import filecmp
 import zipfile
 
+import pytest
+
 from provstor.constants import MINIO_STORE, MINIO_BUCKET
 from provstor.get import (
     get_crate,
@@ -29,21 +31,31 @@ from provstor.get import (
 )
 
 
-def test_get_crate(crate_map, tmpdir):
+@pytest.mark.parametrize("cwd", [False, True])
+def test_get_crate(crate_map, tmpdir, monkeypatch, cwd):
     crate_path = crate_map["crate1"]["path"]
     md_path = crate_path / "ro-crate-metadata.json"
-    zip_path = get_crate(crate_map["crate1"]["rde_id"], outdir=tmpdir)
+    if cwd:
+        monkeypatch.chdir(str(tmpdir))
+        zip_path = get_crate(crate_map["crate1"]["rde_id"])
+    else:
+        zip_path = get_crate(crate_map["crate1"]["rde_id"], outdir=tmpdir)
     assert zip_path.name == "crate1.zip"
     with zipfile.ZipFile(zip_path, "r") as zipf:
         assert zipf.namelist() == ["ro-crate-metadata.json"]
         assert zipf.read("ro-crate-metadata.json") == md_path.read_bytes()
 
 
-def test_get_file(crate_map, tmpdir):
+@pytest.mark.parametrize("cwd", [False, True])
+def test_get_file(crate_map, tmpdir, monkeypatch, cwd):
     crate_path = crate_map["crate1"]["path"]
     md_path = crate_path / "ro-crate-metadata.json"
     rde_id = crate_map["crate1"]["rde_id"]
-    out_md_path = get_file(f"{rde_id}/ro-crate-metadata.json", outdir=tmpdir)
+    if cwd:
+        monkeypatch.chdir(str(tmpdir))
+        out_md_path = get_file(f"{rde_id}/ro-crate-metadata.json")
+    else:
+        out_md_path = get_file(f"{rde_id}/ro-crate-metadata.json", outdir=tmpdir)
     assert filecmp.cmp(out_md_path, md_path)
 
 

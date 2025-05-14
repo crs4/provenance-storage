@@ -55,20 +55,30 @@ def test_cli_query(graph, crate_map, data_dir):
         }
 
 
-def test_cli_get_crate(crate_map, tmpdir):
+@pytest.mark.parametrize("cwd", [False, True])
+def test_cli_get_crate(crate_map, tmpdir, monkeypatch, cwd):
     runner = CliRunner()
     rde_id = crate_map["crate1"]["rde_id"]
-    args = ["get-crate", rde_id, "-o", tmpdir]
+    if cwd:
+        monkeypatch.chdir(str(tmpdir))
+        args = ["get-crate", rde_id]
+    else:
+        args = ["get-crate", rde_id, "-o", tmpdir]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
     assert (tmpdir / "crate1.zip").is_file()
 
 
-def test_cli_get_file(crate_map, tmpdir):
+@pytest.mark.parametrize("cwd", [False, True])
+def test_cli_get_file(crate_map, tmpdir, monkeypatch, cwd):
     runner = CliRunner()
     rde_id = crate_map["crate1"]["rde_id"]
     file_id = rde_id + "ro-crate-metadata.json"
-    args = ["get-file", file_id, "-o", tmpdir]
+    if cwd:
+        monkeypatch.chdir(str(tmpdir))
+        args = ["get-file", file_id]
+    else:
+        args = ["get-file", file_id, "-o", tmpdir]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
     assert (tmpdir / "ro-crate-metadata.json").is_file()
