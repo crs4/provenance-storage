@@ -16,8 +16,6 @@
 
 from rdflib.term import Literal, URIRef
 
-from provstor.constants import MINIO_STORE, MINIO_BUCKET
-from provstor.load import load_crate_metadata
 from provstor.query import run_query
 
 PERSON_QUERY = """\
@@ -31,14 +29,11 @@ WHERE {
 """
 
 
-def test_run_query(data_dir, tmpdir):
+def test_run_query(crate_map):
 
     def check_results(exp_results, graph_id=None):
         qres = run_query(PERSON_QUERY, graph_id=graph_id)
         assert list(qres) == exp_results
-
-    for c in "crate1", "crate2":
-        load_crate_metadata(data_dir / c)
 
     check_results([
         (URIRef("https://orcid.org/0000-0001-8271-5429"), Literal("Simone Leo")),
@@ -49,4 +44,4 @@ def test_run_query(data_dir, tmpdir):
     ], graph_id="crate1")
     check_results([
         (URIRef("https://orcid.org/0000-0002-1825-0097"), Literal("Josiah Carberry"))
-    ], graph_id=f"http://{MINIO_STORE}/{MINIO_BUCKET}/crate2.zip")
+    ], graph_id=crate_map["crate2"]["url"])
