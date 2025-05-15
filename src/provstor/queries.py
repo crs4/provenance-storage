@@ -108,3 +108,11 @@ WHERE {
   ?object schema:value ?value .
 }
 """
+
+GRAPHS_QUERY = """\
+SELECT DISTINCT ?g
+WHERE {
+  GRAPH ?g { ?s ?p ?o }
+}
+ORDER BY ?g
+"""
