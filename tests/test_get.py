@@ -32,14 +32,14 @@ from provstor.get import (
 
 
 @pytest.mark.parametrize("cwd", [False, True])
-def test_get_crate(crate_map, tmpdir, monkeypatch, cwd):
+def test_get_crate(crate_map, tmp_path, monkeypatch, cwd):
     crate_path = crate_map["crate1"]["path"]
     md_path = crate_path / "ro-crate-metadata.json"
     if cwd:
-        monkeypatch.chdir(str(tmpdir))
+        monkeypatch.chdir(str(tmp_path))
         zip_path = get_crate(crate_map["crate1"]["rde_id"])
     else:
-        zip_path = get_crate(crate_map["crate1"]["rde_id"], outdir=tmpdir)
+        zip_path = get_crate(crate_map["crate1"]["rde_id"], outdir=tmp_path)
     assert zip_path.name == "crate1.zip"
     with zipfile.ZipFile(zip_path, "r") as zipf:
         assert zipf.namelist() == ["ro-crate-metadata.json"]
@@ -47,15 +47,15 @@ def test_get_crate(crate_map, tmpdir, monkeypatch, cwd):
 
 
 @pytest.mark.parametrize("cwd", [False, True])
-def test_get_file(crate_map, tmpdir, monkeypatch, cwd):
+def test_get_file(crate_map, tmp_path, monkeypatch, cwd):
     crate_path = crate_map["crate1"]["path"]
     md_path = crate_path / "ro-crate-metadata.json"
     rde_id = crate_map["crate1"]["rde_id"]
     if cwd:
-        monkeypatch.chdir(str(tmpdir))
+        monkeypatch.chdir(str(tmp_path))
         out_md_path = get_file(f"{rde_id}/ro-crate-metadata.json")
     else:
-        out_md_path = get_file(f"{rde_id}/ro-crate-metadata.json", outdir=tmpdir)
+        out_md_path = get_file(f"{rde_id}/ro-crate-metadata.json", outdir=tmp_path)
     assert filecmp.cmp(out_md_path, md_path)
 
 

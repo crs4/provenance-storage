@@ -23,10 +23,10 @@ from provstor.constants import MINIO_STORE, MINIO_BUCKET
 
 
 @pytest.mark.parametrize("zipped", [False, True])
-def test_cli_load(data_dir, tmpdir, zipped):
+def test_cli_load(data_dir, tmp_path, zipped):
     runner = CliRunner()
     if zipped:
-        crate = shutil.make_archive(tmpdir / "crate1", "zip", data_dir / "crate1")
+        crate = shutil.make_archive(tmp_path / "crate1", "zip", data_dir / "crate1")
     else:
         crate = data_dir / "crate1"
     args = ["load", str(crate)]
@@ -55,32 +55,32 @@ def test_cli_query(graph, crate_map, data_dir):
 
 
 @pytest.mark.parametrize("cwd", [False, True])
-def test_cli_get_crate(crate_map, tmpdir, monkeypatch, cwd):
+def test_cli_get_crate(crate_map, tmp_path, monkeypatch, cwd):
     runner = CliRunner()
     rde_id = crate_map["crate1"]["rde_id"]
     if cwd:
-        monkeypatch.chdir(str(tmpdir))
+        monkeypatch.chdir(str(tmp_path))
         args = ["get-crate", rde_id]
     else:
-        args = ["get-crate", rde_id, "-o", tmpdir]
+        args = ["get-crate", rde_id, "-o", tmp_path]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
-    assert (tmpdir / "crate1.zip").is_file()
+    assert (tmp_path / "crate1.zip").is_file()
 
 
 @pytest.mark.parametrize("cwd", [False, True])
-def test_cli_get_file(crate_map, tmpdir, monkeypatch, cwd):
+def test_cli_get_file(crate_map, tmp_path, monkeypatch, cwd):
     runner = CliRunner()
     rde_id = crate_map["crate1"]["rde_id"]
     file_id = rde_id + "ro-crate-metadata.json"
     if cwd:
-        monkeypatch.chdir(str(tmpdir))
+        monkeypatch.chdir(str(tmp_path))
         args = ["get-file", file_id]
     else:
-        args = ["get-file", file_id, "-o", tmpdir]
+        args = ["get-file", file_id, "-o", tmp_path]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
-    assert (tmpdir / "ro-crate-metadata.json").is_file()
+    assert (tmp_path / "ro-crate-metadata.json").is_file()
 
 
 def test_cli_get_graph_id(crate_map):

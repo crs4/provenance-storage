@@ -26,12 +26,6 @@ THIS_DIR = Path(__file__).absolute().parent
 DATA_DIR_NAME = 'data'
 
 
-# pytest's tmpdir returns a py.path object
-@pytest.fixture
-def tmpdir(tmpdir):
-    return Path(tmpdir)
-
-
 @pytest.fixture(scope="session")
 def data_dir():
     return THIS_DIR / DATA_DIR_NAME
