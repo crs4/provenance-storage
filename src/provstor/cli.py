@@ -74,7 +74,7 @@ def load(crate, fuseki_url, fuseki_dataset):
     RO_CRATE: RO-Crate directory or ZIP archive.
     """
     crate_url = load_crate_metadata(crate, fuseki_url, fuseki_dataset)
-    sys.stdout.write(f"Crate URL: {crate_url}\n")
+    sys.stdout.write(f"{crate_url}\n")
 
 
 @cli.command()
@@ -110,7 +110,7 @@ def query(query_file, fuseki_url, fuseki_dataset, graph):
     query = query_file.read_text()
     qres = run_query(query, fuseki_url, fuseki_dataset, graph)
     for row in qres:
-        sys.stdout.write(f"{row}\n")
+        sys.stdout.write(", ".join(row) + "\n")
 
 
 @cli.command()

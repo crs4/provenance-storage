@@ -26,6 +26,17 @@ WHERE {
 }
 """
 
+# The parameter must be replaced by a root data entity id
+CRATE_URL_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?crate_url
+WHERE {
+  <%s> schema:url ?crate_url
+}
+"""
+
+
 GRAPH_ID_FOR_FILE_QUERY = """\
 PREFIX schema: <http://schema.org/>
 
