@@ -16,7 +16,6 @@
 
 import shutil
 
-import arcp
 from click.testing import CliRunner
 import pytest
 from provstor.cli import cli
