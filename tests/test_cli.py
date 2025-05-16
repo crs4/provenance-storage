@@ -139,3 +139,15 @@ def test_cli_get_run_params(crate_map):
         "input: sample.csv",
         "foo: foo_value"
     }
+
+
+def test_cli_list_graphs(crate_map):
+    runner = CliRunner()
+    args = ["list-graphs"]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert set(result.stdout.splitlines()) >= {
+        f"http://{MINIO_STORE}/{MINIO_BUCKET}/crate1.zip",
+        f"http://{MINIO_STORE}/{MINIO_BUCKET}/crate2.zip",
+        f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip",
+    }

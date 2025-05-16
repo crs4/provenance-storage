@@ -14,14 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
-from .queries import GRAPHS_QUERY
-from .query import run_query
+from provstor.constants import MINIO_STORE, MINIO_BUCKET
+from provstor.list import list_graphs
 
 
-def list_graphs(fuseki_url=None, fuseki_dataset=None):
-    qres = run_query(
-        GRAPHS_QUERY,
-        fuseki_url=fuseki_url,
-        fuseki_dataset=fuseki_dataset
-    )
-    return (str(_[0]) for _ in qres)
+def test_list_graphs(crate_map):
+    res = set(list_graphs())
+    assert res >= {
+        f"http://{MINIO_STORE}/{MINIO_BUCKET}/crate1.zip",
+        f"http://{MINIO_STORE}/{MINIO_BUCKET}/crate2.zip",
+        f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip",
+    }
