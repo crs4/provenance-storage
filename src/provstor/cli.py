@@ -31,6 +31,7 @@ from .get import (
     get_run_params as get_run_params_f,
     get_workflow as get_workflow_f
 )
+from .list import list_graphs as list_graphs_f
 from .load import load_crate_metadata
 from .query import run_query
 
@@ -318,6 +319,28 @@ def get_run_params(graph_id, fuseki_url, fuseki_dataset):
     params = get_run_params_f(graph_id, fuseki_url, fuseki_dataset)
     for name, value in params:
         sys.stdout.write(f"{name}: {value}\n")
+
+
+@cli.command()
+@click.option(
+    "-u",
+    "--fuseki-url",
+    metavar="STRING",
+    help="Fuseki base url",
+)
+@click.option(
+    "-d",
+    "--fuseki-dataset",
+    metavar="STRING",
+    help="Fuseki dataset",
+)
+def list_graphs(fuseki_url, fuseki_dataset):
+    """\
+    List all graphs in the triple store.
+    """
+    graphs = list_graphs_f(fuseki_url, fuseki_dataset)
+    for g in graphs:
+        sys.stdout.write(f"{g}\n")
 
 
 @cli.command()
