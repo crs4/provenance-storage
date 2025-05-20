@@ -18,10 +18,6 @@ from .queries import GRAPHS_QUERY
 from .query import run_query
 
 
-def list_graphs(fuseki_url=None, fuseki_dataset=None):
-    qres = run_query(
-        GRAPHS_QUERY,
-        fuseki_url=fuseki_url,
-        fuseki_dataset=fuseki_dataset
-    )
+def list_graphs():
+    qres = run_query(GRAPHS_QUERY)
     return (str(_[0]) for _ in qres)

@@ -28,11 +28,30 @@ from rdflib import Graph
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 from rdflib.term import URIRef, Literal
 
-from .constants import (
-    MINIO_STORE, MINIO_USER, MINIO_SECRET, MINIO_BUCKET, MINIO_BUCKET_POLICY,
+from .config import (
+    MINIO_STORE, MINIO_USER, MINIO_SECRET, MINIO_BUCKET,
     FUSEKI_BASE_URL, FUSEKI_DATASET
 )
 from .queries import RDE_QUERY
+
+# anonymous read-only policy, see https://github.com/minio/minio-py/blob/88f4244fe89fb9f23de4f183bdf79524c712deaa/examples/set_bucket_policy.py#L27
+MINIO_BUCKET_POLICY = {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {"AWS": "*"},
+            "Action": ["s3:GetBucketLocation", "s3:ListBucket"],
+            "Resource": f"arn:aws:s3:::{MINIO_BUCKET}",
+        },
+        {
+            "Effect": "Allow",
+            "Principal": {"AWS": "*"},
+            "Action": "s3:GetObject",
+            "Resource": f"arn:aws:s3:::{MINIO_BUCKET}/*",
+        },
+    ],
+}
 
 
 def _upload_crate_to_minio(crate_path, tmp_dir):
@@ -61,13 +80,9 @@ def _upload_crate_to_minio(crate_path, tmp_dir):
     return crate_url, is_zipped
 
 
-def load_crate_metadata(crate_path, fuseki_url=None, fuseki_dataset=None):
+def load_crate_metadata(crate_path):
     tmp_dir = Path(tempfile.mkdtemp(prefix="provstor_"))
     crate_url, is_zipped = _upload_crate_to_minio(crate_path, tmp_dir)
-    if not fuseki_url:
-        fuseki_url = FUSEKI_BASE_URL
-    if not fuseki_dataset:
-        fuseki_dataset = FUSEKI_DATASET
     if is_zipped:
         with zipfile.ZipFile(crate_path, "r") as zf:
             metadata_path = Path(zf.extract("ro-crate-metadata.json", path=tmp_dir))
@@ -76,8 +91,8 @@ def load_crate_metadata(crate_path, fuseki_url=None, fuseki_dataset=None):
     if not metadata_path.is_file():
         raise RuntimeError(f"file {metadata_path} not found")
     store = SPARQLUpdateStore()
-    query_endpoint = f"{fuseki_url}/{fuseki_dataset}/sparql"
-    update_endpoint = f"{fuseki_url}/{fuseki_dataset}/update"
+    query_endpoint = f"{FUSEKI_BASE_URL}/{FUSEKI_DATASET}/sparql"
+    update_endpoint = f"{FUSEKI_BASE_URL}/{FUSEKI_DATASET}/update"
     store.open((query_endpoint, update_endpoint))
     graph = Graph(store, identifier=URIRef(crate_url))
     loc = arcp.arcp_location(crate_url)

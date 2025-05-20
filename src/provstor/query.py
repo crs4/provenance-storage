@@ -18,19 +18,15 @@
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 from rdflib.term import URIRef
 
-from .constants import (
+from .config import (
     FUSEKI_BASE_URL, FUSEKI_DATASET,
     MINIO_STORE, MINIO_BUCKET
 )
 
 
-def run_query(query, fuseki_url=None, fuseki_dataset=None, graph_id=None):
-    if not fuseki_url:
-        fuseki_url = FUSEKI_BASE_URL
-    if not fuseki_dataset:
-        fuseki_dataset = FUSEKI_DATASET
+def run_query(query, graph_id=None):
     store = SPARQLUpdateStore()
-    query_endpoint = f"{fuseki_url}/{fuseki_dataset}/sparql"
+    query_endpoint = f"{FUSEKI_BASE_URL}/{FUSEKI_DATASET}/sparql"
     store.open(query_endpoint)
     if graph_id:
         if not graph_id.startswith("http://"):

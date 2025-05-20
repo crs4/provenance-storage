@@ -19,7 +19,7 @@ import zipfile
 
 import pytest
 
-from provstor.constants import MINIO_STORE, MINIO_BUCKET
+from provstor.config import MINIO_STORE, MINIO_BUCKET
 from provstor.get import (
     get_crate,
     get_file,

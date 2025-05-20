@@ -56,25 +56,13 @@ def cli(log_level):
     metavar="RO_CRATE",
     type=click.Path(exists=True, readable=True, path_type=Path),
 )
-@click.option(
-    "-u",
-    "--fuseki-url",
-    metavar="STRING",
-    help="Fuseki base url",
-)
-@click.option(
-    "-d",
-    "--fuseki-dataset",
-    metavar="STRING",
-    help="Fuseki dataset",
-)
-def load(crate, fuseki_url, fuseki_dataset):
+def load(crate):
     """\
     Load RO-Crate metadata into Fuseki and upload zipped crate to MinIO.
 
     RO_CRATE: RO-Crate directory or ZIP archive.
     """
-    crate_url = load_crate_metadata(crate, fuseki_url, fuseki_dataset)
+    crate_url = load_crate_metadata(crate)
     sys.stdout.write(f"{crate_url}\n")
 
 
@@ -85,31 +73,19 @@ def load(crate, fuseki_url, fuseki_dataset):
     type=click.Path(exists=True, dir_okay=False, readable=True, path_type=Path)
 )
 @click.option(
-    "-u",
-    "--fuseki-url",
-    metavar="STRING",
-    help="Fuseki base url",
-)
-@click.option(
-    "-d",
-    "--fuseki-dataset",
-    metavar="STRING",
-    help="Fuseki dataset",
-)
-@click.option(
     "-g",
     "--graph",
     metavar="STRING",
     help="Graph name (crate basename without extension)",
 )
-def query(query_file, fuseki_url, fuseki_dataset, graph):
+def query(query_file, graph):
     """\
     Run the SPARQL query in the provided file on the Fuseki store.
 
     QUERY_FILE: SPARQL query file
     """
     query = query_file.read_text()
-    qres = run_query(query, fuseki_url, fuseki_dataset, graph)
+    qres = run_query(query, graph)
     for row in qres:
         sys.stdout.write(", ".join(row) + "\n")
 
@@ -120,30 +96,18 @@ def query(query_file, fuseki_url, fuseki_dataset, graph):
     metavar="ROOT_DATA_ENTITY_ID"
 )
 @click.option(
-    "-u",
-    "--fuseki-url",
-    metavar="STRING",
-    help="Fuseki base url",
-)
-@click.option(
-    "-d",
-    "--fuseki-dataset",
-    metavar="STRING",
-    help="Fuseki dataset",
-)
-@click.option(
     "-o",
     "--outdir",
     type=click.Path(path_type=Path),
     help="directory where the crate should be saved",
 )
-def get_crate(rde_id, fuseki_url, fuseki_dataset, outdir):
+def get_crate(rde_id, outdir):
     """\
     Download the crate corresponding to the given root data entity id.
 
     ROOT_DATA_ENTITY_ID: @id of the RO-Crate's Root Data Entity
     """
-    out_path = get_crate_f(rde_id, fuseki_url, fuseki_dataset, outdir)
+    out_path = get_crate_f(rde_id, outdir)
     sys.stdout.write(f"crate downloaded to {out_path}\n")
 
 
@@ -153,30 +117,18 @@ def get_crate(rde_id, fuseki_url, fuseki_dataset, outdir):
     metavar="FILE_URI"
 )
 @click.option(
-    "-u",
-    "--fuseki-url",
-    metavar="STRING",
-    help="Fuseki base url",
-)
-@click.option(
-    "-d",
-    "--fuseki-dataset",
-    metavar="STRING",
-    help="Fuseki dataset",
-)
-@click.option(
     "-o",
     "--outdir",
     type=click.Path(path_type=Path),
     help="directory where the file should be saved",
 )
-def get_file(file_uri, fuseki_url, fuseki_dataset, outdir):
+def get_file(file_uri, outdir):
     """\
     Download the file corresponding to the given URI.
 
     FILE_URI: URI of the file.
     """
-    out_path = get_file_f(file_uri, fuseki_url, fuseki_dataset, outdir)
+    out_path = get_file_f(file_uri, outdir)
     sys.stdout.write(f"file extracted to {out_path}\n")
 
 
@@ -185,25 +137,13 @@ def get_file(file_uri, fuseki_url, fuseki_dataset, outdir):
     "file_id",
     metavar="FILE_ID"
 )
-@click.option(
-    "-u",
-    "--fuseki-url",
-    metavar="STRING",
-    help="Fuseki base url",
-)
-@click.option(
-    "-d",
-    "--fuseki-dataset",
-    metavar="STRING",
-    help="Fuseki dataset",
-)
-def get_graph_id(file_id, fuseki_url, fuseki_dataset):
+def get_graph_id(file_id):
     """\
     Get the graph id corresponding to the given file.
 
     FILE_ID: full URI of the file (e.g. file://...).
     """
-    graph_id = get_graph_id_f(file_id, fuseki_url, fuseki_dataset)
+    graph_id = get_graph_id_f(file_id)
     sys.stdout.write(f"{graph_id}\n")
 
 
@@ -212,25 +152,13 @@ def get_graph_id(file_id, fuseki_url, fuseki_dataset):
     "graph_id",
     metavar="GRAPH_ID"
 )
-@click.option(
-    "-u",
-    "--fuseki-url",
-    metavar="STRING",
-    help="Fuseki base url",
-)
-@click.option(
-    "-d",
-    "--fuseki-dataset",
-    metavar="STRING",
-    help="Fuseki dataset",
-)
-def get_workflow(graph_id, fuseki_url, fuseki_dataset):
+def get_workflow(graph_id):
     """\
     Get the workflow id corresponding to the given graph id.
 
     GRAPH_ID: id of the graph in the triple store.
     """
-    workflow = get_workflow_f(graph_id, fuseki_url, fuseki_dataset)
+    workflow = get_workflow_f(graph_id)
     sys.stdout.write(f"{workflow}\n")
 
 
@@ -239,26 +167,14 @@ def get_workflow(graph_id, fuseki_url, fuseki_dataset):
     "graph_id",
     metavar="GRAPH_ID"
 )
-@click.option(
-    "-u",
-    "--fuseki-url",
-    metavar="STRING",
-    help="Fuseki base url",
-)
-@click.option(
-    "-d",
-    "--fuseki-dataset",
-    metavar="STRING",
-    help="Fuseki dataset",
-)
-def get_run_results(graph_id, fuseki_url, fuseki_dataset):
+def get_run_results(graph_id):
     """\
     Get the workflow run results that are either files or directories
     corresponding to the given graph id.
 
     GRAPH_ID: id of the graph in the triple store.
     """
-    results = get_run_results_f(graph_id, fuseki_url, fuseki_dataset)
+    results = get_run_results_f(graph_id)
     for r in results:
         sys.stdout.write(f"{r}\n")
 
@@ -268,26 +184,14 @@ def get_run_results(graph_id, fuseki_url, fuseki_dataset):
     "graph_id",
     metavar="GRAPH_ID"
 )
-@click.option(
-    "-u",
-    "--fuseki-url",
-    metavar="STRING",
-    help="Fuseki base url",
-)
-@click.option(
-    "-d",
-    "--fuseki-dataset",
-    metavar="STRING",
-    help="Fuseki dataset",
-)
-def get_run_objects(graph_id, fuseki_url, fuseki_dataset):
+def get_run_objects(graph_id):
     """\
     Get the workflow run objects that are either files or directories
     corresponding to the given graph id.
 
     GRAPH_ID: id of the graph in the triple store.
     """
-    objects = get_run_objects_f(graph_id, fuseki_url, fuseki_dataset)
+    objects = get_run_objects_f(graph_id)
     for r in objects:
         sys.stdout.write(f"{r}\n")
 
@@ -297,48 +201,24 @@ def get_run_objects(graph_id, fuseki_url, fuseki_dataset):
     "graph_id",
     metavar="GRAPH_ID"
 )
-@click.option(
-    "-u",
-    "--fuseki-url",
-    metavar="STRING",
-    help="Fuseki base url",
-)
-@click.option(
-    "-d",
-    "--fuseki-dataset",
-    metavar="STRING",
-    help="Fuseki dataset",
-)
-def get_run_params(graph_id, fuseki_url, fuseki_dataset):
+def get_run_params(graph_id):
     """\
     Get the workflow run objects that are parameters (name: value)
     corresponding to the given graph id.
 
     GRAPH_ID: id of the graph in the triple store.
     """
-    params = get_run_params_f(graph_id, fuseki_url, fuseki_dataset)
+    params = get_run_params_f(graph_id)
     for name, value in params:
         sys.stdout.write(f"{name}: {value}\n")
 
 
 @cli.command()
-@click.option(
-    "-u",
-    "--fuseki-url",
-    metavar="STRING",
-    help="Fuseki base url",
-)
-@click.option(
-    "-d",
-    "--fuseki-dataset",
-    metavar="STRING",
-    help="Fuseki dataset",
-)
-def list_graphs(fuseki_url, fuseki_dataset):
+def list_graphs():
     """\
     List all graphs in the triple store.
     """
-    graphs = list_graphs_f(fuseki_url, fuseki_dataset)
+    graphs = list_graphs_f()
     for g in graphs:
         sys.stdout.write(f"{g}\n")
 

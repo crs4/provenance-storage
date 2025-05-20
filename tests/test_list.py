@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
-from provstor.constants import MINIO_STORE, MINIO_BUCKET
+from provstor.config import MINIO_STORE, MINIO_BUCKET
 from provstor.list import list_graphs
 
 

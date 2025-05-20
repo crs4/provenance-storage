@@ -35,17 +35,13 @@ from .queries import (
 from .query import run_query
 
 
-def get_crate(rde_id, fuseki_url=None, fuseki_dataset=None, outdir=None):
+def get_crate(rde_id, outdir=None):
     if outdir is None:
         outdir = Path.cwd()
     else:
         outdir.mkdir(parents=True, exist_ok=True)
     rde_id = rde_id.rstrip("/") + "/"
-    qres = run_query(
-        CRATE_URL_QUERY % rde_id,
-        fuseki_url=fuseki_url,
-        fuseki_dataset=fuseki_dataset
-    )
+    qres = run_query(CRATE_URL_QUERY % rde_id)
     assert len(qres) >= 1
     crate_url = str(list(qres)[0][0])
     logging.info("crate URL: %s", crate_url)
@@ -56,7 +52,7 @@ def get_crate(rde_id, fuseki_url=None, fuseki_dataset=None, outdir=None):
     return out_path
 
 
-def get_file(file_uri, fuseki_url=None, fuseki_dataset=None, outdir=None):
+def get_file(file_uri, outdir=None):
     if outdir is None:
         outdir = Path.cwd()
     else:
@@ -71,12 +67,7 @@ def get_file(file_uri, fuseki_url=None, fuseki_dataset=None, outdir=None):
     res = urlsplit(file_uri)
     rde_id = f"{res.scheme}://{res.netloc}/"
     zip_dir = Path(tempfile.mkdtemp())
-    zip_path = get_crate(
-        rde_id,
-        fuseki_url=fuseki_url,
-        fuseki_dataset=fuseki_dataset,
-        outdir=zip_dir
-    )
+    zip_path = get_crate(rde_id, outdir=zip_dir)
     zip_member = res.path.lstrip("/")
     logging.info("extracting: %s", zip_member)
     with zipfile.ZipFile(zip_path, "r") as zipf:
@@ -85,54 +76,30 @@ def get_file(file_uri, fuseki_url=None, fuseki_dataset=None, outdir=None):
     return Path(out_path)
 
 
-def get_graph_id(file_id, fuseki_url=None, fuseki_dataset=None):
-    qres = run_query(
-        GRAPH_ID_FOR_FILE_QUERY % file_id,
-        fuseki_url=fuseki_url,
-        fuseki_dataset=fuseki_dataset
-    )
+def get_graph_id(file_id):
+    qres = run_query(GRAPH_ID_FOR_FILE_QUERY % file_id)
     assert len(qres) >= 1
     graph_id = str(list(qres)[0][0])
     return graph_id
 
 
-def get_workflow(graph_id, fuseki_url=None, fuseki_dataset=None):
-    qres = run_query(
-        WORKFLOW_QUERY,
-        fuseki_url=fuseki_url,
-        fuseki_dataset=fuseki_dataset,
-        graph_id=graph_id
-    )
+def get_workflow(graph_id):
+    qres = run_query(WORKFLOW_QUERY, graph_id=graph_id)
     assert len(qres) >= 1
     workflow = str(list(qres)[0][0])
     return workflow
 
 
-def get_run_results(graph_id, fuseki_url=None, fuseki_dataset=None):
-    qres = run_query(
-        RUN_RESULTS_QUERY,
-        fuseki_url=fuseki_url,
-        fuseki_dataset=fuseki_dataset,
-        graph_id=graph_id
-    )
+def get_run_results(graph_id):
+    qres = run_query(RUN_RESULTS_QUERY, graph_id=graph_id)
     return (str(_[0]) for _ in qres)
 
 
-def get_run_objects(graph_id, fuseki_url=None, fuseki_dataset=None):
-    qres = run_query(
-        RUN_OBJECTS_QUERY,
-        fuseki_url=fuseki_url,
-        fuseki_dataset=fuseki_dataset,
-        graph_id=graph_id
-    )
+def get_run_objects(graph_id):
+    qres = run_query(RUN_OBJECTS_QUERY, graph_id=graph_id)
     return (str(_[0]) for _ in qres)
 
 
-def get_run_params(graph_id, fuseki_url=None, fuseki_dataset=None):
-    qres = run_query(
-        RUN_PARAMS_QUERY,
-        fuseki_url=fuseki_url,
-        fuseki_dataset=fuseki_dataset,
-        graph_id=graph_id
-    )
+def get_run_params(graph_id):
+    qres = run_query(RUN_PARAMS_QUERY, graph_id=graph_id)
     return ((str(_.name), str(_.value)) for _ in qres)
