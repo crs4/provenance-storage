@@ -29,7 +29,7 @@ def test_config_file(tmp_path, monkeypatch):
     from provstor.config import MINIO_USER
     try:
         HOME = Path.home()
-    except RuntimeError as e:
+    except RuntimeError:
         pass
     else:
         if not (HOME / ".provstor" / "config").is_file():
