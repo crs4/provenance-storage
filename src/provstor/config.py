@@ -38,19 +38,29 @@ from configparser import ConfigParser
 from pathlib import Path
 import warnings
 
-CONFIG_FILE_LOCATIONS = [Path.cwd() / "provstor.config"]
-try:
-    HOME = Path.home()
-except RuntimeError as e:
-    warnings.warn(f"cannot resolve home directory: {e}")
-else:
-    CONFIG_FILE_LOCATIONS.insert(0, HOME / ".provstor" / "config")
-CONFIG = ConfigParser()
-CONFIG.read(CONFIG_FILE_LOCATIONS)
 
-FUSEKI_BASE_URL = CONFIG.get("fuseki", "base_url", fallback="http://localhost:3030")
-FUSEKI_DATASET = CONFIG.get("fuseki", "dataset", fallback="ds")
-MINIO_STORE = CONFIG.get("minio", "store", fallback="localhost:9000")
-MINIO_USER = CONFIG.get("minio", "user", fallback="minio")
-MINIO_SECRET = CONFIG.get("minio", "secret", fallback="miniosecret")
-MINIO_BUCKET = CONFIG.get("minio", "bucket", fallback="crates")
+def configure():
+    """\
+    Sets module-level variables according to configuration files. If no
+    configuration files are present, the variables are set to the fallback
+    values.
+    """
+    CONFIG_FILE_LOCATIONS = [Path.cwd() / "provstor.config"]
+    try:
+        HOME = Path.home()
+    except RuntimeError as e:
+        warnings.warn(f"cannot resolve home directory: {e}")
+    else:
+        CONFIG_FILE_LOCATIONS.insert(0, HOME / ".provstor" / "config")
+    CONFIG = ConfigParser()
+    CONFIG.read(CONFIG_FILE_LOCATIONS)
+    g = globals()
+    g["FUSEKI_BASE_URL"] = CONFIG.get("fuseki", "base_url", fallback="http://localhost:3030")
+    g["FUSEKI_DATASET"] = CONFIG.get("fuseki", "dataset", fallback="ds")
+    g["MINIO_STORE"] = CONFIG.get("minio", "store", fallback="localhost:9000")
+    g["MINIO_USER"] = CONFIG.get("minio", "user", fallback="minio")
+    g["MINIO_SECRET"] = CONFIG.get("minio", "secret", fallback="miniosecret")
+    g["MINIO_BUCKET"] = CONFIG.get("minio", "bucket", fallback="crates")
+
+
+configure()
