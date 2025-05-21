@@ -14,23 +14,28 @@
 # You should have received a copy of the GNU General Public License
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
+from pathlib import Path
 
-from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
-from rdflib.term import URIRef
+from provstor.config import configure
 
-from .config import (
-    FUSEKI_BASE_URL, FUSEKI_DATASET,
-    MINIO_STORE, MINIO_BUCKET
-)
+CONF = """\
+[minio]
+user = foobar
+"""
 
 
-def run_query(query, graph_id=None):
-    store = SPARQLUpdateStore()
-    query_endpoint = f"{FUSEKI_BASE_URL}/{FUSEKI_DATASET}/sparql"
-    store.open(query_endpoint)
-    if graph_id:
-        if not graph_id.startswith("http://"):
-            graph_id = f"http://{MINIO_STORE}/{MINIO_BUCKET}/{graph_id}.zip"
-        graph_id = URIRef(graph_id)
-    qres = store.query(query, queryGraph=graph_id)
-    return qres
+def test_config_file(tmp_path, monkeypatch):
+    monkeypatch.chdir(str(tmp_path))
+    from provstor.config import MINIO_USER
+    try:
+        HOME = Path.home()
+    except RuntimeError:
+        pass
+    else:
+        if not (HOME / ".provstor" / "config").is_file():
+            assert MINIO_USER == "minio"
+    with open("provstor.config", "wt") as f:
+        f.write(CONF)
+    configure()
+    from provstor.config import MINIO_USER
+    assert MINIO_USER == "foobar"

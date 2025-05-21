@@ -19,7 +19,7 @@ import shutil
 from click.testing import CliRunner
 import pytest
 from provstor.cli import cli
-from provstor.constants import MINIO_STORE, MINIO_BUCKET
+from provstor.config import MINIO_STORE, MINIO_BUCKET
 
 
 @pytest.mark.parametrize("zipped", [False, True])
