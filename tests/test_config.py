@@ -16,11 +16,12 @@
 
 from pathlib import Path
 
-from provstor.config import configure
+from provstor.config import configure, CONFIG_BASENAME
+import os
 
 CONF = """\
 [minio]
-user = foobar
+user = %s
 """
 
 
@@ -32,10 +33,19 @@ def test_config_file(tmp_path, monkeypatch):
     except RuntimeError:
         pass
     else:
-        if not (HOME / ".provstor" / "config").is_file():
+        if not (HOME / ".config" / CONFIG_BASENAME).is_file():
             assert MINIO_USER == "minio"
-    with open("provstor.config", "wt") as f:
-        f.write(CONF)
+    local_conf_file = Path(CONFIG_BASENAME)
+    local_conf_file.write_text(CONF % "foobar")
     configure()
     from provstor.config import MINIO_USER
     assert MINIO_USER == "foobar"
+    local_conf_file.unlink()
+    subdir = Path("subdir")
+    subdir.mkdir()
+    home_conf_file = subdir / CONFIG_BASENAME
+    os.environ["XDG_CONFIG_HOME"] = str(subdir)
+    home_conf_file.write_text(CONF % "barfoo")
+    configure()
+    from provstor.config import MINIO_USER
+    assert MINIO_USER == "barfoo"
