@@ -17,9 +17,12 @@
 """\
 Configuration file support.
 
-Looks for configuration files in ./provstor.config and ~/.provstor/config. If
-both are present, the corresponding configurations are merged, and in case of
-conflicting settings the former overrides the latter.
+Looks for configuration files in ./provstor.config and
+~/.config/provstor.config. If both are present, the corresponding
+configurations are merged, and in case of conflicting settings the former
+overrides the latter. Note that if the environment variable XDG_CONFIG_HOME is
+set and not empty, its value is used instead of ~/.config. See
+https://specifications.freedesktop.org/basedir-spec/latest.
 
 Example:
 
@@ -36,7 +39,10 @@ bucket = crates
 
 from configparser import ConfigParser
 from pathlib import Path
+import os
 import warnings
+
+CONFIG_BASENAME = "provstor.config"
 
 
 def configure():
@@ -45,13 +51,17 @@ def configure():
     configuration files are present, the variables are set to the fallback
     values.
     """
-    CONFIG_FILE_LOCATIONS = [Path.cwd() / "provstor.config"]
-    try:
-        HOME = Path.home()
-    except RuntimeError as e:
-        warnings.warn(f"cannot resolve home directory: {e}")
+    CONFIG_FILE_LOCATIONS = [Path.cwd() / CONFIG_BASENAME]
+    if homeconf := os.getenv("XDG_CONFIG_HOME"):
+        homeconf = Path(homeconf)
+        CONFIG_FILE_LOCATIONS.insert(0, homeconf / CONFIG_BASENAME)
     else:
-        CONFIG_FILE_LOCATIONS.insert(0, HOME / ".provstor" / "config")
+        try:
+            HOME = Path.home()
+        except RuntimeError as e:
+            warnings.warn(f"cannot resolve home directory: {e}")
+        else:
+            CONFIG_FILE_LOCATIONS.insert(0, HOME / ".config" / CONFIG_BASENAME)
     CONFIG = ConfigParser()
     CONFIG.read(CONFIG_FILE_LOCATIONS)
     g = globals()
