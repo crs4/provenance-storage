@@ -62,7 +62,7 @@ WHERE {
 }
 """
 
-RUN_RESULTS_QUERY = """\
+WFRUN_RESULTS_QUERY = """\
 PREFIX schema: <http://schema.org/>
 
 SELECT ?result
@@ -77,7 +77,7 @@ WHERE {
 }
 """
 
-RUN_OBJECTS_QUERY = """\
+WFRUN_OBJECTS_QUERY = """\
 PREFIX schema: <http://schema.org/>
 
 SELECT ?object
@@ -92,7 +92,7 @@ WHERE {
 }
 """
 
-RUN_PARAMS_QUERY = """\
+WFRUN_PARAMS_QUERY = """\
 PREFIX schema: <http://schema.org/>
 
 SELECT ?name ?value

@@ -28,9 +28,9 @@ from .queries import (
     CRATE_URL_QUERY,
     GRAPH_ID_FOR_FILE_QUERY,
     WORKFLOW_QUERY,
-    RUN_RESULTS_QUERY,
-    RUN_OBJECTS_QUERY,
-    RUN_PARAMS_QUERY
+    WFRUN_RESULTS_QUERY,
+    WFRUN_OBJECTS_QUERY,
+    WFRUN_PARAMS_QUERY
 )
 from .query import run_query
 
@@ -91,15 +91,15 @@ def get_workflow(graph_id):
 
 
 def get_run_results(graph_id):
-    qres = run_query(RUN_RESULTS_QUERY, graph_id=graph_id)
+    qres = run_query(WFRUN_RESULTS_QUERY, graph_id=graph_id)
     return (str(_[0]) for _ in qres)
 
 
 def get_run_objects(graph_id):
-    qres = run_query(RUN_OBJECTS_QUERY, graph_id=graph_id)
+    qres = run_query(WFRUN_OBJECTS_QUERY, graph_id=graph_id)
     return (str(_[0]) for _ in qres)
 
 
 def get_run_params(graph_id):
-    qres = run_query(RUN_PARAMS_QUERY, graph_id=graph_id)
+    qres = run_query(WFRUN_PARAMS_QUERY, graph_id=graph_id)
     return ((str(_.name), str(_.value)) for _ in qres)
