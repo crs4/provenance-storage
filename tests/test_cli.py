@@ -94,6 +94,16 @@ def test_cli_get_graphs_for_file(crate_map):
     }
 
 
+def test_cli_get_graphs_for_result(crate_map):
+    runner = CliRunner()
+    args = ["get-graphs-for-result", "file:///path/to/FOOBAR123.deepvariant.vcf.gz"]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert set(result.stdout.splitlines()) >= {
+        f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip"
+    }
+
+
 def test_cli_get_workflow(crate_map):
     runner = CliRunner()
     crate_url = crate_map["provcrate1"]["url"]

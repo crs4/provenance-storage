@@ -50,6 +50,22 @@ WHERE {
 }
 """
 
+
+GRAPH_ID_FOR_RESULT_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?url
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:url ?url .
+  ?rde schema:mentions ?action .
+  ?action a schema:CreateAction .
+  ?action schema:result <%s> .
+}
+"""
+
 WORKFLOW_QUERY = """\
 PREFIX schema: <http://schema.org/>
 

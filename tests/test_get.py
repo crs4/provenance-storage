@@ -24,6 +24,7 @@ from provstor.get import (
     get_crate,
     get_file,
     get_graphs_for_file,
+    get_graphs_for_result,
     get_workflow,
     get_run_results,
     get_run_objects,
@@ -63,6 +64,13 @@ def test_get_graphs_for_file(crate_map):
     graphs = get_graphs_for_file("file:///path/to/FOOBAR123.deepvariant.vcf.gz")
     assert set(graphs) >= {
         f"http://{MINIO_STORE}/{MINIO_BUCKET}/proccrate1.zip",
+        f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip"
+    }
+
+
+def test_get_graphs_for_result(crate_map):
+    graphs = get_graphs_for_result("file:///path/to/FOOBAR123.deepvariant.vcf.gz")
+    assert set(graphs) >= {
         f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip"
     }
 

@@ -27,6 +27,7 @@ import zipfile
 from .queries import (
     CRATE_URL_QUERY,
     GRAPH_ID_FOR_FILE_QUERY,
+    GRAPH_ID_FOR_RESULT_QUERY,
     WORKFLOW_QUERY,
     WFRUN_RESULTS_QUERY,
     WFRUN_OBJECTS_QUERY,
@@ -78,6 +79,11 @@ def get_file(file_uri, outdir=None):
 
 def get_graphs_for_file(file_id):
     qres = run_query(GRAPH_ID_FOR_FILE_QUERY % file_id)
+    return (str(_[0]) for _ in qres)
+
+
+def get_graphs_for_result(file_id):
+    qres = run_query(GRAPH_ID_FOR_RESULT_QUERY % file_id)
     return (str(_[0]) for _ in qres)
 
 
