@@ -76,11 +76,9 @@ def get_file(file_uri, outdir=None):
     return Path(out_path)
 
 
-def get_graph_id(file_id):
+def get_graphs_for_file(file_id):
     qres = run_query(GRAPH_ID_FOR_FILE_QUERY % file_id)
-    assert len(qres) >= 1
-    graph_id = str(list(qres)[0][0])
-    return graph_id
+    return (str(_[0]) for _ in qres)
 
 
 def get_workflow(graph_id):

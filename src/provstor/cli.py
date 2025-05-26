@@ -25,7 +25,7 @@ from . import __version__
 from .get import (
     get_crate as get_crate_f,
     get_file as get_file_f,
-    get_graph_id as get_graph_id_f,
+    get_graphs_for_file as get_graphs_for_file_f,
     get_run_results as get_run_results_f,
     get_run_objects as get_run_objects_f,
     get_run_params as get_run_params_f,
@@ -137,14 +137,15 @@ def get_file(file_uri, outdir):
     "file_id",
     metavar="FILE_ID"
 )
-def get_graph_id(file_id):
+def get_graphs_for_file(file_id):
     """\
-    Get the graph id corresponding to the given file.
+    Get the ids of the graphs that contain (hasPart) the given file.
 
     FILE_ID: full URI of the file (e.g. file://...).
     """
-    graph_id = get_graph_id_f(file_id)
-    sys.stdout.write(f"{graph_id}\n")
+    graphs = get_graphs_for_file_f(file_id)
+    for g in graphs:
+        sys.stdout.write(f"{g}\n")
 
 
 @cli.command()

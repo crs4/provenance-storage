@@ -83,12 +83,15 @@ def test_cli_get_file(crate_map, tmp_path, monkeypatch, cwd):
     assert (tmp_path / "ro-crate-metadata.json").is_file()
 
 
-def test_cli_get_graph_id(crate_map):
+def test_cli_get_graphs_for_file(crate_map):
     runner = CliRunner()
-    args = ["get-graph-id", "file:///path/to/FOOBAR123.deepvariant.vcf.gz"]
+    args = ["get-graphs-for-file", "file:///path/to/FOOBAR123.deepvariant.vcf.gz"]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
-    assert result.stdout.rstrip() == crate_map["provcrate1"]["url"]
+    assert set(result.stdout.splitlines()) >= {
+        f"http://{MINIO_STORE}/{MINIO_BUCKET}/proccrate1.zip",
+        f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip"
+    }
 
 
 def test_cli_get_workflow(crate_map):
