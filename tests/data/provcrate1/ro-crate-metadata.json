@@ -68,10 +68,10 @@
                     "@id": "sample.csv"
                 },
                 {
-                    "@id": "file:///path/to/FOOBAR123.md.cram.crai"
+                    "@id": "file:///path/to/FOOBAR123.deepvariant.vcf.gz.tbi"
                 },
                 {
-                    "@id": "file:///path/to/FOOBAR123.md.cram"
+                    "@id": "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
                 }
             ],
             "mainEntity": {
@@ -256,10 +256,10 @@
             ],
             "result": [
                 {
-                    "@id": "file:///path/to/FOOBAR123.md.cram.crai"
+                    "@id": "file:///path/to/FOOBAR123.deepvariant.vcf.gz.tbi"
                 },
                 {
-                    "@id": "file:///path/to/FOOBAR123.md.cram"
+                    "@id": "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
                 }
             ]
         },
@@ -352,42 +352,42 @@
             "encodingFormat": "application/yaml"
         },
         {
-            "@id": "#task/13fc2459df3405bf049e575f063aef3d/FOOBAR123.md.cram.crai",
+            "@id": "#task/13fc2459df3405bf049e575f063aef3d/FOOBAR123.deepvariant.vcf.gz.tbi",
             "@type": "CreativeWork",
-            "name": "FOOBAR123.md.cram.crai"
+            "name": "FOOBAR123.deepvariant.vcf.gz.tbi"
         },
         {
-            "@id": "#task/13fc2459df3405bf049e575f063aef3d/FOOBAR123.md.cram",
+            "@id": "#task/13fc2459df3405bf049e575f063aef3d/FOOBAR123.deepvariant.vcf.gz",
             "@type": "CreativeWork",
-            "name": "FOOBAR123.md.cram"
+            "name": "FOOBAR123.deepvariant.vcf.gz"
         },
         {
-            "@id": "#publish/13fc2459df3405bf049e575f063aef3d/FOOBAR123.md.cram.crai",
+            "@id": "#publish/13fc2459df3405bf049e575f063aef3d/FOOBAR123.deepvariant.vcf.gz.tbi",
             "@type": "CreateAction",
             "name": "publish",
             "instrument": {
                 "@id": "main.nf#software-application"
             },
             "object": {
-                "@id": "#task/13fc2459df3405bf049e575f063aef3d/FOOBAR123.md.cram.crai"
+                "@id": "#task/13fc2459df3405bf049e575f063aef3d/FOOBAR123.deepvariant.vcf.gz.tbi"
             },
             "result": {
-                "@id": "file:///path/to/FOOBAR123.md.cram.crai"
+                "@id": "file:///path/to/FOOBAR123.deepvariant.vcf.gz.tbi"
             },
             "actionStatus": "http://schema.org/CompletedActionStatus"
         },
         {
-            "@id": "#publish/13fc2459df3405bf049e575f063aef3d/FOOBAR123.md.cram",
+            "@id": "#publish/13fc2459df3405bf049e575f063aef3d/FOOBAR123.deepvariant.vcf.gz",
             "@type": "CreateAction",
             "name": "publish",
             "instrument": {
                 "@id": "main.nf#software-application"
             },
             "object": {
-                "@id": "#task/13fc2459df3405bf049e575f063aef3d/FOOBAR123.md.cram"
+                "@id": "#task/13fc2459df3405bf049e575f063aef3d/FOOBAR123.deepvariant.vcf.gz"
             },
             "result": {
-                "@id": "file:///path/to/FOOBAR123.md.cram"
+                "@id": "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
             },
             "actionStatus": "http://schema.org/CompletedActionStatus"
         },
@@ -422,16 +422,16 @@
             "encodingFormat": "text/csv"
         },
         {
-            "@id": "file:///path/to/FOOBAR123.md.cram.crai",
+            "@id": "file:///path/to/FOOBAR123.deepvariant.vcf.gz.tbi",
             "@type": "File",
-            "name": "FOOBAR123.md.cram.crai",
+            "name": "FOOBAR123.deepvariant.vcf.gz.tbi",
             "sha256": "38fdf473549d817821bfc8e78242b592ac2d9f02fd2213cf955c5e409135fc7e",
             "contentSize": 3950691
         },
         {
-            "@id": "file:///path/to/FOOBAR123.md.cram",
+            "@id": "file:///path/to/FOOBAR123.deepvariant.vcf.gz",
             "@type": "File",
-            "name": "FOOBAR123.md.cram",
+            "name": "FOOBAR123.deepvariant.vcf.gz",
             "sha256": "bf48e57bad6e0fc56e976b4344da8a386319a4bfafc285cb200564451a503158",
             "contentSize": 31871057156
         }

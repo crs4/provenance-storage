@@ -60,7 +60,7 @@ def test_get_file(crate_map, tmp_path, monkeypatch, cwd):
 
 
 def test_get_graph_id(crate_map):
-    graph_id = get_graph_id("file:///path/to/FOOBAR123.md.cram")
+    graph_id = get_graph_id("file:///path/to/FOOBAR123.deepvariant.vcf.gz")
     assert graph_id == f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip"
 
 
@@ -75,8 +75,8 @@ def test_get_run_results(crate_map):
     graph_id = crate_map["provcrate1"]["url"]
     results = set(get_run_results(graph_id))
     assert results == {
-        "file:///path/to/FOOBAR123.md.cram.crai",
-        "file:///path/to/FOOBAR123.md.cram"
+        "file:///path/to/FOOBAR123.deepvariant.vcf.gz.tbi",
+        "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
     }
 
 

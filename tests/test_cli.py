@@ -85,7 +85,7 @@ def test_cli_get_file(crate_map, tmp_path, monkeypatch, cwd):
 
 def test_cli_get_graph_id(crate_map):
     runner = CliRunner()
-    args = ["get-graph-id", "file:///path/to/FOOBAR123.md.cram"]
+    args = ["get-graph-id", "file:///path/to/FOOBAR123.deepvariant.vcf.gz"]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
     assert result.stdout.rstrip() == crate_map["provcrate1"]["url"]
@@ -108,8 +108,8 @@ def test_cli_get_run_results(crate_map):
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
     assert set(result.stdout.splitlines()) == {
-        "file:///path/to/FOOBAR123.md.cram.crai",
-        "file:///path/to/FOOBAR123.md.cram"
+        "file:///path/to/FOOBAR123.deepvariant.vcf.gz.tbi",
+        "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
     }
 
 
