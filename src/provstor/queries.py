@@ -108,6 +108,21 @@ WHERE {
 }
 """
 
+OBJECTS_FOR_RESULT_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?object
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:mentions ?action .
+  ?action a schema:CreateAction .
+  ?action schema:object ?object .
+  ?action schema:result <%s> .
+}
+"""
+
 WFRUN_PARAMS_QUERY = """\
 PREFIX schema: <http://schema.org/>
 

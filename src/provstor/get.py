@@ -31,6 +31,7 @@ from .queries import (
     WORKFLOW_QUERY,
     WFRUN_RESULTS_QUERY,
     WFRUN_OBJECTS_QUERY,
+    OBJECTS_FOR_RESULT_QUERY,
     WFRUN_PARAMS_QUERY
 )
 from .query import run_query
@@ -99,6 +100,11 @@ def get_run_results(graph_id):
 
 def get_run_objects(graph_id):
     qres = run_query(WFRUN_OBJECTS_QUERY, graph_id=graph_id)
+    return (str(_[0]) for _ in qres)
+
+
+def get_objects_for_result(result_id):
+    qres = run_query(OBJECTS_FOR_RESULT_QUERY % result_id)
     return (str(_[0]) for _ in qres)
 
 

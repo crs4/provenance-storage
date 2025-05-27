@@ -30,6 +30,7 @@ from .get import (
     get_run_results as get_run_results_f,
     get_run_objects as get_run_objects_f,
     get_run_params as get_run_params_f,
+    get_objects_for_result as get_objects_for_result_f,
     get_workflow as get_workflow_f
 )
 from .list import list_graphs as list_graphs_f
@@ -214,6 +215,22 @@ def get_run_objects(graph_id):
     GRAPH_ID: id of the graph in the triple store.
     """
     objects = get_run_objects_f(graph_id)
+    for r in objects:
+        sys.stdout.write(f"{r}\n")
+
+
+@cli.command()
+@click.argument(
+    "result_id",
+    metavar="RESULT_ID"
+)
+def get_objects_for_result(result_id):
+    """\
+    Get objects that are related to the given result in a CreateAction.
+
+    RESULT_ID: id of the result item.
+    """
+    objects = get_objects_for_result_f(result_id)
     for r in objects:
         sys.stdout.write(f"{r}\n")
 

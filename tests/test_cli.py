@@ -142,6 +142,37 @@ def test_cli_get_run_objects(crate_map):
     }
 
 
+def test_cli_get_objects_for_result(crate_map):
+    runner = CliRunner()
+    proccrate1_rde_id = crate_map["proccrate1"]["rde_id"]
+    result_id = "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz"
+    args = ["get-objects-for-result", result_id]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert set(result.stdout.splitlines()) == {
+        f"{proccrate1_rde_id}aux.vcf",
+        "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
+    }
+    args = ["get-objects-for-result", f"{proccrate1_rde_id}aux.vcf"]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert len(result.stdout.splitlines()) == 0
+    provcrate1_rde_id = crate_map["provcrate1"]["rde_id"]
+    args = ["get-objects-for-result", "file:///path/to/FOOBAR123.deepvariant.vcf.gz"]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert set(result.stdout.splitlines()) == {
+        f"{provcrate1_rde_id}#param/input/value",
+        f"{provcrate1_rde_id}#param/foo/value",
+        "file:///path/to/FOOBAR123_1.fastq.gz",
+        "file:///path/to/FOOBAR123_2.fastq.gz",
+        "file:///path/to/pipeline_info/software_versions.yml",
+        "http://example.com/fooconfig.yml",
+        f"{provcrate1_rde_id}sample.csv",
+    }
+
+
+
 def test_cli_get_run_params(crate_map):
     runner = CliRunner()
     crate_url = crate_map["provcrate1"]["url"]
