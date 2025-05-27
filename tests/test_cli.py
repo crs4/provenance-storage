@@ -111,7 +111,7 @@ def test_cli_get_workflow(crate_map):
     args = ["get-workflow", crate_url]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
-    assert result.stdout.rstrip() == rde_id + "main.nf"
+    assert set(result.stdout.splitlines()) == {rde_id + "main.nf"}
 
 
 def test_cli_get_run_results(crate_map):

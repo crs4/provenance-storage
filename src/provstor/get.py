@@ -89,9 +89,7 @@ def get_graphs_for_result(file_id):
 
 def get_workflow(graph_id):
     qres = run_query(WORKFLOW_QUERY, graph_id=graph_id)
-    assert len(qres) >= 1
-    workflow = str(list(qres)[0][0])
-    return workflow
+    return (str(_[0]) for _ in qres)
 
 
 def get_run_results(graph_id):

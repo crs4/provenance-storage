@@ -78,8 +78,8 @@ def test_get_graphs_for_result(crate_map):
 def test_get_workflow(crate_map):
     graph_id = crate_map["provcrate1"]["url"]
     rde_id = crate_map["provcrate1"]["rde_id"]
-    workflow = get_workflow(graph_id)
-    assert workflow == f"{rde_id}main.nf"
+    results = set(get_workflow(graph_id))
+    assert results == {f"{rde_id}main.nf"}
 
 
 def test_get_run_results(crate_map):

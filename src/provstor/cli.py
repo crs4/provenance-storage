@@ -173,12 +173,15 @@ def get_graphs_for_result(result_id):
 )
 def get_workflow(graph_id):
     """\
-    Get the workflow id corresponding to the given graph id.
+    Get the workflow id corresponding to the given graph id. This should
+    give a result only for a Workflow RO-Crate and crates whose profile is
+    derived from Workflow-RO-Crate.
 
     GRAPH_ID: id of the graph in the triple store.
     """
-    workflow = get_workflow_f(graph_id)
-    sys.stdout.write(f"{workflow}\n")
+    workflows = get_workflow_f(graph_id)
+    for g in workflows:
+        sys.stdout.write(f"{g}\n")
 
 
 @cli.command()
