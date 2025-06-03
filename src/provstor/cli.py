@@ -22,6 +22,7 @@ from pathlib import Path
 import click
 
 from . import __version__
+from .backtrack import backtrack as backtrack_f
 from .get import (
     get_crate as get_crate_f,
     get_file as get_file_f,
@@ -260,6 +261,21 @@ def list_graphs():
     graphs = list_graphs_f()
     for g in graphs:
         sys.stdout.write(f"{g}\n")
+
+
+@cli.command()
+@click.argument(
+    "result_id",
+    metavar="RESULT_ID"
+)
+def backtrack(result_id):
+    """\
+    Recursively get objects related to the given result by a chain of actions.
+
+    RESULT_ID: id of the result item.
+    """
+    for item in backtrack_f(result_id):
+        sys.stdout.write(f"{item}\n")
 
 
 @cli.command()
