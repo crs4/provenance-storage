@@ -34,7 +34,7 @@ def data_dir():
 @pytest.fixture(scope="session")
 def crate_map(data_dir):
     m = {}
-    for c in "crate1", "crate2", "provcrate1", "proccrate1":
+    for c in "crate1", "crate2", "provcrate1", "proccrate1", "proccrate2":
         crate_path = data_dir / c
         crate_url = load_crate_metadata(crate_path)
         m[c] = {

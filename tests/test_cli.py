@@ -172,7 +172,6 @@ def test_cli_get_objects_for_result(crate_map):
     }
 
 
-
 def test_cli_get_run_params(crate_map):
     runner = CliRunner()
     crate_url = crate_map["provcrate1"]["url"]
@@ -194,4 +193,35 @@ def test_cli_list_graphs(crate_map):
         f"http://{MINIO_STORE}/{MINIO_BUCKET}/crate1.zip",
         f"http://{MINIO_STORE}/{MINIO_BUCKET}/crate2.zip",
         f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip",
+    }
+
+
+def test_cli_backtrack(crate_map):
+    def to_set(ln):
+        return set([_.strip("'") for _ in ln.strip("[]").split("', '")])
+    runner = CliRunner()
+    proccrate2_rde_id = crate_map["proccrate2"]["rde_id"]
+    proccrate1_rde_id = crate_map["proccrate1"]["rde_id"]
+    provcrate1_rde_id = crate_map["provcrate1"]["rde_id"]
+    result_id = "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    args = ["backtrack", result_id]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    items = [to_set(_) for _ in result.stdout.splitlines()]
+    assert items[0] >= {
+        f"{proccrate2_rde_id}aux.txt",
+        "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz"
+    }
+    assert items[1] >= {
+        f"{proccrate1_rde_id}aux.vcf",
+        "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
+    }
+    assert items[2] >= {
+        f"{provcrate1_rde_id}#param/input/value",
+        f"{provcrate1_rde_id}#param/foo/value",
+        "file:///path/to/FOOBAR123_1.fastq.gz",
+        "file:///path/to/FOOBAR123_2.fastq.gz",
+        "file:///path/to/pipeline_info/software_versions.yml",
+        "http://example.com/fooconfig.yml",
+        f"{provcrate1_rde_id}sample.csv",
     }
