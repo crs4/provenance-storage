@@ -120,6 +120,7 @@ WHERE {
   ?action a schema:CreateAction .
   ?action schema:object ?object .
   ?action schema:result <%s> .
+  { ?object a schema:MediaObject } UNION { ?object a schema:Dataset }
 }
 """
 

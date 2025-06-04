@@ -118,8 +118,6 @@ def test_get_objects_for_result(crate_map):
     provcrate1_rde_id = crate_map["provcrate1"]["rde_id"]
     objects = set(get_objects_for_result("file:///path/to/FOOBAR123.deepvariant.vcf.gz"))
     assert objects >= {
-        f"{provcrate1_rde_id}#param/input/value",
-        f"{provcrate1_rde_id}#param/foo/value",
         "file:///path/to/FOOBAR123_1.fastq.gz",
         "file:///path/to/FOOBAR123_2.fastq.gz",
         "file:///path/to/pipeline_info/software_versions.yml",
