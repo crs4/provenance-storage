@@ -22,13 +22,16 @@ from pathlib import Path
 import click
 
 from . import __version__
+from .backtrack import backtrack as backtrack_f
 from .get import (
     get_crate as get_crate_f,
     get_file as get_file_f,
-    get_graph_id as get_graph_id_f,
+    get_graphs_for_file as get_graphs_for_file_f,
+    get_graphs_for_result as get_graphs_for_result_f,
     get_run_results as get_run_results_f,
     get_run_objects as get_run_objects_f,
     get_run_params as get_run_params_f,
+    get_objects_for_result as get_objects_for_result_f,
     get_workflow as get_workflow_f
 )
 from .list import list_graphs as list_graphs_f
@@ -137,14 +140,32 @@ def get_file(file_uri, outdir):
     "file_id",
     metavar="FILE_ID"
 )
-def get_graph_id(file_id):
+def get_graphs_for_file(file_id):
     """\
-    Get the graph id corresponding to the given file.
+    Get the ids of the graphs that contain (hasPart) the given file.
 
     FILE_ID: full URI of the file (e.g. file://...).
     """
-    graph_id = get_graph_id_f(file_id)
-    sys.stdout.write(f"{graph_id}\n")
+    graphs = get_graphs_for_file_f(file_id)
+    for g in graphs:
+        sys.stdout.write(f"{g}\n")
+
+
+@cli.command()
+@click.argument(
+    "result_id",
+    metavar="RESULT_ID"
+)
+def get_graphs_for_result(result_id):
+    """\
+    Get the ids of the graphs where the given id is listed as the result of a
+    CreateAction.
+
+    RESULT_ID: RO-Crate id of the result.
+    """
+    graphs = get_graphs_for_result_f(result_id)
+    for g in graphs:
+        sys.stdout.write(f"{g}\n")
 
 
 @cli.command()
@@ -154,12 +175,15 @@ def get_graph_id(file_id):
 )
 def get_workflow(graph_id):
     """\
-    Get the workflow id corresponding to the given graph id.
+    Get the workflow id corresponding to the given graph id. This should
+    give a result only for a Workflow RO-Crate and crates whose profile is
+    derived from Workflow-RO-Crate.
 
     GRAPH_ID: id of the graph in the triple store.
     """
-    workflow = get_workflow_f(graph_id)
-    sys.stdout.write(f"{workflow}\n")
+    workflows = get_workflow_f(graph_id)
+    for g in workflows:
+        sys.stdout.write(f"{g}\n")
 
 
 @cli.command()
@@ -198,6 +222,22 @@ def get_run_objects(graph_id):
 
 @cli.command()
 @click.argument(
+    "result_id",
+    metavar="RESULT_ID"
+)
+def get_objects_for_result(result_id):
+    """\
+    Get objects that are related to the given result in a CreateAction.
+
+    RESULT_ID: id of the result item.
+    """
+    objects = get_objects_for_result_f(result_id)
+    for r in objects:
+        sys.stdout.write(f"{r}\n")
+
+
+@cli.command()
+@click.argument(
     "graph_id",
     metavar="GRAPH_ID"
 )
@@ -221,6 +261,21 @@ def list_graphs():
     graphs = list_graphs_f()
     for g in graphs:
         sys.stdout.write(f"{g}\n")
+
+
+@cli.command()
+@click.argument(
+    "result_id",
+    metavar="RESULT_ID"
+)
+def backtrack(result_id):
+    """\
+    Recursively get objects related to the given result by a chain of actions.
+
+    RESULT_ID: id of the result item.
+    """
+    for item in backtrack_f(result_id):
+        sys.stdout.write(f"{item}\n")
 
 
 @cli.command()

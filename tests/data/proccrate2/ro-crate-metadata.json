@@ -1,0 +1,94 @@
+{
+    "@context": [
+        "https://w3id.org/ro/crate/1.1/context",
+        "https://w3id.org/ro/terms/workflow-run/context"
+    ],
+    "@graph": [
+        {
+            "@id": "ro-crate-metadata.json",
+            "@type": "CreativeWork",
+            "conformsTo": {
+                "@id": "https://w3id.org/ro/crate/1.1"
+            },
+            "about": {
+                "@id": "./"
+            }
+        },
+        {
+            "@id": "./",
+            "@type": "Dataset",
+            "conformsTo": {
+                "@id": "https://w3id.org/ro/wfrun/process/0.5"
+            },
+            "datePublished": "2025-06-03",
+            "hasPart": [
+                {
+                    "@id": "aux.txt"
+                },
+                {
+                    "@id": "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz"
+                },
+                {
+                    "@id": "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+                }
+            ],
+            "mentions": {
+                "@id": "#normalization-1"
+            },
+            "name": "VCF normalization",
+            "description": "hypothetical VCF normalization"
+        },
+        {   "@id": "https://w3id.org/ro/wfrun/process/0.5",
+            "@type": "CreativeWork",
+            "name": "Process Run Crate",
+            "version": "0.5"
+        },
+        {
+            "@id": "https://www.example.com/sw/normalizator",
+            "@type": "SoftwareApplication",
+            "url": "https://www.example.com/sw/normalizator",
+            "name": "normalizator",
+            "softwareVersion": "0.1"
+        },
+        {
+            "@id": "#normalization-1",
+            "@type": "CreateAction",
+            "name": "normalization of FOOBAR123.deepvariant.ann.vcf.gz",
+            "description": "normalization of FOOBAR123.deepvariant.ann.vcf.gz",
+            "endTime": "2025-05-23T09:50:00+02:00",
+            "instrument": {"@id": "https://www.example.com/sw/normalizator"},
+            "object": [
+                {
+                    "@id": "aux.txt"
+                },
+                {
+                    "@id": "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz"
+                }
+            ],
+            "result": [
+                {
+                    "@id": "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+                }
+            ]
+        },
+        {
+            "@id": "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz",
+            "@type": "File",
+            "name": "FOOBAR123.deepvariant.ann.vcf.gz",
+            "sha256": "8ecc09cbcbe3a58c74a6584fde4381ff437c782361d50ea3ee18387c3c709794",
+            "contentSize": 42891067253
+        },
+        {
+            "@id": "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz",
+            "@type": "File",
+            "name": "FOOBAR123.deepvariant.ann.norm.vcf.gz",
+            "sha256": "86b356751b9947666699ac89977ca5d4666acd61d34cf6cc89aec1ce11712a03",
+            "contentSize": 42895273861
+        },
+        {
+            "@id": "aux.txt",
+            "@type": "File",
+            "name": "aux.txt"
+        }
+    ]
+}

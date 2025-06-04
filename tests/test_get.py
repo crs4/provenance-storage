@@ -23,10 +23,12 @@ from provstor.config import MINIO_STORE, MINIO_BUCKET
 from provstor.get import (
     get_crate,
     get_file,
-    get_graph_id,
+    get_graphs_for_file,
+    get_graphs_for_result,
     get_workflow,
     get_run_results,
     get_run_objects,
+    get_objects_for_result,
     get_run_params
 )
 
@@ -59,24 +61,34 @@ def test_get_file(crate_map, tmp_path, monkeypatch, cwd):
     assert filecmp.cmp(out_md_path, md_path)
 
 
-def test_get_graph_id(crate_map):
-    graph_id = get_graph_id("file:///path/to/FOOBAR123.md.cram")
-    assert graph_id == f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip"
+def test_get_graphs_for_file(crate_map):
+    graphs = get_graphs_for_file("file:///path/to/FOOBAR123.deepvariant.vcf.gz")
+    assert set(graphs) >= {
+        f"http://{MINIO_STORE}/{MINIO_BUCKET}/proccrate1.zip",
+        f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip"
+    }
+
+
+def test_get_graphs_for_result(crate_map):
+    graphs = get_graphs_for_result("file:///path/to/FOOBAR123.deepvariant.vcf.gz")
+    assert set(graphs) >= {
+        f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip"
+    }
 
 
 def test_get_workflow(crate_map):
     graph_id = crate_map["provcrate1"]["url"]
     rde_id = crate_map["provcrate1"]["rde_id"]
-    workflow = get_workflow(graph_id)
-    assert workflow == f"{rde_id}main.nf"
+    results = set(get_workflow(graph_id))
+    assert results == {f"{rde_id}main.nf"}
 
 
 def test_get_run_results(crate_map):
     graph_id = crate_map["provcrate1"]["url"]
     results = set(get_run_results(graph_id))
     assert results == {
-        "file:///path/to/FOOBAR123.md.cram.crai",
-        "file:///path/to/FOOBAR123.md.cram"
+        "file:///path/to/FOOBAR123.deepvariant.vcf.gz.tbi",
+        "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
     }
 
 
@@ -90,6 +102,29 @@ def test_get_run_objects(crate_map):
         "file:///path/to/pipeline_info/software_versions.yml",
         "http://example.com/fooconfig.yml",
         f"{rde_id}sample.csv"
+    }
+
+
+def test_get_objects_for_result(crate_map):
+    proccrate1_rde_id = crate_map["proccrate1"]["rde_id"]
+    result_id = "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz"
+    objects = set(get_objects_for_result(result_id))
+    assert objects >= {
+        f"{proccrate1_rde_id}aux.vcf",
+        "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
+    }
+    objects = set(get_objects_for_result(f"{proccrate1_rde_id}aux.vcf"))
+    assert len(objects) == 0
+    provcrate1_rde_id = crate_map["provcrate1"]["rde_id"]
+    objects = set(get_objects_for_result("file:///path/to/FOOBAR123.deepvariant.vcf.gz"))
+    assert objects >= {
+        f"{provcrate1_rde_id}#param/input/value",
+        f"{provcrate1_rde_id}#param/foo/value",
+        "file:///path/to/FOOBAR123_1.fastq.gz",
+        "file:///path/to/FOOBAR123_2.fastq.gz",
+        "file:///path/to/pipeline_info/software_versions.yml",
+        "http://example.com/fooconfig.yml",
+        f"{provcrate1_rde_id}sample.csv",
     }
 
 

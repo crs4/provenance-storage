@@ -50,6 +50,22 @@ WHERE {
 }
 """
 
+
+GRAPH_ID_FOR_RESULT_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?url
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:url ?url .
+  ?rde schema:mentions ?action .
+  ?action a schema:CreateAction .
+  ?action schema:result <%s> .
+}
+"""
+
 WORKFLOW_QUERY = """\
 PREFIX schema: <http://schema.org/>
 
@@ -62,7 +78,7 @@ WHERE {
 }
 """
 
-RUN_RESULTS_QUERY = """\
+WFRUN_RESULTS_QUERY = """\
 PREFIX schema: <http://schema.org/>
 
 SELECT ?result
@@ -77,7 +93,7 @@ WHERE {
 }
 """
 
-RUN_OBJECTS_QUERY = """\
+WFRUN_OBJECTS_QUERY = """\
 PREFIX schema: <http://schema.org/>
 
 SELECT ?object
@@ -92,7 +108,22 @@ WHERE {
 }
 """
 
-RUN_PARAMS_QUERY = """\
+OBJECTS_FOR_RESULT_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?object
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:mentions ?action .
+  ?action a schema:CreateAction .
+  ?action schema:object ?object .
+  ?action schema:result <%s> .
+}
+"""
+
+WFRUN_PARAMS_QUERY = """\
 PREFIX schema: <http://schema.org/>
 
 SELECT ?name ?value

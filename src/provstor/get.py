@@ -27,10 +27,12 @@ import zipfile
 from .queries import (
     CRATE_URL_QUERY,
     GRAPH_ID_FOR_FILE_QUERY,
+    GRAPH_ID_FOR_RESULT_QUERY,
     WORKFLOW_QUERY,
-    RUN_RESULTS_QUERY,
-    RUN_OBJECTS_QUERY,
-    RUN_PARAMS_QUERY
+    WFRUN_RESULTS_QUERY,
+    WFRUN_OBJECTS_QUERY,
+    OBJECTS_FOR_RESULT_QUERY,
+    WFRUN_PARAMS_QUERY
 )
 from .query import run_query
 
@@ -76,30 +78,36 @@ def get_file(file_uri, outdir=None):
     return Path(out_path)
 
 
-def get_graph_id(file_id):
+def get_graphs_for_file(file_id):
     qres = run_query(GRAPH_ID_FOR_FILE_QUERY % file_id)
-    assert len(qres) >= 1
-    graph_id = str(list(qres)[0][0])
-    return graph_id
+    return (str(_[0]) for _ in qres)
+
+
+def get_graphs_for_result(file_id):
+    qres = run_query(GRAPH_ID_FOR_RESULT_QUERY % file_id)
+    return (str(_[0]) for _ in qres)
 
 
 def get_workflow(graph_id):
     qres = run_query(WORKFLOW_QUERY, graph_id=graph_id)
-    assert len(qres) >= 1
-    workflow = str(list(qres)[0][0])
-    return workflow
+    return (str(_[0]) for _ in qres)
 
 
 def get_run_results(graph_id):
-    qres = run_query(RUN_RESULTS_QUERY, graph_id=graph_id)
+    qres = run_query(WFRUN_RESULTS_QUERY, graph_id=graph_id)
     return (str(_[0]) for _ in qres)
 
 
 def get_run_objects(graph_id):
-    qres = run_query(RUN_OBJECTS_QUERY, graph_id=graph_id)
+    qres = run_query(WFRUN_OBJECTS_QUERY, graph_id=graph_id)
+    return (str(_[0]) for _ in qres)
+
+
+def get_objects_for_result(result_id):
+    qres = run_query(OBJECTS_FOR_RESULT_QUERY % result_id)
     return (str(_[0]) for _ in qres)
 
 
 def get_run_params(graph_id):
-    qres = run_query(RUN_PARAMS_QUERY, graph_id=graph_id)
+    qres = run_query(WFRUN_PARAMS_QUERY, graph_id=graph_id)
     return ((str(_.name), str(_.value)) for _ in qres)

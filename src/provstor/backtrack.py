@@ -14,32 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
-from pathlib import Path
-
-import arcp
-import pytest
-
-from provstor.load import load_crate_metadata
+from .get import get_objects_for_result
 
 
-THIS_DIR = Path(__file__).absolute().parent
-DATA_DIR_NAME = 'data'
-
-
-@pytest.fixture(scope="session")
-def data_dir():
-    return THIS_DIR / DATA_DIR_NAME
-
-
-@pytest.fixture(scope="session")
-def crate_map(data_dir):
-    m = {}
-    for c in "crate1", "crate2", "provcrate1", "proccrate1", "proccrate2":
-        crate_path = data_dir / c
-        crate_url = load_crate_metadata(crate_path)
-        m[c] = {
-            "path": crate_path,
-            "url": crate_url,
-            "rde_id": arcp.arcp_location(crate_url)
-        }
-    return m
+def backtrack(result_id):
+    objects = list(get_objects_for_result(result_id))
+    if objects:
+        yield objects
+        for obj in objects:
+            for r_obj in backtrack(obj):
+                yield r_obj
