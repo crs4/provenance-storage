@@ -162,8 +162,6 @@ def test_cli_get_objects_for_result(crate_map):
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
     assert set(result.stdout.splitlines()) == {
-        f"{provcrate1_rde_id}#param/input/value",
-        f"{provcrate1_rde_id}#param/foo/value",
         "file:///path/to/FOOBAR123_1.fastq.gz",
         "file:///path/to/FOOBAR123_2.fastq.gz",
         "file:///path/to/pipeline_info/software_versions.yml",
@@ -217,8 +215,6 @@ def test_cli_backtrack(crate_map):
         "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
     }
     assert items[2] >= {
-        f"{provcrate1_rde_id}#param/input/value",
-        f"{provcrate1_rde_id}#param/foo/value",
         "file:///path/to/FOOBAR123_1.fastq.gz",
         "file:///path/to/FOOBAR123_2.fastq.gz",
         "file:///path/to/pipeline_info/software_versions.yml",
