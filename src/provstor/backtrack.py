@@ -14,13 +14,19 @@
 # You should have received a copy of the GNU General Public License
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
-from .get import get_objects_for_result
+from .get import (
+    get_actions_for_result,
+    get_objects_for_action,
+    get_results_for_action
+)
 
 
 def backtrack(result_id):
-    objects = list(get_objects_for_result(result_id))
-    if objects:
-        yield objects
+    actions = list(get_actions_for_result(result_id))
+    for a in actions:
+        objects = list(get_objects_for_action(a))
+        results = list(get_results_for_action(a))
+        yield a, objects, results
         for obj in objects:
-            for r_obj in backtrack(obj):
-                yield r_obj
+            for r_a, r_obj, r_res in backtrack(obj):
+                yield r_a, r_obj, r_res

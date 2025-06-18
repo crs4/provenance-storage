@@ -108,6 +108,54 @@ WHERE {
 }
 """
 
+
+ACTIONS_FOR_RESULT_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?action
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:mentions ?action .
+  ?action a schema:CreateAction .
+  ?action schema:result <%s> .
+}
+"""
+
+
+OBJECTS_FOR_ACTION_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?object
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:mentions <%(action)s> .
+  <%(action)s> a schema:CreateAction .
+  <%(action)s> schema:object ?object .
+  { ?object a schema:MediaObject } UNION { ?object a schema:Dataset }
+}
+"""
+
+
+RESULTS_FOR_ACTION_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?result
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:mentions <%(action)s> .
+  <%(action)s> a schema:CreateAction .
+  <%(action)s> schema:result ?result .
+  { ?result a schema:MediaObject } UNION { ?result a schema:Dataset }
+}
+"""
+
+
 OBJECTS_FOR_RESULT_QUERY = """\
 PREFIX schema: <http://schema.org/>
 

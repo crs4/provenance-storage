@@ -195,8 +195,6 @@ def test_cli_list_graphs(crate_map):
 
 
 def test_cli_backtrack(crate_map):
-    def to_set(ln):
-        return set([_.strip("'") for _ in ln.strip("[]").split("', '")])
     runner = CliRunner()
     proccrate2_rde_id = crate_map["proccrate2"]["rde_id"]
     proccrate1_rde_id = crate_map["proccrate1"]["rde_id"]
@@ -205,19 +203,33 @@ def test_cli_backtrack(crate_map):
     args = ["backtrack", result_id]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
-    items = [to_set(_) for _ in result.stdout.splitlines()]
-    assert items[0] >= {
+    items = [eval(_) for _ in result.stdout.splitlines()]
+    assert len(items) >= 3
+    assert items[0][0] == f"{proccrate2_rde_id}#normalization-1"
+    assert set(items[0][1]) >= {
         f"{proccrate2_rde_id}aux.txt",
         "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz"
     }
-    assert items[1] >= {
+    assert set(items[0][2]) >= {
+        "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    }
+    assert items[1][0] == f"{proccrate1_rde_id}#annotation-1"
+    assert set(items[1][1]) >= {
         f"{proccrate1_rde_id}aux.vcf",
         "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
     }
-    assert items[2] >= {
+    assert set(items[1][2]) >= {
+        "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz"
+    }
+    assert items[2][0] == f"{provcrate1_rde_id}#12204f1e-758f-46e7-bad7-162768de3a5d"
+    assert set(items[2][1]) >= {
         "file:///path/to/FOOBAR123_1.fastq.gz",
         "file:///path/to/FOOBAR123_2.fastq.gz",
         "file:///path/to/pipeline_info/software_versions.yml",
         "http://example.com/fooconfig.yml",
         f"{provcrate1_rde_id}sample.csv",
+    }
+    assert set(items[2][2]) >= {
+        "file:///path/to/FOOBAR123.deepvariant.vcf.gz.tbi",
+        "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
     }
