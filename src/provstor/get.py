@@ -32,6 +32,9 @@ from .queries import (
     WFRUN_RESULTS_QUERY,
     WFRUN_OBJECTS_QUERY,
     OBJECTS_FOR_RESULT_QUERY,
+    ACTIONS_FOR_RESULT_QUERY,
+    OBJECTS_FOR_ACTION_QUERY,
+    RESULTS_FOR_ACTION_QUERY,
     WFRUN_PARAMS_QUERY
 )
 from .query import run_query
@@ -105,6 +108,21 @@ def get_run_objects(graph_id):
 
 def get_objects_for_result(result_id):
     qres = run_query(OBJECTS_FOR_RESULT_QUERY % result_id)
+    return (str(_[0]) for _ in qres)
+
+
+def get_actions_for_result(result_id):
+    qres = run_query(ACTIONS_FOR_RESULT_QUERY % result_id)
+    return (str(_[0]) for _ in qres)
+
+
+def get_objects_for_action(action_id):
+    qres = run_query(OBJECTS_FOR_ACTION_QUERY % {"action": action_id})
+    return (str(_[0]) for _ in qres)
+
+
+def get_results_for_action(action_id):
+    qres = run_query(RESULTS_FOR_ACTION_QUERY % {"action": action_id})
     return (str(_[0]) for _ in qres)
 
 
