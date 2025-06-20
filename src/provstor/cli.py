@@ -32,6 +32,9 @@ from .get import (
     get_run_objects as get_run_objects_f,
     get_run_params as get_run_params_f,
     get_objects_for_result as get_objects_for_result_f,
+    get_actions_for_result as get_actions_for_result_f,
+    get_objects_for_action as get_objects_for_action_f,
+    get_results_for_action as get_results_for_action_f,
     get_workflow as get_workflow_f
 )
 from .list import list_graphs as list_graphs_f
@@ -233,6 +236,54 @@ def get_objects_for_result(result_id):
     """
     objects = get_objects_for_result_f(result_id)
     for r in objects:
+        sys.stdout.write(f"{r}\n")
+
+
+@cli.command()
+@click.argument(
+    "result_id",
+    metavar="RESULT_ID"
+)
+def get_actions_for_result(result_id):
+    """\
+    Get actions that have the given result.
+
+    RESULT_ID: id of the result item.
+    """
+    actions = get_actions_for_result_f(result_id)
+    for a in actions:
+        sys.stdout.write(f"{a}\n")
+
+
+@cli.command()
+@click.argument(
+    "action_id",
+    metavar="ACTION_ID"
+)
+def get_objects_for_action(action_id):
+    """\
+    Get the objects of the given CreateAction.
+
+    ACTION_ID: id of the CreateAction.
+    """
+    objects = get_objects_for_action_f(action_id)
+    for r in objects:
+        sys.stdout.write(f"{r}\n")
+
+
+@cli.command()
+@click.argument(
+    "action_id",
+    metavar="ACTION_ID"
+)
+def get_results_for_action(action_id):
+    """\
+    Get the results of the given CreateAction.
+
+    ACTION_ID: id of the CreateAction.
+    """
+    results = get_results_for_action_f(action_id)
+    for r in results:
         sys.stdout.write(f"{r}\n")
 
 

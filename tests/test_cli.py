@@ -170,6 +170,97 @@ def test_cli_get_objects_for_result(crate_map):
     }
 
 
+def test_cli_get_actions_for_result(crate_map):
+    runner = CliRunner()
+    proccrate2_rde_id = crate_map["proccrate2"]["rde_id"]
+    proccrate1_rde_id = crate_map["proccrate1"]["rde_id"]
+    provcrate1_rde_id = crate_map["provcrate1"]["rde_id"]
+    result_id = "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    args = ["get-actions-for-result", result_id]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert set(result.stdout.splitlines()) >= {
+        f"{proccrate2_rde_id}#normalization-1",
+    }
+    result_id = "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz"
+    args = ["get-actions-for-result", result_id]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert set(result.stdout.splitlines()) >= {
+        f"{proccrate1_rde_id}#annotation-1",
+    }
+    result_id = "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
+    args = ["get-actions-for-result", result_id]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert set(result.stdout.splitlines()) >= {
+        f"{provcrate1_rde_id}#12204f1e-758f-46e7-bad7-162768de3a5d",
+    }
+
+
+def test_cli_get_objects_for_action(crate_map):
+    runner = CliRunner()
+    proccrate2_rde_id = crate_map["proccrate2"]["rde_id"]
+    proccrate1_rde_id = crate_map["proccrate1"]["rde_id"]
+    provcrate1_rde_id = crate_map["provcrate1"]["rde_id"]
+    action_id = f"{proccrate2_rde_id}#normalization-1"
+    args = ["get-objects-for-action", action_id]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert set(result.stdout.splitlines()) >= {
+        f"{proccrate2_rde_id}aux.txt",
+        "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz"
+    }
+    action_id = f"{proccrate1_rde_id}#annotation-1"
+    args = ["get-objects-for-action", action_id]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert set(result.stdout.splitlines()) >= {
+        f"{proccrate1_rde_id}aux.vcf",
+        "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
+    }
+    action_id = f"{provcrate1_rde_id}#12204f1e-758f-46e7-bad7-162768de3a5d"
+    args = ["get-objects-for-action", action_id]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert set(result.stdout.splitlines()) >= {
+        "file:///path/to/FOOBAR123_1.fastq.gz",
+        "file:///path/to/FOOBAR123_2.fastq.gz",
+        "file:///path/to/pipeline_info/software_versions.yml",
+        "http://example.com/fooconfig.yml",
+        f"{provcrate1_rde_id}sample.csv",
+    }
+
+
+def test_cli_get_results_for_action(crate_map):
+    runner = CliRunner()
+    proccrate2_rde_id = crate_map["proccrate2"]["rde_id"]
+    proccrate1_rde_id = crate_map["proccrate1"]["rde_id"]
+    provcrate1_rde_id = crate_map["provcrate1"]["rde_id"]
+    action_id = f"{proccrate2_rde_id}#normalization-1"
+    args = ["get-results-for-action", action_id]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert set(result.stdout.splitlines()) >= {
+        "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz",
+    }
+    action_id = f"{proccrate1_rde_id}#annotation-1"
+    args = ["get-results-for-action", action_id]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert set(result.stdout.splitlines()) >= {
+        "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz",
+    }
+    action_id = f"{provcrate1_rde_id}#12204f1e-758f-46e7-bad7-162768de3a5d"
+    args = ["get-results-for-action", action_id]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert set(result.stdout.splitlines()) >= {
+        "file:///path/to/FOOBAR123.deepvariant.vcf.gz.tbi",
+        "file:///path/to/FOOBAR123.deepvariant.vcf.gz",
+    }
+
+
 def test_cli_get_run_params(crate_map):
     runner = CliRunner()
     crate_url = crate_map["provcrate1"]["url"]
