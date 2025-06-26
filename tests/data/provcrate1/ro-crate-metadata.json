@@ -86,6 +86,12 @@
                 },
                 {
                     "@id": "#task/79b298ee24dcd6b6dade4a0c82c4adc3/versions.yml"
+                },
+                {
+                    "@id": "#publish/13fc2459df3405bf049e575f063aef3d/FOOBAR123.deepvariant.vcf.gz.tbi"
+                },
+                {
+                    "@id": "#publish/13fc2459df3405bf049e575f063aef3d/FOOBAR123.deepvariant.vcf.gz"
                 }
             ],
             "license": "https://spdx.org/licenses/MIT"

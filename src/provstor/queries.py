@@ -18,7 +18,7 @@
 RDE_QUERY = """\
 PREFIX schema: <http://schema.org/>
 
-SELECT ?rde
+SELECT DISTINCT ?rde
 WHERE {
   ?md a schema:CreativeWork .
   FILTER(contains(str(?md), "ro-crate-metadata.json")) .
@@ -30,7 +30,7 @@ WHERE {
 CRATE_URL_QUERY = """\
 PREFIX schema: <http://schema.org/>
 
-SELECT ?crate_url
+SELECT DISTINCT ?crate_url
 WHERE {
   <%s> schema:url ?crate_url
 }
@@ -40,7 +40,7 @@ WHERE {
 GRAPH_ID_FOR_FILE_QUERY = """\
 PREFIX schema: <http://schema.org/>
 
-SELECT ?url
+SELECT DISTINCT ?url
 WHERE {
   ?md a schema:CreativeWork .
   FILTER(contains(str(?md), "ro-crate-metadata.json")) .
@@ -54,7 +54,7 @@ WHERE {
 GRAPH_ID_FOR_RESULT_QUERY = """\
 PREFIX schema: <http://schema.org/>
 
-SELECT ?url
+SELECT DISTINCT ?url
 WHERE {
   ?md a schema:CreativeWork .
   FILTER(contains(str(?md), "ro-crate-metadata.json")) .
@@ -69,7 +69,7 @@ WHERE {
 WORKFLOW_QUERY = """\
 PREFIX schema: <http://schema.org/>
 
-SELECT ?workflow
+SELECT DISTINCT ?workflow
 WHERE {
   ?md a schema:CreativeWork .
   FILTER(contains(str(?md), "ro-crate-metadata.json")) .
@@ -81,7 +81,7 @@ WHERE {
 WFRUN_RESULTS_QUERY = """\
 PREFIX schema: <http://schema.org/>
 
-SELECT ?result
+SELECT DISTINCT ?result
 WHERE {
   ?md a schema:CreativeWork .
   FILTER(contains(str(?md), "ro-crate-metadata.json")) .
@@ -96,7 +96,7 @@ WHERE {
 WFRUN_OBJECTS_QUERY = """\
 PREFIX schema: <http://schema.org/>
 
-SELECT ?object
+SELECT DISTINCT ?object
 WHERE {
   ?md a schema:CreativeWork .
   FILTER(contains(str(?md), "ro-crate-metadata.json")) .
@@ -108,10 +108,58 @@ WHERE {
 }
 """
 
+
+ACTIONS_FOR_RESULT_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT DISTINCT ?action
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:mentions ?action .
+  ?action a schema:CreateAction .
+  ?action schema:result <%s> .
+}
+"""
+
+
+OBJECTS_FOR_ACTION_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT DISTINCT ?object
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:mentions <%(action)s> .
+  <%(action)s> a schema:CreateAction .
+  <%(action)s> schema:object ?object .
+  { ?object a schema:MediaObject } UNION { ?object a schema:Dataset }
+}
+"""
+
+
+RESULTS_FOR_ACTION_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT DISTINCT ?result
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:mentions <%(action)s> .
+  <%(action)s> a schema:CreateAction .
+  <%(action)s> schema:result ?result .
+  { ?result a schema:MediaObject } UNION { ?result a schema:Dataset }
+}
+"""
+
+
 OBJECTS_FOR_RESULT_QUERY = """\
 PREFIX schema: <http://schema.org/>
 
-SELECT ?object
+SELECT DISTINCT ?object
 WHERE {
   ?md a schema:CreativeWork .
   FILTER(contains(str(?md), "ro-crate-metadata.json")) .
