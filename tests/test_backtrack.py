@@ -23,7 +23,7 @@ def test_backtrack(crate_map):
     provcrate1_rde_id = crate_map["provcrate1"]["rde_id"]
     result_id = "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
     items = list(backtrack(result_id))
-    assert len(items) >= 3
+    assert len(items) >= 4
     assert items[0][0] == f"{proccrate2_rde_id}#normalization-1"
     assert set(items[0][1]) >= {
         f"{proccrate2_rde_id}aux.txt",
@@ -51,4 +51,9 @@ def test_backtrack(crate_map):
     assert set(items[2][2]) >= {
         "file:///path/to/FOOBAR123.deepvariant.vcf.gz.tbi",
         "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
+    }
+    assert items[3][0] == f"{provcrate1_rde_id}#publish/13fc2459df3405bf049e575f063aef3d/FOOBAR123.deepvariant.vcf.gz"
+    assert items[3][1] == []  # object is not a file or directory
+    assert set(items[3][2]) >= {
+        "file:///path/to/FOOBAR123.deepvariant.vcf.gz",
     }

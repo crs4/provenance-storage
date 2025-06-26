@@ -147,6 +147,7 @@ def test_get_actions_for_result(crate_map):
     actions = set(get_actions_for_result(result_id))
     assert actions >= {
         f"{provcrate1_rde_id}#12204f1e-758f-46e7-bad7-162768de3a5d",
+        f"{provcrate1_rde_id}#publish/13fc2459df3405bf049e575f063aef3d/FOOBAR123.deepvariant.vcf.gz"
     }
 
 
