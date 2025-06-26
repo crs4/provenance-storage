@@ -109,17 +109,28 @@ def test_get_run_objects(crate_map):
 
 
 def test_get_objects_for_result(crate_map):
+    proccrate2_rde_id = crate_map["proccrate2"]["rde_id"]
     proccrate1_rde_id = crate_map["proccrate1"]["rde_id"]
-    result_id = "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz"
-    objects = set(get_objects_for_result(result_id))
+    provcrate1_rde_id = crate_map["provcrate1"]["rde_id"]
+    objects = set(get_objects_for_result(
+        "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    ))
+    assert objects >= {
+        f"{proccrate2_rde_id}aux.txt",
+        "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz"
+    }
+    objects = set(get_objects_for_result(
+        "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz"
+    ))
     assert objects >= {
         f"{proccrate1_rde_id}aux.vcf",
         "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
     }
     objects = set(get_objects_for_result(f"{proccrate1_rde_id}aux.vcf"))
     assert len(objects) == 0
-    provcrate1_rde_id = crate_map["provcrate1"]["rde_id"]
-    objects = set(get_objects_for_result("file:///path/to/FOOBAR123.deepvariant.vcf.gz"))
+    objects = set(get_objects_for_result(
+        "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
+    ))
     assert objects >= {
         "file:///path/to/FOOBAR123_1.fastq.gz",
         "file:///path/to/FOOBAR123_2.fastq.gz",
@@ -133,18 +144,21 @@ def test_get_actions_for_result(crate_map):
     proccrate2_rde_id = crate_map["proccrate2"]["rde_id"]
     proccrate1_rde_id = crate_map["proccrate1"]["rde_id"]
     provcrate1_rde_id = crate_map["provcrate1"]["rde_id"]
-    result_id = "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
-    actions = set(get_actions_for_result(result_id))
+    actions = set(get_actions_for_result(
+        "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    ))
     assert actions >= {
         f"{proccrate2_rde_id}#normalization-1",
     }
-    result_id = "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz"
-    actions = set(get_actions_for_result(result_id))
+    actions = set(get_actions_for_result(
+        "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz"
+    ))
     assert actions >= {
         f"{proccrate1_rde_id}#annotation-1",
     }
-    result_id = "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
-    actions = set(get_actions_for_result(result_id))
+    actions = set(get_actions_for_result(
+        "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
+    ))
     assert actions >= {
         f"{provcrate1_rde_id}#12204f1e-758f-46e7-bad7-162768de3a5d",
         f"{provcrate1_rde_id}#publish/13fc2459df3405bf049e575f063aef3d/FOOBAR123.deepvariant.vcf.gz"
@@ -155,20 +169,23 @@ def test_get_objects_for_action(crate_map):
     proccrate2_rde_id = crate_map["proccrate2"]["rde_id"]
     proccrate1_rde_id = crate_map["proccrate1"]["rde_id"]
     provcrate1_rde_id = crate_map["provcrate1"]["rde_id"]
-    action_id = f"{proccrate2_rde_id}#normalization-1"
-    objects = set(get_objects_for_action(action_id))
+    objects = set(get_objects_for_action(
+        f"{proccrate2_rde_id}#normalization-1"
+    ))
     assert objects >= {
         f"{proccrate2_rde_id}aux.txt",
         "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz"
     }
-    action_id = f"{proccrate1_rde_id}#annotation-1"
-    objects = set(get_objects_for_action(action_id))
+    objects = set(get_objects_for_action(
+        f"{proccrate1_rde_id}#annotation-1"
+    ))
     assert objects >= {
         f"{proccrate1_rde_id}aux.vcf",
         "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
     }
-    action_id = f"{provcrate1_rde_id}#12204f1e-758f-46e7-bad7-162768de3a5d"
-    objects = set(get_objects_for_action(action_id))
+    objects = set(get_objects_for_action(
+        f"{provcrate1_rde_id}#12204f1e-758f-46e7-bad7-162768de3a5d"
+    ))
     assert objects >= {
         "file:///path/to/FOOBAR123_1.fastq.gz",
         "file:///path/to/FOOBAR123_2.fastq.gz",
@@ -182,18 +199,21 @@ def test_get_results_for_action(crate_map):
     proccrate2_rde_id = crate_map["proccrate2"]["rde_id"]
     proccrate1_rde_id = crate_map["proccrate1"]["rde_id"]
     provcrate1_rde_id = crate_map["provcrate1"]["rde_id"]
-    action_id = f"{proccrate2_rde_id}#normalization-1"
-    results = set(get_results_for_action(action_id))
+    results = set(get_results_for_action(
+        f"{proccrate2_rde_id}#normalization-1"
+    ))
     assert results >= {
         "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz",
     }
-    action_id = f"{proccrate1_rde_id}#annotation-1"
-    results = set(get_results_for_action(action_id))
+    results = set(get_results_for_action(
+        f"{proccrate1_rde_id}#annotation-1"
+    ))
     assert results >= {
         "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz",
     }
-    action_id = f"{provcrate1_rde_id}#12204f1e-758f-46e7-bad7-162768de3a5d"
-    results = set(get_results_for_action(action_id))
+    results = set(get_results_for_action(
+        f"{provcrate1_rde_id}#12204f1e-758f-46e7-bad7-162768de3a5d"
+    ))
     assert results >= {
         "file:///path/to/FOOBAR123.deepvariant.vcf.gz.tbi",
         "file:///path/to/FOOBAR123.deepvariant.vcf.gz",

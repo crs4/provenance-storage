@@ -144,7 +144,17 @@ def test_cli_get_run_objects(crate_map):
 
 def test_cli_get_objects_for_result(crate_map):
     runner = CliRunner()
+    proccrate2_rde_id = crate_map["proccrate2"]["rde_id"]
     proccrate1_rde_id = crate_map["proccrate1"]["rde_id"]
+    provcrate1_rde_id = crate_map["provcrate1"]["rde_id"]
+    result_id = "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    args = ["get-objects-for-result", result_id]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert set(result.stdout.splitlines()) == {
+        f"{proccrate2_rde_id}aux.txt",
+        "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz"
+    }
     result_id = "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz"
     args = ["get-objects-for-result", result_id]
     result = runner.invoke(cli, args)
@@ -153,12 +163,13 @@ def test_cli_get_objects_for_result(crate_map):
         f"{proccrate1_rde_id}aux.vcf",
         "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
     }
-    args = ["get-objects-for-result", f"{proccrate1_rde_id}aux.vcf"]
+    result_id = f"{proccrate1_rde_id}aux.vcf"
+    args = ["get-objects-for-result", result_id]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
     assert len(result.stdout.splitlines()) == 0
-    provcrate1_rde_id = crate_map["provcrate1"]["rde_id"]
-    args = ["get-objects-for-result", "file:///path/to/FOOBAR123.deepvariant.vcf.gz"]
+    result_id = "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
+    args = ["get-objects-for-result", result_id]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
     assert set(result.stdout.splitlines()) == {
@@ -283,6 +294,8 @@ def test_cli_list_graphs(crate_map):
         f"http://{MINIO_STORE}/{MINIO_BUCKET}/crate1.zip",
         f"http://{MINIO_STORE}/{MINIO_BUCKET}/crate2.zip",
         f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip",
+        f"http://{MINIO_STORE}/{MINIO_BUCKET}/proccrate1.zip",
+        f"http://{MINIO_STORE}/{MINIO_BUCKET}/proccrate2.zip",
     }
 
 
