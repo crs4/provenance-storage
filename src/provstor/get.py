@@ -86,8 +86,8 @@ def get_graphs_for_file(file_id):
     return (str(_[0]) for _ in qres)
 
 
-def get_graphs_for_result(file_id):
-    qres = run_query(GRAPH_ID_FOR_RESULT_QUERY % file_id)
+def get_graphs_for_result(result_id):
+    qres = run_query(GRAPH_ID_FOR_RESULT_QUERY % result_id)
     return (str(_[0]) for _ in qres)
 
 
