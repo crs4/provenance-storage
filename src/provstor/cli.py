@@ -162,8 +162,24 @@ def get_file(file_uri, outdir):
 
     FILE_URI: URI of the file.
     """
-    out_path = get_file_f(file_uri, outdir)
-    sys.stdout.write(f"file extracted to {out_path}\n")
+    url = "http://localhost:8000/get/file/"
+
+    if outdir is None:
+        outdir = Path.cwd()
+    else:
+        outdir = Path(outdir).absolute()
+        outdir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        response = requests.get(url, params={'file_uri': file_uri, 'outdir': outdir})
+
+        if response.status_code == 200:
+            download_path = response.headers.get('download_path')
+            sys.stdout.write(f"Crate downloaded to {download_path}\n")
+        else:
+            sys.stdout.write(f"API returned status code {response.status_code}: {response.json()["detail"]}\n")
+    except requests.exceptions.RequestException as e:
+        sys.stdout.write(f"API is not reachable: {e}\n")
 
 
 @cli.command()
