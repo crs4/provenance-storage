@@ -193,9 +193,21 @@ def get_graphs_for_file(file_id):
 
     FILE_ID: full URI of the file (e.g. file://...).
     """
-    graphs = get_graphs_for_file_f(file_id)
-    for g in graphs:
-        sys.stdout.write(f"{g}\n")
+    url = "http://localhost:8000/get/graphs-for-file/"
+
+    try:
+        response = requests.get(url, params={'file_id': file_id})
+
+        if response.status_code == 200:
+            if response.json()['result'] == "":
+                sys.stdout.write("No graphs found for the given file id.\n")
+            else:
+                sys.stdout.write(response.json()['result'] + "\n")
+        else:
+            sys.stdout.write(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+    except requests.exceptions.RequestException as e:
+        sys.stdout.write(f"API is not reachable: {e}\n")
 
 
 @cli.command()
