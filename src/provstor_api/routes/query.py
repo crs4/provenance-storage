@@ -18,4 +18,13 @@ def list_graphs():
         logging.error(f"Error fetching graphs: {e}")
         raise HTTPException(status_code=502, detail=f"Failed to fetch graphs: {str(e)}")
 
-Exception(status_code=502, detail=f"Failed to fetch RDE IDs: {str(e)}")
+
+@router.get("/list-RDE-graphs/")
+def list_rde_graphs():
+    try:
+        query_res = run_query(RDE_GRAPH_QUERY)
+        output = [item for item in query_res]
+        return {"result": output}
+    except Exception as e:
+        logging.error(f"Error fetching RDE IDs: {e}")
+        raise HTTPException(status_code=502, detail=f"Failed to fetch RDE IDs: {str(e)}")
