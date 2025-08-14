@@ -222,9 +222,21 @@ def get_graphs_for_result(result_id):
 
     RESULT_ID: RO-Crate id of the result.
     """
-    graphs = get_graphs_for_result_f(result_id)
-    for g in graphs:
-        sys.stdout.write(f"{g}\n")
+    url = "http://localhost:8000/get/graphs-for-result/"
+
+    try:
+        response = requests.get(url, params={'result_id': result_id})
+
+        if response.status_code == 200:
+            if response.json()['result'] == "":
+                sys.stdout.write("No graphs found for the given result id.\n")
+            else:
+                sys.stdout.write(response.json()['result'] + "\n")
+        else:
+            sys.stdout.write(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+    except requests.exceptions.RequestException as e:
+        sys.stdout.write(f"API is not reachable: {e}\n")
 
 
 @cli.command()
