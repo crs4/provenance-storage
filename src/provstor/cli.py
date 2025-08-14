@@ -120,8 +120,24 @@ def get_crate(rde_id, outdir):
 
     ROOT_DATA_ENTITY_ID: @id of the RO-Crate's Root Data Entity
     """
-    out_path = get_crate_f(rde_id, outdir)
-    sys.stdout.write(f"crate downloaded to {out_path}\n")
+    url = "http://localhost:8000/get/crate/"
+
+    if outdir is None:
+        outdir = Path.cwd()
+    else:
+        outdir = Path(outdir).absolute()
+        outdir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        response = requests.get(url, params={'rde_id': rde_id, 'outdir': outdir})
+
+        if response.status_code == 200:
+            download_path = response.headers.get('download_path')
+            sys.stdout.write(f"Crate downloaded to {download_path}\n")
+        else:
+            sys.stdout.write(f"API returned status code {response.status_code}: {response.json()["detail"]}\n")
+    except requests.exceptions.RequestException as e:
+        sys.stdout.write(f"API is not reachable: {e}\n")
 
 
 @cli.command()
