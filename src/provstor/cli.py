@@ -252,9 +252,21 @@ def get_workflow(graph_id):
 
     GRAPH_ID: id of the graph in the triple store.
     """
-    workflows = get_workflow_f(graph_id)
-    for g in workflows:
-        sys.stdout.write(f"{g}\n")
+    url = "http://localhost:8000/get/workflow/"
+
+    try:
+        response = requests.get(url, params={'graph_id': graph_id})
+
+        if response.status_code == 200:
+            if response.json()['result'] == "":
+                sys.stdout.write("No workflow found for the given graph id.\n")
+            else:
+                sys.stdout.write(response.json()['result'] + "\n")
+        else:
+            sys.stdout.write(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+    except requests.exceptions.RequestException as e:
+        sys.stdout.write(f"API is not reachable: {e}\n")
 
 
 @cli.command()
