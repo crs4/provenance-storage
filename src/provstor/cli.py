@@ -87,6 +87,11 @@ def load(crate):
     help="Graph name (crate basename without extension)",
 )
 def query(query_file, graph):
+    """\
+    Run the SPARQL query in the provided file on the Fuseki store.
+
+    QUERY_FILE: SPARQL query file
+    """
     query_text = query_file.read_text()
 
     url = "http://localhost:8000/query/run-query/"
