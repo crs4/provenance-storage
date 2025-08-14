@@ -17,7 +17,9 @@
 
 import logging
 import sys
+from http.client import responses
 from pathlib import Path
+import requests
 
 import click
 
@@ -85,15 +87,20 @@ def load(crate):
     help="Graph name (crate basename without extension)",
 )
 def query(query_file, graph):
-    """\
-    Run the SPARQL query in the provided file on the Fuseki store.
+    query_text = query_file.read_text()
 
-    QUERY_FILE: SPARQL query file
-    """
-    query = query_file.read_text()
-    qres = run_query(query, graph)
-    for row in qres:
-        sys.stdout.write(", ".join(row) + "\n")
+    url = "http://localhost:8000/query/run-query/"
+
+    try:
+        response = requests.post(url, files={'query_file': query_text}, params={'graph': graph})
+
+        if response.status_code == 200:
+            for row in response.json()['result']:
+                sys.stdout.write(", ".join(row) + "\n")
+        else:
+            sys.stdout.write(f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+    except requests.exceptions.RequestException as e:
+        sys.stdout.write(f"API is not reachable: {e}\n")
 
 
 @cli.command()
