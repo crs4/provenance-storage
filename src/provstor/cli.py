@@ -389,9 +389,38 @@ def list_graphs():
     """\
     List all graphs in the triple store.
     """
-    graphs = list_graphs_f()
-    for g in graphs:
-        sys.stdout.write(f"{g}\n")
+    url = "http://localhost:8000/query/list-graphs/"
+
+    try:
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            # sys.stdout.write(f"Query result:\n")
+            for row in response.json()['result']:
+                sys.stdout.write(row + "\n")
+        else:
+            sys.stdout.write(f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+    except requests.exceptions.RequestException as e:
+        sys.stdout.write(f"API is not reachable: {e}\n")
+
+
+@cli.command()
+def list_rde_graphs():
+    """\
+    List all graphs in the triple store and the associated RDE ids.
+    """
+    url = "http://localhost:8000/query/list-RDE-graphs/"
+
+    try:
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            for row in response.json()['result']:
+                sys.stdout.write(': '.join(row) + "\n")
+        else:
+            sys.stdout.write(f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+    except requests.exceptions.RequestException as e:
+        sys.stdout.write(f"API is not reachable: {e}\n")
 
 
 @cli.command()
