@@ -109,3 +109,15 @@ def get_graphs_for_file(file_id: str):
         logging.error(f"Error retrieving graph from input file: {e}")
         raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
 
+
+@router.get("/graphs-for-result/")
+def get_graphs_for_result(result_id: str):
+    try:
+        query_res = run_query(GRAPH_ID_FOR_RESULT_QUERY % result_id)
+        output = next(iter(query_res), None)
+        result = output[0] if output is not None else Literal('')
+        return {"result": result}
+    except Exception as e:
+        logging.error(f"Error retrieving graph from input file: {e}")
+        raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
+
