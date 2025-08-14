@@ -446,5 +446,23 @@ def version():
     sys.stdout.write(f"{__version__}\n")
 
 
+@cli.command()
+def api_status():
+    """\
+    Check the status of the ProvStor API.
+    """
+    url = "http://localhost:8000/status/"
+
+    try:
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            sys.stdout.write(f"{response.json()}\n")
+        else:
+            sys.stdout.write(f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+    except requests.exceptions.RequestException as e:
+        sys.stdout.write(f"API is not reachable: {e}\n")
+
+
 if __name__ == "__main__":
     cli()
