@@ -199,10 +199,12 @@ def get_graphs_for_file(file_id):
         response = requests.get(url, params={'file_id': file_id})
 
         if response.status_code == 200:
-            if response.json()['result'] == "":
-                sys.stdout.write("No graphs found for the given file id.\n")
+            result = response.json()['result']
+            if not result:
+                sys.stdout.write("No graphs found for the given file.\n")
             else:
-                sys.stdout.write(response.json()['result'] + "\n")
+                for item in result:
+                    sys.stdout.write(item + "\n")
         else:
             sys.stdout.write(
                 f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
@@ -228,10 +230,12 @@ def get_graphs_for_result(result_id):
         response = requests.get(url, params={'result_id': result_id})
 
         if response.status_code == 200:
-            if response.json()['result'] == "":
+            result = response.json()['result']
+            if not result:
                 sys.stdout.write("No graphs found for the given result id.\n")
             else:
-                sys.stdout.write(response.json()['result'] + "\n")
+                for item in result:
+                    sys.stdout.write(item + "\n")
         else:
             sys.stdout.write(
                 f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
@@ -258,10 +262,12 @@ def get_workflow(graph_id):
         response = requests.get(url, params={'graph_id': graph_id})
 
         if response.status_code == 200:
-            if response.json()['result'] == "":
+            result = response.json()['result']
+            if not result:
                 sys.stdout.write("No workflow found for the given graph id.\n")
             else:
-                sys.stdout.write(response.json()['result'] + "\n")
+                for item in result:
+                    sys.stdout.write(item + "\n")
         else:
             sys.stdout.write(
                 f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
