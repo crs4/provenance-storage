@@ -306,8 +306,6 @@ def get_run_results(graph_id):
         sys.stdout.write(f"API is not reachable: {e}\n")
 
 
-
-
 @cli.command()
 @click.argument(
     "graph_id",
@@ -320,9 +318,23 @@ def get_run_objects(graph_id):
 
     GRAPH_ID: id of the graph in the triple store.
     """
-    objects = get_run_objects_f(graph_id)
-    for r in objects:
-        sys.stdout.write(f"{r}\n")
+    url = "http://localhost:8000/get/run-objects/"
+
+    try:
+        response = requests.get(url, params={'graph_id': graph_id})
+
+        if response.status_code == 200:
+            result = response.json()['result']
+            if not result:
+                sys.stdout.write("No objects found.\n")
+            else:
+                for item in result:
+                    sys.stdout.write(item + "\n")
+        else:
+            sys.stdout.write(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+    except requests.exceptions.RequestException as e:
+        sys.stdout.write(f"API is not reachable: {e}\n")
 
 
 @cli.command()
