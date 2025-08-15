@@ -438,9 +438,23 @@ def get_results_for_action(action_id):
 
     ACTION_ID: id of the CreateAction.
     """
-    results = get_results_for_action_f(action_id)
-    for r in results:
-        sys.stdout.write(f"{r}\n")
+    url = "http://localhost:8000/get/results-for-action/"
+
+    try:
+        response = requests.get(url, params={'action_id': action_id})
+
+        if response.status_code == 200:
+            result = response.json()['result']
+            if not result:
+                sys.stdout.write("No results found.\n")
+            else:
+                for item in result:
+                    sys.stdout.write(item + "\n")
+        else:
+            sys.stdout.write(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+    except requests.exceptions.RequestException as e:
+        sys.stdout.write(f"API is not reachable: {e}\n")
 
 
 @cli.command()
