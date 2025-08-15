@@ -3,7 +3,8 @@ from fastapi.responses import FileResponse
 from provstor_api.utils.query import run_query
 from provstor_api.utils.queries import (
     CRATE_URL_QUERY, GRAPH_ID_FOR_FILE_QUERY,
-    GRAPH_ID_FOR_RESULT_QUERY, WORKFLOW_QUERY, WFRUN_RESULTS_QUERY
+    GRAPH_ID_FOR_RESULT_QUERY, WORKFLOW_QUERY, WFRUN_RESULTS_QUERY,
+    WFRUN_OBJECTS_QUERY
 )
 import logging
 from pathlib import Path
@@ -140,3 +141,15 @@ def get_run_results(graph_id: str):
     except Exception as e:
         logging.error(f"Error retrieving graph from input file: {e}")
         raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
+
+
+@router.get("/run-objects/")
+def get_run_objects(graph_id: str):
+    try:
+        query_res = run_query(WFRUN_OBJECTS_QUERY, graph_id=graph_id)
+        output = [str(_[0]) for _ in query_res]
+        return {"result": output}
+    except Exception as e:
+        logging.error(f"Error retrieving graph from input file: {e}")
+        raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
+
