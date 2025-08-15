@@ -378,9 +378,23 @@ def get_actions_for_result(result_id):
 
     RESULT_ID: id of the result item.
     """
-    actions = get_actions_for_result_f(result_id)
-    for a in actions:
-        sys.stdout.write(f"{a}\n")
+    url = "http://localhost:8000/get/actions-for-result/"
+
+    try:
+        response = requests.get(url, params={'result_id': result_id})
+
+        if response.status_code == 200:
+            result = response.json()['result']
+            if not result:
+                sys.stdout.write("No actions found.\n")
+            else:
+                for item in result:
+                    sys.stdout.write(item + "\n")
+        else:
+            sys.stdout.write(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+    except requests.exceptions.RequestException as e:
+        sys.stdout.write(f"API is not reachable: {e}\n")
 
 
 @cli.command()
