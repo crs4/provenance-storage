@@ -4,7 +4,8 @@ from provstor_api.utils.query import run_query
 from provstor_api.utils.queries import (
     CRATE_URL_QUERY, GRAPH_ID_FOR_FILE_QUERY,
     GRAPH_ID_FOR_RESULT_QUERY, WORKFLOW_QUERY, WFRUN_RESULTS_QUERY,
-    WFRUN_OBJECTS_QUERY, OBJECTS_FOR_RESULT_QUERY, ACTIONS_FOR_RESULT_QUERY
+    WFRUN_OBJECTS_QUERY, OBJECTS_FOR_RESULT_QUERY, ACTIONS_FOR_RESULT_QUERY,
+    OBJECTS_FOR_ACTION_QUERY
 )
 import logging
 from pathlib import Path
@@ -164,10 +165,22 @@ def get_objects_for_result(result_id: str):
         logging.error(f"Error retrieving graph from input file: {e}")
         raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
 
+
 @router.get("/actions-for-result/")
 def get_actions_for_result(result_id: str):
     try:
         query_res = run_query(ACTIONS_FOR_RESULT_QUERY % result_id)
+        output = [str(_[0]) for _ in query_res]
+        return {"result": output}
+    except Exception as e:
+        logging.error(f"Error retrieving graph from input file: {e}")
+        raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
+
+
+@router.get("/objects-for-action/")
+def get_objects_for_action(action_id: str):
+    try:
+        query_res = run_query(OBJECTS_FOR_ACTION_QUERY % {"action": action_id})
         output = [str(_[0]) for _ in query_res]
         return {"result": output}
     except Exception as e:
