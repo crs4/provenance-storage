@@ -348,9 +348,23 @@ def get_objects_for_result(result_id):
 
     RESULT_ID: id of the result item.
     """
-    objects = get_objects_for_result_f(result_id)
-    for r in objects:
-        sys.stdout.write(f"{r}\n")
+    url = "http://localhost:8000/get/objects-for-result/"
+
+    try:
+        response = requests.get(url, params={'result_id': result_id})
+
+        if response.status_code == 200:
+            result = response.json()['result']
+            if not result:
+                sys.stdout.write("No objects found.\n")
+            else:
+                for item in result:
+                    sys.stdout.write(item + "\n")
+        else:
+            sys.stdout.write(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+    except requests.exceptions.RequestException as e:
+        sys.stdout.write(f"API is not reachable: {e}\n")
 
 
 @cli.command()
