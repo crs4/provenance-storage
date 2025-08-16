@@ -469,9 +469,23 @@ def get_run_params(graph_id):
 
     GRAPH_ID: id of the graph in the triple store.
     """
-    params = get_run_params_f(graph_id)
-    for name, value in params:
-        sys.stdout.write(f"{name}: {value}\n")
+    url = "http://localhost:8000/get/run-params/"
+
+    try:
+        response = requests.get(url, params={'graph_id': graph_id})
+
+        if response.status_code == 200:
+            result = response.json()['result']
+            if not result:
+                sys.stdout.write("No parameters found for the given graph.\n")
+            else:
+                for item in result:
+                    sys.stdout.write(f"{item[0]}: {item[1]}" + "\n")
+        else:
+            sys.stdout.write(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+    except requests.exceptions.RequestException as e:
+        sys.stdout.write(f"API is not reachable: {e}\n")
 
 
 @cli.command()
