@@ -538,8 +538,18 @@ def backtrack(result_id):
 
     RESULT_ID: id of the result item.
     """
-    for item in backtrack_f(result_id):
-        sys.stdout.write(f"{item}\n")
+    url = "http://localhost:8000/backtrack/"
+
+    try:
+        response = requests.get(url, params={'result_id': result_id})
+
+        if response.status_code == 200:
+            for item in response.json()['result']:
+                sys.stdout.write(f"{item}\n")
+        else:
+            sys.stdout.write(f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+    except requests.exceptions.RequestException as e:
+        sys.stdout.write(f"API is not reachable: {e}\n")
 
 
 @cli.command()
