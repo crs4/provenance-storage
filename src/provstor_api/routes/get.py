@@ -14,7 +14,7 @@ from urllib.parse import urlsplit
 import shutil
 import zipfile
 import tempfile
-from rdflib.term import Literal
+from provstor_api.utils.get_utils import fetch_actions_for_result, fetch_objects_for_action, fetch_results_for_action
 
 router = APIRouter()
 
@@ -169,9 +169,7 @@ def get_objects_for_result(result_id: str):
 @router.get("/actions-for-result/")
 def get_actions_for_result(result_id: str):
     try:
-        query_res = run_query(ACTIONS_FOR_RESULT_QUERY % result_id)
-        output = [str(_[0]) for _ in query_res]
-        return {"result": output}
+        fetch_actions_for_result(result_id)
     except Exception as e:
         logging.error(f"Error retrieving graph from input file: {e}")
         raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
@@ -180,9 +178,7 @@ def get_actions_for_result(result_id: str):
 @router.get("/objects-for-action/")
 def get_objects_for_action(action_id: str):
     try:
-        query_res = run_query(OBJECTS_FOR_ACTION_QUERY % {"action": action_id})
-        output = [str(_[0]) for _ in query_res]
-        return {"result": output}
+        fetch_objects_for_action(action_id)
     except Exception as e:
         logging.error(f"Error retrieving graph from input file: {e}")
         raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
@@ -191,9 +187,7 @@ def get_objects_for_action(action_id: str):
 @router.get("/results-for-action/")
 def get_results_for_action(action_id: str):
     try:
-        query_res = run_query(RESULTS_FOR_ACTION_QUERY % {"action": action_id})
-        output = [str(_[0]) for _ in query_res]
-        return {"result": output}
+        fetch_results_for_action(action_id)
     except Exception as e:
         logging.error(f"Error retrieving graph from input file: {e}")
         raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
