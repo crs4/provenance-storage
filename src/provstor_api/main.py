@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
-from routes import upload, query, get
+from routes import upload, query, get, backtrack
 import os
 import uvicorn
 import logging
@@ -11,6 +11,7 @@ app = FastAPI(title="Provenance Storage API", version="1.0")
 
 app.include_router(query.router, prefix="/query", tags=["Query"])
 app.include_router(get.router, prefix="/get", tags=["Get"])
+app.include_router(backtrack.router, prefix="/backtrack", tags=["Backtrack"])
 # app.include_router(upload.router, prefix="/upload", tags=["Upload"])
 
 
