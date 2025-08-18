@@ -15,7 +15,7 @@ app.include_router(backtrack.router, prefix="/backtrack", tags=["Backtrack"])
 # app.include_router(upload.router, prefix="/upload", tags=["Upload"])
 
 
-@app.get("/status/")
+@app.get("/status/", tags=["Status"])
 def check_status():
     return {"status": "ok"}
 
