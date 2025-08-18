@@ -12,7 +12,8 @@ app = FastAPI(title="Provenance Storage API", version="1.0")
 app.include_router(query.router, prefix="/query", tags=["Query"])
 app.include_router(get.router, prefix="/get", tags=["Get"])
 app.include_router(backtrack.router, prefix="/backtrack", tags=["Backtrack"])
-# app.include_router(upload.router, prefix="/upload", tags=["Upload"])
+app.include_router(backtrack.router, prefix="/backtrack", tags=["Backtrack"])
+app.include_router(upload.router, prefix="/upload", tags=["Upload"])
 
 
 @app.get("/status/", tags=["Status"])
