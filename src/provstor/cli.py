@@ -20,6 +20,9 @@ import sys
 from http.client import responses
 from pathlib import Path
 import requests
+import tempfile
+import shutil
+import zipfile
 
 import click
 
@@ -70,8 +73,42 @@ def load(crate):
 
     RO_CRATE: RO-Crate directory or ZIP archive.
     """
-    crate_url = load_crate_metadata(crate)
-    sys.stdout.write(f"{crate_url}\n")
+    # check if the crate is a zip file or a directory, if it is a directory, zip it
+    if zipfile.is_zipfile(crate):
+        crate_path = crate
+        crate_name = crate_path.name
+    else:
+        if not crate.is_dir():
+            sys.stdout.write("Crate must be either a zip file or a directory.\n")
+        # use the /tmp directory to store the zipped crate
+        tmp_dir = Path(tempfile.mkdtemp(prefix="provstor_"))
+        crate = crate.absolute()
+        dest_path = tmp_dir / crate.name
+        crate_name = f"{crate.name}.zip"
+        crate_path = shutil.make_archive(dest_path, 'zip', crate)
+
+    # print the path of the crate
+    sys.stdout.write(f"Crate path: {crate_path}\n")
+
+    url = "http://localhost:8000/upload/crate/"
+
+    try:
+        with open(crate_path, 'rb') as crate_to_upload:
+            # Send the crate file to the API
+            sys.stdout.write(f"Uploading crate to {url}...\n")
+            response = requests.post(
+                url,
+                files={'crate_path': (crate_name, crate_to_upload, 'application/zip')},
+            )
+
+        if response.status_code == 200:
+            if response.json()['result'] == "success":
+                sys.stdout.write(f"Crate successfully uploaded.\n")
+                sys.stdout.write(f"Crate URL: {response.json()['crate_url']}\n")
+        else:
+            sys.stdout.write(f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+    except requests.exceptions.RequestException as e:
+        sys.stdout.write(f"API is not reachable: {e}\n")
 
 
 @cli.command()
