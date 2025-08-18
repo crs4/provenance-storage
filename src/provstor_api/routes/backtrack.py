@@ -7,7 +7,7 @@ router = APIRouter()
 
 
 @router.get("/")
-def backtrack(result_id):
+def backtrack(result_id: str):
     try:
         actions = list(fetch_actions_for_result(result_id)["result"])
         if not actions:
