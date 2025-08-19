@@ -13,7 +13,7 @@ from rdflib.term import URIRef, Literal
 
 from provstor_api.utils.queries import RDE_QUERY
 
-from provstor_api.config import (
+from provstor.config import (
     MINIO_STORE, MINIO_USER, MINIO_SECRET, MINIO_BUCKET,
     FUSEKI_BASE_URL, FUSEKI_DATASET
 )

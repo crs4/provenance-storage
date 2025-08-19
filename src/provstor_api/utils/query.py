@@ -1,7 +1,7 @@
 from rdflib.term import URIRef
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 
-from provstor_api.config import (
+from provstor.config import (
     FUSEKI_BASE_URL, FUSEKI_DATASET,
     MINIO_STORE, MINIO_BUCKET
 )
