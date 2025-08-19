@@ -1,11 +1,10 @@
-from fastapi import APIRouter, File, UploadFile, HTTPException
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 from provstor_api.utils.query import run_query
 from provstor_api.utils.queries import (
     CRATE_URL_QUERY, GRAPH_ID_FOR_FILE_QUERY,
     GRAPH_ID_FOR_RESULT_QUERY, WORKFLOW_QUERY, WFRUN_RESULTS_QUERY,
-    WFRUN_OBJECTS_QUERY, OBJECTS_FOR_RESULT_QUERY, ACTIONS_FOR_RESULT_QUERY,
-    OBJECTS_FOR_ACTION_QUERY, RESULTS_FOR_ACTION_QUERY, WFRUN_PARAMS_QUERY
+    WFRUN_OBJECTS_QUERY, OBJECTS_FOR_RESULT_QUERY, WFRUN_PARAMS_QUERY
 )
 import logging
 from pathlib import Path
