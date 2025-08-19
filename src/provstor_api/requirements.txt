@@ -4,3 +4,5 @@ rdflib==7.0.0
 pydantic==2.11.7
 pycparser==2.22
 python-multipart==0.0.20
+arcp==0.2.1
+minio==7.2.16
