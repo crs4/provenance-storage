@@ -50,6 +50,15 @@ from .query import run_query
 LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
 
+def get_base_api_url():
+    """Return the base URL for the connection to API."""
+    # Refresh configuration to pick up any environment changes
+    from provstor.config import configure
+    configure()
+    from provstor.config import API_HOST, API_PORT
+    return f"http://{API_HOST}:{API_PORT}/"
+
+
 @click.group()
 @click.option(
     "-l",
@@ -90,7 +99,7 @@ def load(crate):
     # print the path of the crate
     sys.stdout.write(f"Crate path: {crate_path}\n")
 
-    url = "http://localhost:8000/upload/crate/"
+    url = f"{get_base_api_url()}/upload/crate/"
 
     try:
         with open(crate_path, 'rb') as crate_to_upload:
@@ -131,7 +140,7 @@ def query(query_file, graph):
     """
     query_text = query_file.read_text()
 
-    url = "http://localhost:8000/query/run-query/"
+    url = f"{get_base_api_url()}/query/run-query/"
 
     try:
         response = requests.post(url, files={'query_file': query_text}, params={'graph': graph})
@@ -162,7 +171,7 @@ def get_crate(rde_id, outdir):
 
     ROOT_DATA_ENTITY_ID: @id of the RO-Crate's Root Data Entity
     """
-    url = "http://localhost:8000/get/crate/"
+    url = f"{get_base_api_url()}/get/crate/"
 
     if outdir is None:
         outdir = Path.cwd()
@@ -199,7 +208,7 @@ def get_file(file_uri, outdir):
 
     FILE_URI: URI of the file.
     """
-    url = "http://localhost:8000/get/file/"
+    url = f"{get_base_api_url()}/get/file/"
 
     if outdir is None:
         outdir = Path.cwd()
@@ -230,7 +239,7 @@ def get_graphs_for_file(file_id):
 
     FILE_ID: full URI of the file (e.g. file://...).
     """
-    url = "http://localhost:8000/get/graphs-for-file/"
+    url = f"{get_base_api_url()}/get/graphs-for-file/"
 
     try:
         response = requests.get(url, params={'file_id': file_id})
@@ -261,7 +270,7 @@ def get_graphs_for_result(result_id):
 
     RESULT_ID: RO-Crate id of the result.
     """
-    url = "http://localhost:8000/get/graphs-for-result/"
+    url = f"{get_base_api_url()}/get/graphs-for-result/"
 
     try:
         response = requests.get(url, params={'result_id': result_id})
@@ -293,7 +302,7 @@ def get_workflow(graph_id):
 
     GRAPH_ID: id of the graph in the triple store.
     """
-    url = "http://localhost:8000/get/workflow/"
+    url = f"{get_base_api_url()}/get/workflow/"
 
     try:
         response = requests.get(url, params={'graph_id': graph_id})
@@ -324,7 +333,7 @@ def get_run_results(graph_id):
 
     GRAPH_ID: id of the graph in the triple store.
     """
-    url = "http://localhost:8000/get/run-results/"
+    url = f"{get_base_api_url()}/get/run-results/"
 
     try:
         response = requests.get(url, params={'graph_id': graph_id})
@@ -355,7 +364,7 @@ def get_run_objects(graph_id):
 
     GRAPH_ID: id of the graph in the triple store.
     """
-    url = "http://localhost:8000/get/run-objects/"
+    url = f"{get_base_api_url()}/get/run-objects/"
 
     try:
         response = requests.get(url, params={'graph_id': graph_id})
@@ -385,7 +394,7 @@ def get_objects_for_result(result_id):
 
     RESULT_ID: id of the result item.
     """
-    url = "http://localhost:8000/get/objects-for-result/"
+    url = f"{get_base_api_url()}/get/objects-for-result/"
 
     try:
         response = requests.get(url, params={'result_id': result_id})
@@ -415,7 +424,7 @@ def get_actions_for_result(result_id):
 
     RESULT_ID: id of the result item.
     """
-    url = "http://localhost:8000/get/actions-for-result/"
+    url = f"{get_base_api_url()}/get/actions-for-result/"
 
     try:
         response = requests.get(url, params={'result_id': result_id})
@@ -445,7 +454,7 @@ def get_objects_for_action(action_id):
 
     ACTION_ID: id of the CreateAction.
     """
-    url = "http://localhost:8000/get/objects-for-action/"
+    url = f"{get_base_api_url()}/get/objects-for-action/"
 
     try:
         response = requests.get(url, params={'action_id': action_id})
@@ -475,7 +484,7 @@ def get_results_for_action(action_id):
 
     ACTION_ID: id of the CreateAction.
     """
-    url = "http://localhost:8000/get/results-for-action/"
+    url = f"{get_base_api_url()}/get/results-for-action/"
 
     try:
         response = requests.get(url, params={'action_id': action_id})
@@ -506,7 +515,7 @@ def get_run_params(graph_id):
 
     GRAPH_ID: id of the graph in the triple store.
     """
-    url = "http://localhost:8000/get/run-params/"
+    url = f"{get_base_api_url()}/get/run-params/"
 
     try:
         response = requests.get(url, params={'graph_id': graph_id})
@@ -530,7 +539,7 @@ def list_graphs():
     """\
     List all graphs in the triple store.
     """
-    url = "http://localhost:8000/query/list-graphs/"
+    url = f"{get_base_api_url()}/query/list-graphs/"
 
     try:
         response = requests.get(url)
@@ -550,7 +559,7 @@ def list_rde_graphs():
     """\
     List all graphs in the triple store and the associated RDE ids.
     """
-    url = "http://localhost:8000/query/list-RDE-graphs/"
+    url = f"{get_base_api_url()}/query/list-RDE-graphs/"
 
     try:
         response = requests.get(url)
@@ -575,7 +584,7 @@ def backtrack(result_id):
 
     RESULT_ID: id of the result item.
     """
-    url = "http://localhost:8000/backtrack/"
+    url = f"{get_base_api_url()}/backtrack/"
 
     try:
         response = requests.get(url, params={'result_id': result_id})
@@ -602,7 +611,7 @@ def api_status():
     """\
     Check the status of the ProvStor API.
     """
-    url = "http://localhost:8000/status/"
+    url = f"{get_base_api_url()}/status/"
 
     try:
         response = requests.get(url)
