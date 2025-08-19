@@ -1,3 +1,4 @@
+from provstor.config import API_HOST, API_PORT
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from routes import upload, query, get, backtrack
@@ -26,4 +27,4 @@ def favicon():
     return FileResponse(icon_file)
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host=API_HOST, port=API_PORT)
