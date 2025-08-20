@@ -5,6 +5,7 @@ from routes import upload, query, get, backtrack
 import os
 import uvicorn
 import logging
+from config import load_default_env
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -27,4 +28,5 @@ def favicon():
     return FileResponse(icon_file)
 
 if __name__ == "__main__":
-    uvicorn.run(app, host=API_HOST, port=API_PORT)
+    load_default_env()
+    uvicorn.run(app, host=os.getenv("PROVSTOR_API_HOST"), port=int(os.getenv("PROVSTOR_API_PORT")))
