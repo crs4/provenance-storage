@@ -27,24 +27,24 @@ import zipfile
 import click
 
 from . import __version__
-from .backtrack import backtrack as backtrack_f
-from .get import (
-    get_crate as get_crate_f,
-    get_file as get_file_f,
-    get_graphs_for_file as get_graphs_for_file_f,
-    get_graphs_for_result as get_graphs_for_result_f,
-    get_run_results as get_run_results_f,
-    get_run_objects as get_run_objects_f,
-    get_run_params as get_run_params_f,
-    get_objects_for_result as get_objects_for_result_f,
-    get_actions_for_result as get_actions_for_result_f,
-    get_objects_for_action as get_objects_for_action_f,
-    get_results_for_action as get_results_for_action_f,
-    get_workflow as get_workflow_f
-)
-from .list import list_graphs as list_graphs_f
-from .load import load_crate_metadata
-from .query import run_query
+# from .backtrack import backtrack as backtrack_f
+# from .get import (
+#     get_crate as get_crate_f,
+#     get_file as get_file_f,
+#     get_graphs_for_file as get_graphs_for_file_f,
+#     get_graphs_for_result as get_graphs_for_result_f,
+#     get_run_results as get_run_results_f,
+#     get_run_objects as get_run_objects_f,
+#     get_run_params as get_run_params_f,
+#     get_objects_for_result as get_objects_for_result_f,
+#     get_actions_for_result as get_actions_for_result_f,
+#     get_objects_for_action as get_objects_for_action_f,
+#     get_results_for_action as get_results_for_action_f,
+#     get_workflow as get_workflow_f
+# )
+# from .list import list_graphs as list_graphs_f
+# from .load import load_crate_metadata
+# from .query import run_query
 
 
 LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
@@ -53,10 +53,8 @@ LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 def get_base_api_url():
     """Return the base URL for the connection to API."""
     # Refresh configuration to pick up any environment changes
-    from provstor.config import configure
-    configure()
-    from provstor.config import API_HOST, API_PORT
-    return f"http://{API_HOST}:{API_PORT}/"
+    from provstor.config import PROVSTOR_API_ENDPOINT_HOST, PROVSTOR_API_ENDPOINT_PORT
+    return f"http://{PROVSTOR_API_ENDPOINT_HOST}:{PROVSTOR_API_ENDPOINT_PORT}"
 
 
 @click.group()
