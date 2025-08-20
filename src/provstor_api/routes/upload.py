@@ -13,12 +13,12 @@ from rdflib.term import URIRef, Literal
 
 from provstor_api.utils.queries import RDE_QUERY
 
-from provstor.config import (
-    MINIO_STORE, MINIO_USER, MINIO_SECRET, MINIO_BUCKET,
-    FUSEKI_BASE_URL, FUSEKI_DATASET
-)
-
-
+MINIO_STORE = os.getenv("MINIO_STORE")
+MINIO_USER = os.getenv("MINIO_USER")
+MINIO_SECRET = os.getenv("MINIO_SECRET")
+MINIO_BUCKET = os.getenv("MINIO_BUCKET")
+FUSEKI_BASE_URL = os.getenv("FUSEKI_BASE_URL")
+FUSEKI_DATASET = os.getenv("FUSEKI_DATASET")
 router = APIRouter()
 
 
