@@ -1,4 +1,3 @@
-from provstor.config import API_HOST, API_PORT
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from routes import upload, query, get, backtrack
