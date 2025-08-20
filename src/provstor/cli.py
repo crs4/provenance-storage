@@ -308,7 +308,7 @@ def get_workflow(graph_id):
         if response.status_code == 200:
             result = response.json()['result']
             if not result:
-                sys.stdout.write("No workflow found for the given graph id.\n")
+                sys.stdout.write("No workflow found for the given crate name.\n")
             else:
                 for item in result:
                     sys.stdout.write(item + "\n")
