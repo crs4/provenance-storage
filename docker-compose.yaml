@@ -52,13 +52,13 @@ services:
       context: .
       dockerfile: api.Dockerfile
       args:
-        API_PORT: ${API_PORT}
+        API_PORT: ${PROVSTOR_API_PORT}
     container_name: provstor-api
     ports:
-      - "${API_PORT}:${API_PORT}"
+      - "${PROVSTOR_API_PORT}:${PROVSTOR_API_PORT}"
     environment:
-      - API_HOST=${API_HOST}
-      - API_PORT=${API_PORT}
+      - API_HOST=${PROVSTOR_API_HOST}
+      - API_PORT=${PROVSTOR_API_PORT}
       - FUSEKI_BASE_URL=${FUSEKI_BASE_URL}
       - FUSEKI_DATASET=${FUSEKI_DATASET}
       - MINIO_STORE=${MINIO_STORE}
