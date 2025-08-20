@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from provstor_api.utils.get_utils import (
+from utils.get_utils import (
     fetch_actions_for_result, fetch_objects_for_action, fetch_results_for_action
 )
 
@@ -7,7 +7,7 @@ router = APIRouter()
 
 
 @router.get("/")
-def backtrack(result_id: str):
+def backtrack_fn(result_id: str):
     try:
         actions = list(fetch_actions_for_result(result_id)["result"])
         if not actions:

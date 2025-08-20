@@ -1,9 +1,9 @@
-from provstor_api.utils.queries import (
+from utils.queries import (
     ACTIONS_FOR_RESULT_QUERY,
     OBJECTS_FOR_ACTION_QUERY,
     RESULTS_FOR_ACTION_QUERY
 )
-from provstor_api.utils.query import run_query
+from utils.query import run_query
 
 
 def fetch_actions_for_result(result_id):

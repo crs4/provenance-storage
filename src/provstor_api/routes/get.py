@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
-from provstor_api.utils.query import run_query
-from provstor_api.utils.queries import (
+from utils.query import run_query
+from utils.queries import (
     CRATE_URL_QUERY, GRAPH_ID_FOR_FILE_QUERY,
     GRAPH_ID_FOR_RESULT_QUERY, WORKFLOW_QUERY, WFRUN_RESULTS_QUERY,
     WFRUN_OBJECTS_QUERY, OBJECTS_FOR_RESULT_QUERY, WFRUN_PARAMS_QUERY
@@ -13,7 +13,7 @@ from urllib.parse import urlsplit
 import shutil
 import zipfile
 import tempfile
-from provstor_api.utils.get_utils import fetch_actions_for_result, fetch_objects_for_action, fetch_results_for_action
+from utils.get_utils import fetch_actions_for_result, fetch_objects_for_action, fetch_results_for_action
 
 router = APIRouter()
 

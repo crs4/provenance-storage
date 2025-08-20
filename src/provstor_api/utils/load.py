@@ -12,14 +12,10 @@ from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 from rdflib.term import URIRef, Literal
 
 from queries import RDE_QUERY
-
-MINIO_STORE = os.getenv("MINIO_STORE")
-MINIO_USER = os.getenv("MINIO_USER")
-MINIO_SECRET = os.getenv("MINIO_SECRET")
-MINIO_BUCKET = os.getenv("MINIO_BUCKET")
-FUSEKI_BASE_URL = os.getenv("FUSEKI_BASE_URL")
-FUSEKI_DATASET = os.getenv("FUSEKI_DATASET")
-
+from config import (
+    MINIO_STORE, MINIO_USER, MINIO_SECRET, MINIO_BUCKET,
+    FUSEKI_BASE_URL, FUSEKI_DATASET
+)
 
 # anonymous read-only policy, see https://github.com/minio/minio-py/blob/88f4244fe89fb9f23de4f183bdf79524c712deaa/examples/set_bucket_policy.py#L27
 MINIO_BUCKET_POLICY = {

@@ -4,23 +4,19 @@ import logging
 import tempfile
 import zipfile
 import os
-
 import arcp
 from minio import Minio
 from rdflib import Graph
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 from rdflib.term import URIRef, Literal
 
-from provstor_api.utils.queries import RDE_QUERY
+from utils.queries import RDE_QUERY
+from config import (
+    MINIO_STORE, MINIO_USER, MINIO_SECRET, MINIO_BUCKET,
+    FUSEKI_BASE_URL, FUSEKI_DATASET
+)
 
-MINIO_STORE = os.getenv("MINIO_STORE")
-MINIO_USER = os.getenv("MINIO_USER")
-MINIO_SECRET = os.getenv("MINIO_SECRET")
-MINIO_BUCKET = os.getenv("MINIO_BUCKET")
-FUSEKI_BASE_URL = os.getenv("FUSEKI_BASE_URL")
-FUSEKI_DATASET = os.getenv("FUSEKI_DATASET")
 router = APIRouter()
-
 
 # anonymous read-only policy, see https://github.com/minio/minio-py/blob/88f4244fe89fb9f23de4f183bdf79524c712deaa/examples/set_bucket_policy.py#L27
 MINIO_BUCKET_POLICY = {
@@ -44,6 +40,7 @@ MINIO_BUCKET_POLICY = {
 
 @router.post("/crate/")
 async def load_crate_metadata(crate_path: UploadFile):
+    print(f"{MINIO_USER}, {MINIO_SECRET}, {MINIO_STORE}, {MINIO_BUCKET}, {FUSEKI_BASE_URL}, {FUSEKI_DATASET}")
     if crate_path.content_type != "application/zip":
         raise HTTPException(status_code=415, detail="crate_path must be a zip file.")
 
@@ -54,7 +51,7 @@ async def load_crate_metadata(crate_path: UploadFile):
             raise HTTPException(status_code=400, detail="Empty file uploaded.")
 
         with tempfile.TemporaryDirectory() as tmp_dir:
-            tmp_zip_path = os.path.join(tmp_dir, f"{crate_path.filename}.zip")
+            tmp_zip_path = os.path.join(tmp_dir, crate_path.filename)
 
             with open(tmp_zip_path, 'wb') as f:
                 f.write(content) # type: ignore
