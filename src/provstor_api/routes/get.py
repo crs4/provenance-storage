@@ -1,18 +1,18 @@
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import StreamingResponse
+import logging
+from urllib.request import urlopen
+from urllib.parse import urlsplit
+import zipfile
+import io
+
+from config import MINIO_STORE
 from utils.query import run_query
 from utils.queries import (
     CRATE_URL_QUERY, GRAPH_ID_FOR_FILE_QUERY,
     GRAPH_ID_FOR_RESULT_QUERY, WORKFLOW_QUERY, WFRUN_RESULTS_QUERY,
     WFRUN_OBJECTS_QUERY, OBJECTS_FOR_RESULT_QUERY, WFRUN_PARAMS_QUERY
 )
-import logging
-from pathlib import Path
-from urllib.request import urlopen
-from urllib.parse import urlsplit
-import shutil
-import zipfile
-import tempfile
 from utils.get_utils import fetch_actions_for_result, fetch_objects_for_action, fetch_results_for_action
 
 router = APIRouter()
@@ -176,7 +176,8 @@ def get_objects_for_result(result_id: str):
 @router.get("/actions-for-result/")
 def get_actions_for_result(result_id: str):
     try:
-        fetch_actions_for_result(result_id)
+        output = fetch_actions_for_result(result_id)
+        return {"result": output}
     except Exception as e:
         logging.error(f"Error retrieving graph from input file: {e}")
         raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
@@ -185,7 +186,8 @@ def get_actions_for_result(result_id: str):
 @router.get("/objects-for-action/")
 def get_objects_for_action(action_id: str):
     try:
-        fetch_objects_for_action(action_id)
+        output = fetch_objects_for_action(action_id)
+        return {"result": output}
     except Exception as e:
         logging.error(f"Error retrieving graph from input file: {e}")
         raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
@@ -194,7 +196,8 @@ def get_objects_for_action(action_id: str):
 @router.get("/results-for-action/")
 def get_results_for_action(action_id: str):
     try:
-        fetch_results_for_action(action_id)
+        output = fetch_results_for_action(action_id)
+        return {"result": output}
     except Exception as e:
         logging.error(f"Error retrieving graph from input file: {e}")
         raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
