@@ -13,7 +13,7 @@ from rdflib.term import URIRef, Literal
 from utils.queries import RDE_QUERY
 from config import (
     MINIO_STORE, MINIO_USER, MINIO_SECRET, MINIO_BUCKET,
-    FUSEKI_BASE_URL, FUSEKI_DATASET
+    FUSEKI_DATASET, FUSEKI_BASE_URL,
 )
 
 router = APIRouter()
@@ -40,7 +40,6 @@ MINIO_BUCKET_POLICY = {
 
 @router.post("/crate/")
 async def load_crate_metadata(crate_path: UploadFile):
-    print(f"{MINIO_USER}, {MINIO_SECRET}, {MINIO_STORE}, {MINIO_BUCKET}, {FUSEKI_BASE_URL}, {FUSEKI_DATASET}")
     if crate_path.content_type != "application/zip":
         raise HTTPException(status_code=415, detail="crate_path must be a zip file.")
 
