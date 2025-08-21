@@ -59,42 +59,46 @@ async def get_crate(rde_id: str):
 
 
 @router.get("/file/")
-async def get_file(file_uri: str, outdir: str):
+async def get_file(file_uri: str):
     try:
-        outdir = Path(outdir)
-
-        if not outdir.is_absolute():
-            raise HTTPException(status_code=400, detail="The destination directory must be an absolute path")
-
-        if file_uri.startswith("http"):
-            out_path = outdir / file_uri.rsplit("/", 1)[-1]
-            with urlopen(file_uri) as response, out_path.open("wb") as f:
-                shutil.copyfileobj(response, f)
-            return FileResponse(
-                path=out_path,
-                filename=out_path.name,
-                media_type='application/octet-stream',
-                headers={"download_path": str(out_path)}
-            )
-        elif not file_uri.startswith("arcp"):
-            raise ValueError(f"{file_uri}: unsupported protocol")
         res = urlsplit(file_uri)
-        rde_id = f"{res.scheme}://{res.netloc}/"
-        zip_dir = Path(tempfile.mkdtemp())
-        zip_path = await get_crate(rde_id, outdir=zip_dir)
-        zip_member = res.path.lstrip("/")
-        logging.info("extracting: %s", zip_member)
-        with zipfile.ZipFile(zip_path.path, "r") as zipf:
-            out_path = zipf.extract(zip_member, path=outdir)
-        shutil.rmtree(zip_dir)
-        download_file = zip_member.rsplit("/", 1)[-1]
 
-        return FileResponse(
-            path=out_path,
-            filename=download_file,
-            media_type='application/zip',
-            headers={"download_path": str(out_path)}
-        )
+        if not res.scheme.startswith("arcp"):
+            raise HTTPException(status_code=400, detail=f"Unsupported protocol: {res.scheme}")
+
+        rde_id = f"{res.scheme}://{res.netloc}/"
+        zip_member = res.path.lstrip("/")
+        file_to_download = zip_member.rsplit("/", 1)[-1]
+        logging.info("extracting: %s", zip_member)
+
+        rde_id = rde_id.rstrip("/") + "/"
+        qres = run_query(CRATE_URL_QUERY % rde_id)
+        if len(qres) < 1:
+            raise HTTPException(status_code=404, detail="Crate not found")
+
+        crate_url = str(list(qres)[0][0])
+        with urlopen(crate_url) as zip_response:
+            zip_data = io.BytesIO(zip_response.read())
+
+            with zipfile.ZipFile(zip_data, "r") as zipf:
+                try:
+                    file_data = zipf.read(zip_member)
+                    file_ext = file_to_download.rsplit('.', 1)[-1].lower()
+                    if file_ext in content_type_map:
+                        content_type = content_type_map[file_ext]
+                    else:
+                        content_type = 'application/octet-stream'
+
+                    return StreamingResponse(
+                        io.BytesIO(file_data),
+                        media_type=content_type,
+                        headers={
+                            "Content-Disposition": f"attachment; filename={file_to_download}",
+                        }
+                    )
+
+                except KeyError:
+                    raise HTTPException(status_code=404, detail=f"File {zip_member} not found in the crate")
 
     except HTTPException:
         raise

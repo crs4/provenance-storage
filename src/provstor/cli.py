@@ -231,10 +231,25 @@ def get_file(file_uri, outdir):
         outdir.mkdir(parents=True, exist_ok=True)
 
     try:
-        response = requests.get(url, params={'file_uri': file_uri, 'outdir': outdir})
+        response = requests.get(url, params={'file_uri': file_uri}, stream=True)
 
         if response.status_code == 200:
-            download_path = response.headers.get('download_path')
+            content_disposition = response.headers.get('Content-Disposition')
+            file_to_download = None
+            if 'filename' in content_disposition:
+                file_to_download = content_disposition.split('filename=')[1].strip('"')
+
+            if not file_to_download:
+                file_to_download = file_uri.rsplit("/", 1)[-1]
+                if not file_to_download:
+                    file_to_download = "downloaded_file"
+
+            download_path = outdir / file_to_download
+
+            with open(download_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+
             sys.stdout.write(f"Crate downloaded to {download_path}\n")
         else:
             sys.stdout.write(f"API returned status code {response.status_code}: {response.json()["detail"]}\n")
