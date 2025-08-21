@@ -134,7 +134,7 @@ def query(query_file, graph):
     """\
     Run the SPARQL query in the provided file on the Fuseki store.
 
-    QUERY_FILE: SPARQL query file
+    QUERY_FILE: SPARQL query file pathname.
     """
     query_text = query_file.read_text()
 
@@ -167,7 +167,7 @@ def get_crate(rde_id, outdir):
     """\
     Download the crate corresponding to the given root data entity id.
 
-    ROOT_DATA_ENTITY_ID: @id of the RO-Crate's Root Data Entity
+    ROOT_DATA_ENTITY_ID: @id of the RO-Crate's Root Data Entity (RDE), e.g. "arcp://...".
     """
     url = f"{get_base_api_url()}/get/crate/"
 
@@ -220,7 +220,7 @@ def get_file(file_uri, outdir):
     """\
     Download the file corresponding to the given URI.
 
-    FILE_URI: URI of the file.
+    FILE_URI: URI of the file RDE (e.g. "arcp://...").
     """
     url = f"{get_base_api_url()}/get/file/"
 
@@ -266,7 +266,7 @@ def get_graphs_for_file(file_id):
     """\
     Get the ids of the graphs that contain (hasPart) the given file.
 
-    FILE_ID: full URI of the file (e.g. file://...).
+    FILE_ID: full URI of the file (e.g. "file://...").
     """
     url = f"{get_base_api_url()}/get/graphs-for-file/"
 
@@ -297,7 +297,7 @@ def get_graphs_for_result(result_id):
     Get the ids of the graphs where the given id is listed as the result of a
     CreateAction.
 
-    RESULT_ID: RO-Crate id of the result.
+    RESULT_ID: RO-Crate id of the result (e.g. "file://...").
     """
     url = f"{get_base_api_url()}/get/graphs-for-result/"
 
@@ -329,7 +329,7 @@ def get_workflow(graph_id):
     give a result only for a Workflow RO-Crate and crates whose profile is
     derived from Workflow-RO-Crate.
 
-    GRAPH_ID: id of the graph in the triple store.
+    GRAPH_ID: name of RO-Crate (e.g. "mycrate") or full URL (e.g. "http://...").
     """
     url = f"{get_base_api_url()}/get/workflow/"
 
@@ -360,7 +360,7 @@ def get_run_results(graph_id):
     Get the workflow run results that are either files or directories
     corresponding to the given graph id.
 
-    GRAPH_ID: id of the graph in the triple store.
+    GRAPH_ID: name of RO-Crate (e.g. "mycrate") or full URL (e.g. "http://...").
     """
     url = f"{get_base_api_url()}/get/run-results/"
 
@@ -391,7 +391,7 @@ def get_run_objects(graph_id):
     Get the workflow run objects that are either files or directories
     corresponding to the given graph id.
 
-    GRAPH_ID: id of the graph in the triple store.
+    GRAPH_ID: name of RO-Crate (e.g. "mycrate") or full URL (e.g. "http://...").
     """
     url = f"{get_base_api_url()}/get/run-objects/"
 
@@ -421,7 +421,7 @@ def get_objects_for_result(result_id):
     """\
     Get objects that are related to the given result in a CreateAction.
 
-    RESULT_ID: id of the result item.
+    RESULT_ID: RO-Crate id of the result (e.g. "file://...").
     """
     url = f"{get_base_api_url()}/get/objects-for-result/"
 
@@ -451,7 +451,7 @@ def get_actions_for_result(result_id):
     """\
     Get actions that have the given result.
 
-    RESULT_ID: id of the result item.
+    RESULT_ID: RO-Crate id of the result (e.g. "file://...").
     """
     url = f"{get_base_api_url()}/get/actions-for-result/"
 
@@ -481,7 +481,7 @@ def get_objects_for_action(action_id):
     """\
     Get the objects of the given CreateAction.
 
-    ACTION_ID: id of the CreateAction.
+    ACTION_ID: id of the CreateAction (e.g. "arcp://...").
     """
     url = f"{get_base_api_url()}/get/objects-for-action/"
 
@@ -511,7 +511,7 @@ def get_results_for_action(action_id):
     """\
     Get the results of the given CreateAction.
 
-    ACTION_ID: id of the CreateAction.
+    ACTION_ID: id of the CreateAction (e.g. "arcp://...").
     """
     url = f"{get_base_api_url()}/get/results-for-action/"
 
@@ -542,7 +542,7 @@ def get_run_params(graph_id):
     Get the workflow run objects that are parameters (name: value)
     corresponding to the given graph id.
 
-    GRAPH_ID: id of the graph in the triple store.
+    GRAPH_ID: name of RO-Crate (e.g. "mycrate") or full URL (e.g. "http://...").
     """
     url = f"{get_base_api_url()}/get/run-params/"
 
@@ -595,7 +595,7 @@ def list_rde_graphs():
 
         if response.status_code == 200:
             for row in response.json()['result']:
-                sys.stdout.write(': '.join(row) + "\n")
+                sys.stdout.write('\t'.join(row) + "\n")
         else:
             sys.stdout.write(f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
     except requests.exceptions.RequestException as e:
@@ -611,7 +611,7 @@ def backtrack(result_id):
     """\
     Recursively get objects related to the given result by a chain of actions.
 
-    RESULT_ID: id of the result item.
+    RESULT_ID: RO-Crate id of the result (e.g. "file://...").
     """
     url = f"{get_base_api_url()}/backtrack/"
 
