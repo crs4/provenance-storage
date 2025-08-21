@@ -18,14 +18,18 @@ from utils.get_utils import fetch_actions_for_result, fetch_objects_for_action, 
 router = APIRouter()
 
 
+content_type_map = {
+    'zip': 'application/zip',
+    'pdf': 'application/pdf',
+    'svg': 'image/svg+xml',
+    'png': 'image/png',
+    'jpg': 'image/jpeg',
+    'gif': 'image/gif',
+}
+
 @router.get("/crate/")
-async def get_crate(rde_id: str, outdir: str):
+async def get_crate(rde_id: str):
     try:
-        outdir = Path(outdir)
-
-        if not outdir.is_absolute():
-            raise HTTPException(status_code=400, detail="The destination directory must be an absolute path")
-
         rde_id = rde_id.rstrip("/") + "/"
         qres = run_query(CRATE_URL_QUERY % rde_id)
 
@@ -33,20 +37,20 @@ async def get_crate(rde_id: str, outdir: str):
             raise HTTPException(status_code=404, detail="Crate not found")
 
         crate_url = str(list(qres)[0][0])
-        logging.info("crate URL: %s", crate_url)
-        out_path = outdir / crate_url.rsplit("/", 1)[-1]
-        logging.info("downloading to: %s", out_path)
+        logging.info("Internal crate URL: %s", crate_url)
+        file_to_download = crate_url.rsplit("/", 1)[-1]
+        logging.info("downloading file: %s", file_to_download)
 
-        with urlopen(crate_url) as response, out_path.open("wb") as f:
-            shutil.copyfileobj(response, f)
+        with urlopen(crate_url) as response:
+            content_type = response.headers.get('Content-Type', 'application/zip')
 
-        return FileResponse(
-            path=out_path,
-            filename=out_path.name,
-            media_type='application/zip',
-            headers={"download_path": str(out_path)}
-        )
-
+            return StreamingResponse(
+                io.BytesIO(response.read()),
+                media_type=content_type,
+                headers={
+                    "Content-Disposition": f"attachment; filename={file_to_download}",
+                }
+            )
     except HTTPException:
         raise
     except Exception as e:
