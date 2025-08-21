@@ -620,7 +620,8 @@ def backtrack(result_id):
 
         if response.status_code == 200:
             for item in response.json()['result']:
-                sys.stdout.write(f"{item}\n")
+                for obj in item['objects']:
+                    sys.stdout.write(obj + "\n")
         else:
             sys.stdout.write(f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
     except requests.exceptions.RequestException as e:
