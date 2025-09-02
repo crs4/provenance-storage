@@ -3,11 +3,11 @@ from pathlib import Path
 
 
 DEFAULT_ENV_VARS = {
-    "MINIO_STORE": "minio:9000",
+    "DOCKER_MINIO_STORE": "minio:9000",
     "MINIO_USER": "minio",
     "MINIO_SECRET": "miniosecret",
     "MINIO_BUCKET": "crates",
-    "FUSEKI_BASE_URL": "http://fuseki:3030",
+    "DOCKER_FUSEKI_BASE_URL": "http://fuseki:3030",
     "FUSEKI_DATASET": "ds",
     "PROVSTOR_API_HOST": "0.0.0.0",
     "PROVSTOR_API_PORT": "8000"
