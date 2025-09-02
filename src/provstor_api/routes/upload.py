@@ -53,7 +53,7 @@ async def load_crate_metadata(crate_path: UploadFile):
             tmp_zip_path = os.path.join(tmp_dir, crate_path.filename)
 
             with open(tmp_zip_path, 'wb') as f:
-                f.write(content) # type: ignore
+                f.write(content)  # type: ignore
 
             metadata_filename = "ro-crate-metadata.json"
             metadata_path = None
@@ -67,7 +67,7 @@ async def load_crate_metadata(crate_path: UploadFile):
 
                         metadata_path = os.path.join(tmp_dir, metadata_filename)
                         with zip_ref.open(zip_info) as src, open(metadata_path, 'wb') as dst:
-                            dst.write(src.read()) # type: ignore
+                            dst.write(src.read())  # type: ignore
 
                         logging.info("Extracted metadata file: %s", metadata_path)
                         break
@@ -114,4 +114,3 @@ async def load_crate_metadata(crate_path: UploadFile):
     except Exception as e:
         # Handle unexpected errors
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
-

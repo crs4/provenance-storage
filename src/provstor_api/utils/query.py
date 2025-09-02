@@ -1,11 +1,11 @@
 from rdflib.term import URIRef
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
-import os
 
 from config import (
     FUSEKI_BASE_URL, FUSEKI_DATASET,
     MINIO_STORE, MINIO_BUCKET
 )
+
 
 def run_query(query, graph_id=None):
     store = SPARQLUpdateStore()

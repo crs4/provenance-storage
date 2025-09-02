@@ -43,4 +43,3 @@ async def run_query_sparql(query_file: UploadFile, graph: str = None):
     except Exception as e:
         logging.error(f"Error processing SPARQL query: {e}")
         raise HTTPException(status_code=400, detail=f"Query failed: {str(e)}")
-

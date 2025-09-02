@@ -110,7 +110,7 @@ def load(crate):
 
         if response.status_code == 200:
             if response.json()['result'] == "success":
-                sys.stdout.write(f"Crate successfully uploaded.\n")
+                sys.stdout.write("Crate successfully uploaded.\n")
                 sys.stdout.write(f"Crate URL: {response.json()['crate_url']}\n")
         else:
             sys.stdout.write(f"API returned status code {response.status_code}: {responses[response.status_code]}\n")

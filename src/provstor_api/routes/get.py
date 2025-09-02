@@ -6,7 +6,6 @@ from urllib.parse import urlsplit
 import zipfile
 import io
 
-from config import MINIO_STORE
 from utils.query import run_query
 from utils.queries import (
     CRATE_URL_QUERY, GRAPH_ID_FOR_FILE_QUERY,
@@ -26,6 +25,7 @@ content_type_map = {
     'jpg': 'image/jpeg',
     'gif': 'image/gif',
 }
+
 
 @router.get("/crate/")
 async def get_crate(rde_id: str):

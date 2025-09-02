@@ -4,7 +4,6 @@ from routes import upload, query, get, backtrack
 import os
 import uvicorn
 import logging
-from config import PROVSTOR_API_HOST, PROVSTOR_API_PORT
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -20,10 +19,12 @@ app.include_router(backtrack.router, prefix="/backtrack", tags=["Backtrack"])
 def check_status():
     return {"status": "ok"}
 
+
 @app.get("/favicon.ico", include_in_schema=False)
 def favicon():
     icon_file = os.path.join(os.path.dirname(__file__), "static", "favicon.ico")
     return FileResponse(icon_file)
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host=os.getenv("PROVSTOR_API_HOST"), port=int(os.getenv("PROVSTOR_API_PORT")))

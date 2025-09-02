@@ -202,7 +202,7 @@ PREFIX schema: <http://schema.org/>
 
 SELECT DISTINCT ?g ?rde
 WHERE {
-  GRAPH ?g { 
+  GRAPH ?g {
     ?md a schema:CreativeWork .
     FILTER(contains(str(?md), "ro-crate-metadata.json")) .
     ?md schema:about ?rde .
@@ -211,4 +211,3 @@ WHERE {
 }
 ORDER BY ?g
 """
-

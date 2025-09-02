@@ -63,4 +63,5 @@ def configure():
     g["PROVSTOR_API_ENDPOINT_HOST"] = CONFIG.get("api", "host", fallback="localhost")
     g["PROVSTOR_API_ENDPOINT_PORT"] = CONFIG.get("api", "port", fallback="8000")
 
+
 configure()

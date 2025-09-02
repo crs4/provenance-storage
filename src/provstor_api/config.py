@@ -34,7 +34,7 @@ def load_env():
                     continue
 
                 # If it's not a comment, check that it contains exactly one '='
-                if not "=" in line:
+                if "=" not in line:
                     handle_error(f"Line {line_num}: '{line}' (must contain exactly one '=')")
 
                 key_value_pair = line.strip().split("=")
@@ -92,5 +92,6 @@ def load_env_vars():
     g = globals()
     for key in env_vars:
         g[key] = os.getenv(key)
+
 
 load_env_vars()
