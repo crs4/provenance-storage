@@ -16,7 +16,7 @@ DEFAULT_ENV_VARS = {
 
 def load_env():
     """Load environment variables in the .env file, if present."""
-    env_file = Path(__file__).parent.parent.parent / ".env.test"
+    env_file = Path(__file__).parent.parent.parent / ".env"
 
     def handle_error(msg):
         """Rollback loaded vars and raise error with consistent message."""
