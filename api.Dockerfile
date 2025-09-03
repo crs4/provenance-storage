@@ -9,6 +9,5 @@ COPY src/provstor_api ./provstor_api
 
 ENV PYTHONPATH=/app
 
-ARG API_PORT=8000
-EXPOSE ${API_PORT}
+EXPOSE 8000
 CMD ["python3", "provstor_api/main.py"]
