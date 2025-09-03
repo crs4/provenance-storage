@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 
 
 DEFAULT_ENV_VARS = {
