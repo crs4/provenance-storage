@@ -12,8 +12,8 @@ from rdflib.term import URIRef, Literal
 
 from utils.queries import RDE_QUERY
 from config import (
-    DOCKER_MINIO_STORE, MINIO_USER, MINIO_SECRET, MINIO_BUCKET,
-    FUSEKI_DATASET, DOCKER_FUSEKI_BASE_URL,
+    MINIO_STORE, MINIO_USER, MINIO_SECRET, MINIO_BUCKET,
+    FUSEKI_DATASET, FUSEKI_BASE_URL,
 )
 
 router = APIRouter()
@@ -75,7 +75,7 @@ async def load_crate_metadata(crate_path: UploadFile):
             if not metadata_path:
                 raise HTTPException(status_code=404, detail="ro-crate-metadata.json not found in the zip file")
 
-            client = Minio(DOCKER_MINIO_STORE, MINIO_USER, MINIO_SECRET, secure=False)
+            client = Minio(MINIO_STORE, MINIO_USER, MINIO_SECRET, secure=False)
             if not client.bucket_exists(MINIO_BUCKET):
                 client.make_bucket(MINIO_BUCKET)
                 logging.info('created bucket "%s"', MINIO_BUCKET)
@@ -90,12 +90,12 @@ async def load_crate_metadata(crate_path: UploadFile):
                 part_size=50 * 1024 * 1024
             )
 
-            crate_url = f"http://{DOCKER_MINIO_STORE}/{MINIO_BUCKET}/{crate_path.filename}"
+            crate_url = f"http://{MINIO_STORE}/{MINIO_BUCKET}/{crate_path.filename}"
             logging.info("Crate URL: %s", crate_url)
 
             store = SPARQLUpdateStore()
-            query_endpoint = f"{DOCKER_FUSEKI_BASE_URL}/{FUSEKI_DATASET}/sparql"
-            update_endpoint = f"{DOCKER_FUSEKI_BASE_URL}/{FUSEKI_DATASET}/update"
+            query_endpoint = f"{FUSEKI_BASE_URL}/{FUSEKI_DATASET}/sparql"
+            update_endpoint = f"{FUSEKI_BASE_URL}/{FUSEKI_DATASET}/update"
             store.open((query_endpoint, update_endpoint))
             graph = Graph(store, identifier=URIRef(crate_url))
             loc = arcp.arcp_location(crate_url)

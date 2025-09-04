@@ -2,11 +2,11 @@ import os
 
 
 DEFAULT_ENV_VARS = {
-    "DOCKER_MINIO_STORE": "minio:9000",
+    "MINIO_STORE": "minio:9000",
     "MINIO_USER": "minio",
     "MINIO_SECRET": "miniosecret",
     "MINIO_BUCKET": "crates",
-    "DOCKER_FUSEKI_BASE_URL": "http://fuseki:3030",
+    "FUSEKI_BASE_URL": "http://fuseki:3030",
     "FUSEKI_DATASET": "ds",
 }
 
