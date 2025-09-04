@@ -32,8 +32,8 @@ def test_cli_load(data_dir, tmp_path, zipped):
     args = ["load", str(crate)]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
-    assert result.stdout.rstrip() == f"http://{MINIO_STORE}/{MINIO_BUCKET}/crate1.zip"
-
+    string_output = result.stdout.rstrip().splitlines()[-1]
+    assert string_output == f"Crate URL: http://{MINIO_STORE}/{MINIO_BUCKET}/crate1.zip"
 
 # add crate_map fixture to ensure crates have been loaded
 @pytest.mark.parametrize("graph", [None, "crate1"])
