@@ -35,7 +35,7 @@ def test_cli_load(data_dir, tmp_path, zipped):
     string_output = result.stdout.rstrip().splitlines()[-1]
     assert string_output == f"Crate URL: http://{MINIO_STORE}/{MINIO_BUCKET}/crate1.zip"
 
-# add crate_map fixture to ensure crates have been loaded
+
 @pytest.mark.parametrize("graph", [None, "crate1"])
 def test_cli_query(graph, crate_map, data_dir):
     query_path = data_dir / "query.txt"
