@@ -431,7 +431,7 @@ def get_objects_for_result(result_id):
         if response.status_code == 200:
             result = response.json()['result']
             if not result:
-                sys.stdout.write("No objects found.\n")
+                logging.debug("No objects found for result %s", result_id)
             else:
                 for item in result:
                     sys.stdout.write(item + "\n")
