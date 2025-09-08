@@ -15,6 +15,7 @@
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
 
+import atexit
 import logging
 import sys
 from http.client import responses
@@ -71,6 +72,7 @@ def load(crate):
             sys.stdout.write("Crate must be either a zip file or a directory.\n")
         # use the /tmp directory to store the zipped crate
         tmp_dir = Path(tempfile.mkdtemp(prefix="provstor_"))
+        atexit.register(shutil.rmtree, tmp_dir)
         crate = crate.absolute()
         dest_path = tmp_dir / crate.name
         crate_name = f"{crate.name}.zip"

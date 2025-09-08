@@ -15,6 +15,9 @@
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
 from pathlib import Path
+import atexit
+import shutil
+import tempfile
 
 import arcp
 import pytest
@@ -36,18 +39,18 @@ def data_dir():
 def crate_map(data_dir):
     m = {}
     api_url = F"http://{API_HOST}:{API_PORT}/upload/crate/"
+    tmp_dir = Path(tempfile.mkdtemp(prefix="provstor_"))
+    atexit.register(shutil.rmtree, tmp_dir)
     for c in ["crate1", "crate2", "provcrate1", "proccrate1", "proccrate2"]:
         crate_path = data_dir / c
-        zip_path = crate_path.with_suffix(".zip")
-        if not zip_path.exists():
-            import shutil
-            shutil.make_archive(str(crate_path), 'zip', str(crate_path))
+        zip_path = shutil.make_archive(tmp_dir / crate_path.name, 'zip', crate_path)
+        crate_name = Path(zip_path).name
         with open(zip_path, 'rb') as crate_file:
-            response = requests.post(api_url, files={'crate_path': (zip_path.name, crate_file, 'application/zip')})
+            response = requests.post(api_url, files={'crate_path': (crate_name, crate_file, 'application/zip')})
         if response.status_code == 200 and response.json().get('result') == "success":
             crate_url = response.json().get('crate_url')
         else:
-            crate_url = None
+            response.raise_for_status()
         m[c] = {
             "path": crate_path,
             "url": crate_url,
