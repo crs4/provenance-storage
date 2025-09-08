@@ -20,9 +20,7 @@ import arcp
 import pytest
 import requests
 
-from provstor.config import (
-    PROVSTOR_API_ENDPOINT_HOST, PROVSTOR_API_ENDPOINT_PORT
-)
+from provstor.config import API_HOST, API_PORT
 
 
 THIS_DIR = Path(__file__).absolute().parent
@@ -37,7 +35,7 @@ def data_dir():
 @pytest.fixture(scope="session")
 def crate_map(data_dir):
     m = {}
-    api_url = F"http://{PROVSTOR_API_ENDPOINT_HOST}:{PROVSTOR_API_ENDPOINT_PORT}/upload/crate/"
+    api_url = F"http://{API_HOST}:{API_PORT}/upload/crate/"
     for c in ["crate1", "crate2", "provcrate1", "proccrate1", "proccrate2"]:
         crate_path = data_dir / c
         zip_path = crate_path.with_suffix(".zip")

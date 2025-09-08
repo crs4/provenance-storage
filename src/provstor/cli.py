@@ -53,8 +53,8 @@ LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 def get_base_api_url():
     """Return the base URL for the connection to API."""
     # Refresh configuration to pick up any environment changes
-    from provstor.config import PROVSTOR_API_ENDPOINT_HOST, PROVSTOR_API_ENDPOINT_PORT
-    return f"http://{PROVSTOR_API_ENDPOINT_HOST}:{PROVSTOR_API_ENDPOINT_PORT}"
+    from provstor.config import API_HOST, API_PORT
+    return f"http://{API_HOST}:{API_PORT}"
 
 
 @click.group()

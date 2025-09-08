@@ -19,11 +19,10 @@ import shutil
 from click.testing import CliRunner
 import pytest
 from provstor.cli import cli
-from provstor.config import MINIO_STORE, MINIO_BUCKET
 
 
 @pytest.mark.parametrize("zipped", [False, True])
-def test_cli_load(data_dir, tmp_path, zipped):
+def test_cli_load(data_dir, tmp_path, crate_map, zipped):
     runner = CliRunner()
     if zipped:
         crate = shutil.make_archive(tmp_path / "crate1", "zip", data_dir / "crate1")
@@ -33,7 +32,7 @@ def test_cli_load(data_dir, tmp_path, zipped):
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
     string_output = result.stdout.rstrip().splitlines()[-1]
-    assert string_output == f"Crate URL: http://{MINIO_STORE}/{MINIO_BUCKET}/crate1.zip"
+    assert string_output == f"Crate URL: {crate_map['crate1']['url']}"
 
 
 @pytest.mark.parametrize("graph", [None, "crate1"])
@@ -89,8 +88,8 @@ def test_cli_get_graphs_for_file(crate_map):
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
     assert set(result.stdout.splitlines()) >= {
-        f"http://{MINIO_STORE}/{MINIO_BUCKET}/proccrate1.zip",
-        f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip"
+        crate_map["proccrate1"]["url"],
+        crate_map["provcrate1"]["url"],
     }
 
 
@@ -100,7 +99,7 @@ def test_cli_get_graphs_for_result(crate_map):
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
     assert set(result.stdout.splitlines()) >= {
-        f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip"
+        crate_map["provcrate1"]["url"]
     }
 
 
@@ -291,11 +290,11 @@ def test_cli_list_graphs(crate_map):
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
     assert set(result.stdout.splitlines()) >= {
-        f"http://{MINIO_STORE}/{MINIO_BUCKET}/crate1.zip",
-        f"http://{MINIO_STORE}/{MINIO_BUCKET}/crate2.zip",
-        f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip",
-        f"http://{MINIO_STORE}/{MINIO_BUCKET}/proccrate1.zip",
-        f"http://{MINIO_STORE}/{MINIO_BUCKET}/proccrate2.zip",
+        crate_map["crate1"]["url"],
+        crate_map["crate2"]["url"],
+        crate_map["provcrate1"]["url"],
+        crate_map["proccrate1"]["url"],
+        crate_map["proccrate2"]["url"],
     }
 
 

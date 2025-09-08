@@ -20,32 +20,32 @@ from provstor.config import configure, CONFIG_BASENAME
 import os
 
 CONF = """\
-[minio]
-user = %s
+[api]
+port = %s
 """
 
 
 def test_config_file(tmp_path, monkeypatch):
     monkeypatch.chdir(str(tmp_path))
-    from provstor.config import MINIO_USER
+    from provstor.config import API_PORT
     try:
         HOME = Path.home()
     except RuntimeError:
         pass
     else:
         if not (HOME / ".config" / CONFIG_BASENAME).is_file():
-            assert MINIO_USER == "minio"
+            assert API_PORT == "8000"
     local_conf_file = Path(CONFIG_BASENAME)
-    local_conf_file.write_text(CONF % "foobar")
+    local_conf_file.write_text(CONF % "8100")
     configure()
-    from provstor.config import MINIO_USER
-    assert MINIO_USER == "foobar"
+    from provstor.config import API_PORT
+    assert API_PORT == "8100"
     local_conf_file.unlink()
     subdir = Path("subdir")
     subdir.mkdir()
     home_conf_file = subdir / CONFIG_BASENAME
     os.environ["XDG_CONFIG_HOME"] = str(subdir)
-    home_conf_file.write_text(CONF % "barfoo")
+    home_conf_file.write_text(CONF % "8200")
     configure()
-    from provstor.config import MINIO_USER
-    assert MINIO_USER == "barfoo"
+    from provstor.config import API_PORT
+    assert API_PORT == "8200"

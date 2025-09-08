@@ -13,9 +13,7 @@ DEFAULT_ENV_VARS = {
 
 def load_env_vars():
     """\
-    Sets module-level variables according to configuration files. If no
-    configuration files are present, the variables are set to the fallback
-    values.
+    Sets module-level variables according to environment variables.
     """
     g = globals()
     for key, value in DEFAULT_ENV_VARS.items():
