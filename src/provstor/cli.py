@@ -79,27 +79,28 @@ def load(crate):
         crate_path = shutil.make_archive(dest_path, 'zip', crate)
 
     # print the path of the crate
-    sys.stdout.write(f"Crate path: {crate_path}\n")
+    logging.info("Crate path: %s", crate_path)
 
     url = f"{get_base_api_url()}/upload/crate/"
 
     try:
         with open(crate_path, 'rb') as crate_to_upload:
             # Send the crate file to the API
-            sys.stdout.write(f"Uploading crate to {url}...\n")
+            logging.info("Uploading crate to %s", url)
             response = requests.post(
                 url,
                 files={'crate_path': (crate_name, crate_to_upload, 'application/zip')},
             )
 
         if response.status_code == 200:
-            if response.json()['result'] == "success":
-                sys.stdout.write("Crate successfully uploaded.\n")
-                sys.stdout.write(f"Crate URL: {response.json()['crate_url']}\n")
+            json_res = response.json()
+            if json_res['result'] == "success":
+                logging.info("Crate successfully uploaded")
+                logging.info("Crate URL: %s", json_res['crate_url'])
         else:
-            sys.stdout.write(f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+            raise RuntimeError(f"API returned status code {response.status_code}: {responses[response.status_code]}")
     except requests.exceptions.RequestException as e:
-        sys.stdout.write(f"API is not reachable: {e}\n")
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -131,9 +132,9 @@ def query(query_file, graph):
             for row in response.json()['result']:
                 sys.stdout.write(", ".join(row) + "\n")
         else:
-            sys.stdout.write(f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+            raise RuntimeError(f"API returned status code {response.status_code}: {responses[response.status_code]}")
     except requests.exceptions.RequestException as e:
-        sys.stdout.write(f"API is not reachable: {e}\n")
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -182,11 +183,11 @@ def get_crate(rde_id, outdir):
                     f.write(chunk)
 
             # download_path = response.headers.get('download_path')
-            sys.stdout.write(f"Crate downloaded to {download_path}\n")
+            logging.info("Crate downloaded to %s", download_path)
         else:
-            sys.stdout.write(f"API returned status code {response.status_code}: {response.json()["detail"]}\n")
+            raise RuntimeError(f"API returned status code {response.status_code}: {response.json()['detail']}")
     except requests.exceptions.RequestException as e:
-        sys.stdout.write(f"API is not reachable: {e}\n")
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -234,11 +235,11 @@ def get_file(file_uri, outdir):
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
 
-            sys.stdout.write(f"Crate downloaded to {download_path}\n")
+            logging.info("File downloaded to %s", download_path)
         else:
-            sys.stdout.write(f"API returned status code {response.status_code}: {response.json()["detail"]}\n")
+            raise RuntimeError(f"API returned status code {response.status_code}: {response.json()['detail']}")
     except requests.exceptions.RequestException as e:
-        sys.stdout.write(f"API is not reachable: {e}\n")
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -260,15 +261,15 @@ def get_graphs_for_file(file_id):
         if response.status_code == 200:
             result = response.json()['result']
             if not result:
-                sys.stdout.write("No graphs found for the given file.\n")
+                logging.debug("No graphs found for %s", file_id)
             else:
                 for item in result:
                     sys.stdout.write(item + "\n")
         else:
-            sys.stdout.write(
-                f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
     except requests.exceptions.RequestException as e:
-        sys.stdout.write(f"API is not reachable: {e}\n")
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -291,15 +292,15 @@ def get_graphs_for_result(result_id):
         if response.status_code == 200:
             result = response.json()['result']
             if not result:
-                sys.stdout.write("No graphs found for the given result id.\n")
+                logging.debug("No graphs found for %s", result_id)
             else:
                 for item in result:
                     sys.stdout.write(item + "\n")
         else:
-            sys.stdout.write(
-                f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
     except requests.exceptions.RequestException as e:
-        sys.stdout.write(f"API is not reachable: {e}\n")
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -323,15 +324,15 @@ def get_workflow(graph_id):
         if response.status_code == 200:
             result = response.json()['result']
             if not result:
-                sys.stdout.write("No workflow found for the given crate name.\n")
+                logging.debug("No workflow found for graph %s", graph_id)
             else:
                 for item in result:
                     sys.stdout.write(item + "\n")
         else:
-            sys.stdout.write(
-                f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
     except requests.exceptions.RequestException as e:
-        sys.stdout.write(f"API is not reachable: {e}\n")
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -354,15 +355,15 @@ def get_run_results(graph_id):
         if response.status_code == 200:
             result = response.json()['result']
             if not result:
-                sys.stdout.write("No results found.\n")
+                logging.debug("No results found for %s", graph_id)
             else:
                 for item in result:
                     sys.stdout.write(item + "\n")
         else:
-            sys.stdout.write(
-                f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
     except requests.exceptions.RequestException as e:
-        sys.stdout.write(f"API is not reachable: {e}\n")
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -385,15 +386,15 @@ def get_run_objects(graph_id):
         if response.status_code == 200:
             result = response.json()['result']
             if not result:
-                sys.stdout.write("No objects found.\n")
+                logging.debug("No objects found for %s", graph_id)
             else:
                 for item in result:
                     sys.stdout.write(item + "\n")
         else:
-            sys.stdout.write(
-                f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
     except requests.exceptions.RequestException as e:
-        sys.stdout.write(f"API is not reachable: {e}\n")
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -420,10 +421,10 @@ def get_objects_for_result(result_id):
                 for item in result:
                     sys.stdout.write(item + "\n")
         else:
-            sys.stdout.write(
-                f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
     except requests.exceptions.RequestException as e:
-        sys.stdout.write(f"API is not reachable: {e}\n")
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -445,15 +446,15 @@ def get_actions_for_result(result_id):
         if response.status_code == 200:
             result = response.json()['result']
             if not result:
-                sys.stdout.write("No actions found.\n")
+                logging.debug("No actions found for result %s", result_id)
             else:
                 for item in result:
                     sys.stdout.write(item + "\n")
         else:
-            sys.stdout.write(
-                f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
     except requests.exceptions.RequestException as e:
-        sys.stdout.write(f"API is not reachable: {e}\n")
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -475,15 +476,15 @@ def get_objects_for_action(action_id):
         if response.status_code == 200:
             result = response.json()['result']
             if not result:
-                sys.stdout.write("No objects found.\n")
+                logging.debug("No objects found for action %s", action_id)
             else:
                 for item in result:
                     sys.stdout.write(item + "\n")
         else:
-            sys.stdout.write(
-                f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
     except requests.exceptions.RequestException as e:
-        sys.stdout.write(f"API is not reachable: {e}\n")
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -505,15 +506,15 @@ def get_results_for_action(action_id):
         if response.status_code == 200:
             result = response.json()['result']
             if not result:
-                sys.stdout.write("No results found.\n")
+                logging.debug("No results found for action %s", action_id)
             else:
                 for item in result:
                     sys.stdout.write(item + "\n")
         else:
-            sys.stdout.write(
-                f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
     except requests.exceptions.RequestException as e:
-        sys.stdout.write(f"API is not reachable: {e}\n")
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -536,15 +537,15 @@ def get_run_params(graph_id):
         if response.status_code == 200:
             result = response.json()['result']
             if not result:
-                sys.stdout.write("No parameters found for the given graph.\n")
+                logging.debug("No parameters found for graph %s", graph_id)
             else:
                 for item in result:
                     sys.stdout.write(f"{item[0]}: {item[1]}" + "\n")
         else:
-            sys.stdout.write(
-                f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
     except requests.exceptions.RequestException as e:
-        sys.stdout.write(f"API is not reachable: {e}\n")
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -562,9 +563,9 @@ def list_graphs():
             for row in response.json()['result']:
                 sys.stdout.write(row + "\n")
         else:
-            sys.stdout.write(f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+            raise RuntimeError(f"API returned status code {response.status_code}: {responses[response.status_code]}")
     except requests.exceptions.RequestException as e:
-        sys.stdout.write(f"API is not reachable: {e}\n")
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -581,9 +582,9 @@ def list_rde_graphs():
             for row in response.json()['result']:
                 sys.stdout.write('\t'.join(row) + "\n")
         else:
-            sys.stdout.write(f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+            raise RuntimeError(f"API returned status code {response.status_code}: {responses[response.status_code]}")
     except requests.exceptions.RequestException as e:
-        sys.stdout.write(f"API is not reachable: {e}\n")
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -608,9 +609,9 @@ def backtrack(result_id):
                     item["action"], item["objects"], item["results"]
                 )) + "\n")
         else:
-            sys.stdout.write(f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+            raise RuntimeError(f"API returned status code {response.status_code}: {responses[response.status_code]}")
     except requests.exceptions.RequestException as e:
-        sys.stdout.write(f"API is not reachable: {e}\n")
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -634,9 +635,9 @@ def api_status():
         if response.status_code == 200:
             sys.stdout.write(f"{response.json()}\n")
         else:
-            sys.stdout.write(f"API returned status code {response.status_code}: {responses[response.status_code]}\n")
+            raise RuntimeError(f"API returned status code {response.status_code}: {responses[response.status_code]}")
     except requests.exceptions.RequestException as e:
-        sys.stdout.write(f"API is not reachable: {e}\n")
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 if __name__ == "__main__":

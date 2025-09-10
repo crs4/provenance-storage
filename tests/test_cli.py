@@ -31,8 +31,6 @@ def test_cli_load(data_dir, tmp_path, crate_map, zipped):
     args = ["load", str(crate)]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
-    string_output = result.stdout.rstrip().splitlines()[-1]
-    assert string_output == f"Crate URL: {crate_map['crate1']['url']}"
 
 
 @pytest.mark.parametrize("graph", [None, "crate1"])
@@ -91,6 +89,10 @@ def test_cli_get_graphs_for_file(crate_map):
         crate_map["proccrate1"]["url"],
         crate_map["provcrate1"]["url"],
     }
+    args = ["get-graphs-for-file", "file:///not/present"]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert result.stdout == ""
 
 
 def test_cli_get_graphs_for_result(crate_map):
@@ -101,6 +103,10 @@ def test_cli_get_graphs_for_result(crate_map):
     assert set(result.stdout.splitlines()) >= {
         crate_map["provcrate1"]["url"]
     }
+    args = ["get-graphs-for-result", "file:///not/present"]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert result.stdout == ""
 
 
 def test_cli_get_workflow(crate_map):
@@ -111,6 +117,11 @@ def test_cli_get_workflow(crate_map):
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
     assert set(result.stdout.splitlines()) == {rde_id + "main.nf"}
+    crate_url = crate_map["crate1"]["url"]
+    args = ["get-workflow", crate_url]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert result.stdout == ""
 
 
 def test_cli_get_run_results(crate_map):
@@ -123,6 +134,11 @@ def test_cli_get_run_results(crate_map):
         "file:///path/to/FOOBAR123.deepvariant.vcf.gz.tbi",
         "file:///path/to/FOOBAR123.deepvariant.vcf.gz"
     }
+    crate_url = crate_map["crate1"]["url"]
+    args = ["get-run-results", crate_url]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert result.stdout == ""
 
 
 def test_cli_get_run_objects(crate_map):
@@ -139,6 +155,11 @@ def test_cli_get_run_objects(crate_map):
         "http://example.com/fooconfig.yml",
         f"{rde_id}sample.csv"
     }
+    crate_url = crate_map["crate1"]["url"]
+    args = ["get-run-objects", crate_url]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert result.stdout == ""
 
 
 def test_cli_get_objects_for_result(crate_map):
@@ -178,6 +199,11 @@ def test_cli_get_objects_for_result(crate_map):
         "http://example.com/fooconfig.yml",
         f"{provcrate1_rde_id}sample.csv",
     }
+    result_id = "file:///not/present"
+    args = ["get-objects-for-result", result_id]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert result.stdout == ""
 
 
 def test_cli_get_actions_for_result(crate_map):
@@ -207,6 +233,11 @@ def test_cli_get_actions_for_result(crate_map):
         f"{provcrate1_rde_id}#12204f1e-758f-46e7-bad7-162768de3a5d",
         f"{provcrate1_rde_id}#publish/13fc2459df3405bf049e575f063aef3d/FOOBAR123.deepvariant.vcf.gz",
     }
+    result_id = "file:///not/present"
+    args = ["get-actions-for-result", result_id]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert result.stdout == ""
 
 
 def test_cli_get_objects_for_action(crate_map):
@@ -241,6 +272,11 @@ def test_cli_get_objects_for_action(crate_map):
         "http://example.com/fooconfig.yml",
         f"{provcrate1_rde_id}sample.csv",
     }
+    action_id = "#not-present"
+    args = ["get-objects-for-action", action_id]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert result.stdout == ""
 
 
 def test_cli_get_results_for_action(crate_map):
@@ -270,6 +306,11 @@ def test_cli_get_results_for_action(crate_map):
         "file:///path/to/FOOBAR123.deepvariant.vcf.gz.tbi",
         "file:///path/to/FOOBAR123.deepvariant.vcf.gz",
     }
+    action_id = "#not-present"
+    args = ["get-results-for-action", action_id]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert result.stdout == ""
 
 
 def test_cli_get_run_params(crate_map):
@@ -282,6 +323,11 @@ def test_cli_get_run_params(crate_map):
         "input: sample.csv",
         "foo: foo_value"
     }
+    crate_url = crate_map["crate1"]["url"]
+    args = ["get-run-params", crate_url]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert result.stdout == ""
 
 
 def test_cli_list_graphs(crate_map):
@@ -295,6 +341,20 @@ def test_cli_list_graphs(crate_map):
         crate_map["provcrate1"]["url"],
         crate_map["proccrate1"]["url"],
         crate_map["proccrate2"]["url"],
+    }
+
+
+def test_cli_list_rde_graphs(crate_map):
+    runner = CliRunner()
+    args = ["list-rde-graphs"]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    assert set(tuple(_.split()) for _ in result.stdout.splitlines()) >= {
+        (crate_map["crate1"]["url"], crate_map["crate1"]["rde_id"]),
+        (crate_map["crate2"]["url"], crate_map["crate2"]["rde_id"]),
+        (crate_map["provcrate1"]["url"], crate_map["provcrate1"]["rde_id"]),
+        (crate_map["proccrate1"]["url"], crate_map["proccrate1"]["rde_id"]),
+        (crate_map["proccrate2"]["url"], crate_map["proccrate2"]["rde_id"]),
     }
 
 
