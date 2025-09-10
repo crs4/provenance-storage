@@ -9,6 +9,7 @@ Fuseki docs: https://jena.apache.org/documentation/fuseki2
 
 
 ```
+cp .env.example .env
 docker compose up
 ```
 
@@ -32,7 +33,7 @@ The above modifies `~/.mc/config.json`, so it does not need to be re-executed if
 ### Environment Configuration
 
 On the server side, all environment variables are set in an `.env` file.
-An example configuration is provided in `.env.example` (ports, database name, credentials, etc.).
+An example configuration is provided in `.env.example`.
 
 
 ### CLI configuration
@@ -41,9 +42,10 @@ Point the CLI to the API by editing `~/.config/provstor.config`, example:
 
 ```ini
 [api]
-host = localhost
+host = 10.130.131.41
 port = 8000
 ```
+
 With this setup, the CLI runs locally but executes operations on the remote server through the API.
 
 
