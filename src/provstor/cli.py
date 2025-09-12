@@ -1,4 +1,5 @@
 # Copyright © 2024-2025 CRS4
+# Copyright © 2025 BSC
 #
 # This file is part of ProvStor.
 #
