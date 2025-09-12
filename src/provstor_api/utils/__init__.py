@@ -1,4 +1,5 @@
 # Copyright © 2024-2025 CRS4
+# Copyright © 2025 BSC
 #
 # This file is part of ProvStor.
 #
@@ -13,11 +14,3 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
-
-from .queries import GRAPHS_QUERY
-from .query import run_query
-
-
-def list_graphs():
-    qres = run_query(GRAPHS_QUERY)
-    return (str(_[0]) for _ in qres)

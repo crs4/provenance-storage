@@ -1,4 +1,5 @@
 # Copyright © 2024-2025 CRS4
+# Copyright © 2025 BSC
 #
 # This file is part of ProvStor.
 #
@@ -193,6 +194,21 @@ GRAPHS_QUERY = """\
 SELECT DISTINCT ?g
 WHERE {
   GRAPH ?g { ?s ?p ?o }
+}
+ORDER BY ?g
+"""
+
+RDE_GRAPH_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT DISTINCT ?g ?rde
+WHERE {
+  GRAPH ?g {
+    ?md a schema:CreativeWork .
+    FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+    ?md schema:about ?rde .
+    FILTER(STRSTARTS(STR(?md), "arcp://uuid,"))
+  }
 }
 ORDER BY ?g
 """

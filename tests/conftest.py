@@ -1,4 +1,5 @@
 # Copyright © 2024-2025 CRS4
+# Copyright © 2025 BSC
 #
 # This file is part of ProvStor.
 #
@@ -15,11 +16,15 @@
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
 from pathlib import Path
+import atexit
+import shutil
+import tempfile
 
 import arcp
 import pytest
+import requests
 
-from provstor.load import load_crate_metadata
+from provstor.config import API_HOST, API_PORT
 
 
 THIS_DIR = Path(__file__).absolute().parent
@@ -34,12 +39,22 @@ def data_dir():
 @pytest.fixture(scope="session")
 def crate_map(data_dir):
     m = {}
-    for c in "crate1", "crate2", "provcrate1", "proccrate1", "proccrate2":
+    api_url = F"http://{API_HOST}:{API_PORT}/upload/crate/"
+    tmp_dir = Path(tempfile.mkdtemp(prefix="provstor_"))
+    atexit.register(shutil.rmtree, tmp_dir)
+    for c in ["crate1", "crate2", "provcrate1", "proccrate1", "proccrate2"]:
         crate_path = data_dir / c
-        crate_url = load_crate_metadata(crate_path)
+        zip_path = shutil.make_archive(tmp_dir / crate_path.name, 'zip', crate_path)
+        crate_name = Path(zip_path).name
+        with open(zip_path, 'rb') as crate_file:
+            response = requests.post(api_url, files={'crate_path': (crate_name, crate_file, 'application/zip')})
+        if response.status_code == 200 and response.json().get('result') == "success":
+            crate_url = response.json().get('crate_url')
+        else:
+            response.raise_for_status()
         m[c] = {
             "path": crate_path,
             "url": crate_url,
-            "rde_id": arcp.arcp_location(crate_url)
+            "rde_id": arcp.arcp_location(crate_url) if crate_url else None
         }
     return m

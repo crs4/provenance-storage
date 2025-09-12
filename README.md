@@ -9,11 +9,13 @@ Fuseki docs: https://jena.apache.org/documentation/fuseki2
 
 
 ```
+cp .env.example .env
 docker compose up
 ```
 
 * Open http://localhost:3030 in a browser window to access the Fuseki web UI. The admin password is set in `docker-compose.yaml`.
 * Open http://localhost:9001 to access the MinIO web UI. The username is `minio` and the password `miniosecret`
+* Open http://localhost:8000/docs to access the FastAPI Swagger UI.
 
 Switch to another terminal window.
 
@@ -27,6 +29,27 @@ mc alias set localstore http://localhost:9000 minio miniosecret
 
 The above modifies `~/.mc/config.json`, so it does not need to be re-executed if you wipe out `minio-data`.
 
+
+### Environment Configuration
+
+On the server side, all environment variables are set in an `.env` file.
+An example configuration is provided in `.env.example`.
+
+
+### CLI configuration
+
+Point the CLI to the API by editing `~/.config/provstor.config`, example:
+
+```ini
+[api]
+host = 10.130.131.41
+port = 8000
+```
+
+With this setup, the CLI runs locally but executes operations on the remote server through the API.
+
+
+#### Example usage
 ```
 python3 -m venv venv
 source venv/bin/activate
@@ -49,4 +72,5 @@ This work has been partially funded by the [Italian Research Center on High Perf
 
 ## Copyright
 
-Copyright © 2024-2025 [CRS4](https://www.crs4.it/)
+Copyright © 2024-2025 [CRS4](https://www.crs4.it/) \
+Copyright © 2025 [BSC](https://www.bsc.es/)

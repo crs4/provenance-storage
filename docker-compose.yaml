@@ -1,5 +1,5 @@
-
 # Copyright © 2024-2025 CRS4
+# Copyright © 2025 BSC
 #
 # This file is part of ProvStor.
 #
@@ -24,14 +24,15 @@ services:
     ports:
       - "3030:3030"
     environment:
-      - ADMIN_PASSWORD=admin
-      - ENABLE_DATA_WRITE=true
-      - ENABLE_UPDATE=true
-      - ENABLE_SHACL=false
-      - QUERY_TIMEOUT=60000
+      - ADMIN_PASSWORD=${FUSEKI_ADMIN_PASSWORD}
+      - ENABLE_DATA_WRITE=${ENABLE_DATA_WRITE}
+      - ENABLE_UPDATE=${ENABLE_UPDATE}
+      - ENABLE_SHACL=${ENABLE_SHACL}
+      - QUERY_TIMEOUT=${QUERY_TIMEOUT}
     volumes:
       - fuseki-data:/fuseki-base/databases
     restart: "no"
+
   minio:
     image: bitnami/minio:2024.12.18
     user: "1000"
@@ -39,9 +40,34 @@ services:
     ports:
       - 9000:9000
       - 9001:9001
+    environment:
+      - MINIO_ROOT_USER=${MINIO_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET}
     volumes:
       - minio-data:/bitnami/minio/data
     restart: "no"
+
+  api:
+    image: provstor-api:1.0
+    build:
+      context: .
+      dockerfile: api.Dockerfile
+    container_name: provstor-api
+    ports:
+      - 8000:8000
+    environment:
+      - FUSEKI_BASE_URL=${FUSEKI_BASE_URL}
+      - FUSEKI_DATASET=${FUSEKI_DATASET}
+      - MINIO_STORE=${MINIO_STORE}
+      - MINIO_USER=${MINIO_USER}
+      - MINIO_SECRET=${MINIO_SECRET}
+      - MINIO_BUCKET=${MINIO_BUCKET}
+    depends_on:
+      - fuseki
+      - minio
+    restart: "no"
+    pull_policy: never
+
 volumes:
   fuseki-data:
   minio-data:

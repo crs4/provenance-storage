@@ -1,4 +1,5 @@
 # Copyright © 2024-2025 CRS4
+# Copyright © 2025 BSC
 #
 # This file is part of ProvStor.
 #
@@ -15,34 +16,29 @@
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
 
+import atexit
 import logging
 import sys
+from http.client import responses
 from pathlib import Path
+import requests
+import tempfile
+import shutil
+import zipfile
 
 import click
 
 from . import __version__
-from .backtrack import backtrack as backtrack_f
-from .get import (
-    get_crate as get_crate_f,
-    get_file as get_file_f,
-    get_graphs_for_file as get_graphs_for_file_f,
-    get_graphs_for_result as get_graphs_for_result_f,
-    get_run_results as get_run_results_f,
-    get_run_objects as get_run_objects_f,
-    get_run_params as get_run_params_f,
-    get_objects_for_result as get_objects_for_result_f,
-    get_actions_for_result as get_actions_for_result_f,
-    get_objects_for_action as get_objects_for_action_f,
-    get_results_for_action as get_results_for_action_f,
-    get_workflow as get_workflow_f
-)
-from .list import list_graphs as list_graphs_f
-from .load import load_crate_metadata
-from .query import run_query
 
 
 LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+
+
+def get_base_api_url():
+    """Return the base URL for the connection to API."""
+    # Refresh configuration to pick up any environment changes
+    from provstor.config import API_HOST, API_PORT
+    return f"http://{API_HOST}:{API_PORT}"
 
 
 @click.group()
@@ -68,8 +64,44 @@ def load(crate):
 
     RO_CRATE: RO-Crate directory or ZIP archive.
     """
-    crate_url = load_crate_metadata(crate)
-    sys.stdout.write(f"{crate_url}\n")
+    # check if the crate is a zip file or a directory, if it is a directory, zip it
+    if zipfile.is_zipfile(crate):
+        crate_path = crate
+        crate_name = crate_path.name
+    else:
+        if not crate.is_dir():
+            sys.stdout.write("Crate must be either a zip file or a directory.\n")
+        # use the /tmp directory to store the zipped crate
+        tmp_dir = Path(tempfile.mkdtemp(prefix="provstor_"))
+        atexit.register(shutil.rmtree, tmp_dir)
+        crate = crate.absolute()
+        dest_path = tmp_dir / crate.name
+        crate_name = f"{crate.name}.zip"
+        crate_path = shutil.make_archive(dest_path, 'zip', crate)
+
+    # print the path of the crate
+    logging.info("Crate path: %s", crate_path)
+
+    url = f"{get_base_api_url()}/upload/crate/"
+
+    try:
+        with open(crate_path, 'rb') as crate_to_upload:
+            # Send the crate file to the API
+            logging.info("Uploading crate to %s", url)
+            response = requests.post(
+                url,
+                files={'crate_path': (crate_name, crate_to_upload, 'application/zip')},
+            )
+
+        if response.status_code == 200:
+            json_res = response.json()
+            if json_res['result'] == "success":
+                logging.info("Crate successfully uploaded")
+                logging.info("Crate URL: %s", json_res['crate_url'])
+        else:
+            raise RuntimeError(f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -88,12 +120,22 @@ def query(query_file, graph):
     """\
     Run the SPARQL query in the provided file on the Fuseki store.
 
-    QUERY_FILE: SPARQL query file
+    QUERY_FILE: SPARQL query file pathname.
     """
-    query = query_file.read_text()
-    qres = run_query(query, graph)
-    for row in qres:
-        sys.stdout.write(", ".join(row) + "\n")
+    query_text = query_file.read_text()
+
+    url = f"{get_base_api_url()}/query/run-query/"
+
+    try:
+        response = requests.post(url, files={'query_file': query_text}, params={'graph': graph})
+
+        if response.status_code == 200:
+            for row in response.json()['result']:
+                sys.stdout.write(", ".join(row) + "\n")
+        else:
+            raise RuntimeError(f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -111,10 +153,42 @@ def get_crate(rde_id, outdir):
     """\
     Download the crate corresponding to the given root data entity id.
 
-    ROOT_DATA_ENTITY_ID: @id of the RO-Crate's Root Data Entity
+    ROOT_DATA_ENTITY_ID: @id of the RO-Crate's Root Data Entity (RDE), e.g. "arcp://...".
     """
-    out_path = get_crate_f(rde_id, outdir)
-    sys.stdout.write(f"crate downloaded to {out_path}\n")
+    url = f"{get_base_api_url()}/get/crate/"
+
+    if outdir is None:
+        outdir = Path.cwd()
+    else:
+        outdir = Path(outdir).absolute()
+        outdir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        response = requests.get(url, params={'rde_id': rde_id}, stream=True)
+
+        if response.status_code == 200:
+            content_disposition = response.headers.get('Content-Disposition')
+            file_to_download = None
+            if 'filename' in content_disposition:
+                file_to_download = content_disposition.split('filename=')[1].strip('"')
+
+            if not file_to_download:
+                file_to_download = rde_id.rsplit("/", 1)[-1]
+                if not file_to_download:
+                    file_to_download = "downloaded_file"
+
+            download_path = outdir / file_to_download
+
+            with open(download_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+
+            # download_path = response.headers.get('download_path')
+            logging.info("Crate downloaded to %s", download_path)
+        else:
+            raise RuntimeError(f"API returned status code {response.status_code}: {response.json()['detail']}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -132,10 +206,41 @@ def get_file(file_uri, outdir):
     """\
     Download the file corresponding to the given URI.
 
-    FILE_URI: URI of the file.
+    FILE_URI: URI of the file RDE (e.g. "arcp://...").
     """
-    out_path = get_file_f(file_uri, outdir)
-    sys.stdout.write(f"file extracted to {out_path}\n")
+    url = f"{get_base_api_url()}/get/file/"
+
+    if outdir is None:
+        outdir = Path.cwd()
+    else:
+        outdir = Path(outdir).absolute()
+        outdir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        response = requests.get(url, params={'file_uri': file_uri}, stream=True)
+
+        if response.status_code == 200:
+            content_disposition = response.headers.get('Content-Disposition')
+            file_to_download = None
+            if 'filename' in content_disposition:
+                file_to_download = content_disposition.split('filename=')[1].strip('"')
+
+            if not file_to_download:
+                file_to_download = file_uri.rsplit("/", 1)[-1]
+                if not file_to_download:
+                    file_to_download = "downloaded_file"
+
+            download_path = outdir / file_to_download
+
+            with open(download_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+
+            logging.info("File downloaded to %s", download_path)
+        else:
+            raise RuntimeError(f"API returned status code {response.status_code}: {response.json()['detail']}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -147,11 +252,25 @@ def get_graphs_for_file(file_id):
     """\
     Get the ids of the graphs that contain (hasPart) the given file.
 
-    FILE_ID: full URI of the file (e.g. file://...).
+    FILE_ID: full URI of the file (e.g. "file://...").
     """
-    graphs = get_graphs_for_file_f(file_id)
-    for g in graphs:
-        sys.stdout.write(f"{g}\n")
+    url = f"{get_base_api_url()}/get/graphs-for-file/"
+
+    try:
+        response = requests.get(url, params={'file_id': file_id})
+
+        if response.status_code == 200:
+            result = response.json()['result']
+            if not result:
+                logging.debug("No graphs found for %s", file_id)
+            else:
+                for item in result:
+                    sys.stdout.write(item + "\n")
+        else:
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -164,11 +283,25 @@ def get_graphs_for_result(result_id):
     Get the ids of the graphs where the given id is listed as the result of a
     CreateAction.
 
-    RESULT_ID: RO-Crate id of the result.
+    RESULT_ID: RO-Crate id of the result (e.g. "file://...").
     """
-    graphs = get_graphs_for_result_f(result_id)
-    for g in graphs:
-        sys.stdout.write(f"{g}\n")
+    url = f"{get_base_api_url()}/get/graphs-for-result/"
+
+    try:
+        response = requests.get(url, params={'result_id': result_id})
+
+        if response.status_code == 200:
+            result = response.json()['result']
+            if not result:
+                logging.debug("No graphs found for %s", result_id)
+            else:
+                for item in result:
+                    sys.stdout.write(item + "\n")
+        else:
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -182,11 +315,25 @@ def get_workflow(graph_id):
     give a result only for a Workflow RO-Crate and crates whose profile is
     derived from Workflow-RO-Crate.
 
-    GRAPH_ID: id of the graph in the triple store.
+    GRAPH_ID: name of RO-Crate (e.g. "mycrate") or full URL (e.g. "http://...").
     """
-    workflows = get_workflow_f(graph_id)
-    for g in workflows:
-        sys.stdout.write(f"{g}\n")
+    url = f"{get_base_api_url()}/get/workflow/"
+
+    try:
+        response = requests.get(url, params={'graph_id': graph_id})
+
+        if response.status_code == 200:
+            result = response.json()['result']
+            if not result:
+                logging.debug("No workflow found for graph %s", graph_id)
+            else:
+                for item in result:
+                    sys.stdout.write(item + "\n")
+        else:
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -199,11 +346,25 @@ def get_run_results(graph_id):
     Get the workflow run results that are either files or directories
     corresponding to the given graph id.
 
-    GRAPH_ID: id of the graph in the triple store.
+    GRAPH_ID: name of RO-Crate (e.g. "mycrate") or full URL (e.g. "http://...").
     """
-    results = get_run_results_f(graph_id)
-    for r in results:
-        sys.stdout.write(f"{r}\n")
+    url = f"{get_base_api_url()}/get/run-results/"
+
+    try:
+        response = requests.get(url, params={'graph_id': graph_id})
+
+        if response.status_code == 200:
+            result = response.json()['result']
+            if not result:
+                logging.debug("No results found for %s", graph_id)
+            else:
+                for item in result:
+                    sys.stdout.write(item + "\n")
+        else:
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -216,11 +377,25 @@ def get_run_objects(graph_id):
     Get the workflow run objects that are either files or directories
     corresponding to the given graph id.
 
-    GRAPH_ID: id of the graph in the triple store.
+    GRAPH_ID: name of RO-Crate (e.g. "mycrate") or full URL (e.g. "http://...").
     """
-    objects = get_run_objects_f(graph_id)
-    for r in objects:
-        sys.stdout.write(f"{r}\n")
+    url = f"{get_base_api_url()}/get/run-objects/"
+
+    try:
+        response = requests.get(url, params={'graph_id': graph_id})
+
+        if response.status_code == 200:
+            result = response.json()['result']
+            if not result:
+                logging.debug("No objects found for %s", graph_id)
+            else:
+                for item in result:
+                    sys.stdout.write(item + "\n")
+        else:
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -232,11 +407,25 @@ def get_objects_for_result(result_id):
     """\
     Get objects that are related to the given result in a CreateAction.
 
-    RESULT_ID: id of the result item.
+    RESULT_ID: RO-Crate id of the result (e.g. "file://...").
     """
-    objects = get_objects_for_result_f(result_id)
-    for r in objects:
-        sys.stdout.write(f"{r}\n")
+    url = f"{get_base_api_url()}/get/objects-for-result/"
+
+    try:
+        response = requests.get(url, params={'result_id': result_id})
+
+        if response.status_code == 200:
+            result = response.json()['result']
+            if not result:
+                logging.debug("No objects found for result %s", result_id)
+            else:
+                for item in result:
+                    sys.stdout.write(item + "\n")
+        else:
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -248,11 +437,25 @@ def get_actions_for_result(result_id):
     """\
     Get actions that have the given result.
 
-    RESULT_ID: id of the result item.
+    RESULT_ID: RO-Crate id of the result (e.g. "file://...").
     """
-    actions = get_actions_for_result_f(result_id)
-    for a in actions:
-        sys.stdout.write(f"{a}\n")
+    url = f"{get_base_api_url()}/get/actions-for-result/"
+
+    try:
+        response = requests.get(url, params={'result_id': result_id})
+
+        if response.status_code == 200:
+            result = response.json()['result']
+            if not result:
+                logging.debug("No actions found for result %s", result_id)
+            else:
+                for item in result:
+                    sys.stdout.write(item + "\n")
+        else:
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -264,11 +467,25 @@ def get_objects_for_action(action_id):
     """\
     Get the objects of the given CreateAction.
 
-    ACTION_ID: id of the CreateAction.
+    ACTION_ID: id of the CreateAction (e.g. "arcp://...").
     """
-    objects = get_objects_for_action_f(action_id)
-    for r in objects:
-        sys.stdout.write(f"{r}\n")
+    url = f"{get_base_api_url()}/get/objects-for-action/"
+
+    try:
+        response = requests.get(url, params={'action_id': action_id})
+
+        if response.status_code == 200:
+            result = response.json()['result']
+            if not result:
+                logging.debug("No objects found for action %s", action_id)
+            else:
+                for item in result:
+                    sys.stdout.write(item + "\n")
+        else:
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -280,11 +497,25 @@ def get_results_for_action(action_id):
     """\
     Get the results of the given CreateAction.
 
-    ACTION_ID: id of the CreateAction.
+    ACTION_ID: id of the CreateAction (e.g. "arcp://...").
     """
-    results = get_results_for_action_f(action_id)
-    for r in results:
-        sys.stdout.write(f"{r}\n")
+    url = f"{get_base_api_url()}/get/results-for-action/"
+
+    try:
+        response = requests.get(url, params={'action_id': action_id})
+
+        if response.status_code == 200:
+            result = response.json()['result']
+            if not result:
+                logging.debug("No results found for action %s", action_id)
+            else:
+                for item in result:
+                    sys.stdout.write(item + "\n")
+        else:
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -297,11 +528,25 @@ def get_run_params(graph_id):
     Get the workflow run objects that are parameters (name: value)
     corresponding to the given graph id.
 
-    GRAPH_ID: id of the graph in the triple store.
+    GRAPH_ID: name of RO-Crate (e.g. "mycrate") or full URL (e.g. "http://...").
     """
-    params = get_run_params_f(graph_id)
-    for name, value in params:
-        sys.stdout.write(f"{name}: {value}\n")
+    url = f"{get_base_api_url()}/get/run-params/"
+
+    try:
+        response = requests.get(url, params={'graph_id': graph_id})
+
+        if response.status_code == 200:
+            result = response.json()['result']
+            if not result:
+                logging.debug("No parameters found for graph %s", graph_id)
+            else:
+                for item in result:
+                    sys.stdout.write(f"{item[0]}: {item[1]}" + "\n")
+        else:
+            raise RuntimeError(
+                f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -309,9 +554,38 @@ def list_graphs():
     """\
     List all graphs in the triple store.
     """
-    graphs = list_graphs_f()
-    for g in graphs:
-        sys.stdout.write(f"{g}\n")
+    url = f"{get_base_api_url()}/query/list-graphs/"
+
+    try:
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            # sys.stdout.write(f"Query result:\n")
+            for row in response.json()['result']:
+                sys.stdout.write(row + "\n")
+        else:
+            raise RuntimeError(f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
+
+
+@cli.command()
+def list_rde_graphs():
+    """\
+    List all graphs in the triple store and the associated RDE ids.
+    """
+    url = f"{get_base_api_url()}/query/list-RDE-graphs/"
+
+    try:
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            for row in response.json()['result']:
+                sys.stdout.write('\t'.join(row) + "\n")
+        else:
+            raise RuntimeError(f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -323,10 +597,22 @@ def backtrack(result_id):
     """\
     Recursively get objects related to the given result by a chain of actions.
 
-    RESULT_ID: id of the result item.
+    RESULT_ID: RO-Crate id of the result (e.g. "file://...").
     """
-    for item in backtrack_f(result_id):
-        sys.stdout.write(f"{item}\n")
+    url = f"{get_base_api_url()}/backtrack/"
+
+    try:
+        response = requests.get(url, params={'result_id': result_id})
+
+        if response.status_code == 200:
+            for item in response.json()['result']:
+                sys.stdout.write(repr((
+                    item["action"], item["objects"], item["results"]
+                )) + "\n")
+        else:
+            raise RuntimeError(f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 @cli.command()
@@ -335,6 +621,24 @@ def version():
     Print version string and exit.
     """
     sys.stdout.write(f"{__version__}\n")
+
+
+@cli.command()
+def api_status():
+    """\
+    Check the status of the ProvStor API.
+    """
+    url = f"{get_base_api_url()}/status/"
+
+    try:
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            sys.stdout.write(f"{response.json()}\n")
+        else:
+            raise RuntimeError(f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
 
 
 if __name__ == "__main__":

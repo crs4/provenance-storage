@@ -1,4 +1,5 @@
 # Copyright © 2024-2025 CRS4
+# Copyright © 2025 BSC
 #
 # This file is part of ProvStor.
 #
@@ -26,15 +27,9 @@ https://specifications.freedesktop.org/basedir-spec/latest.
 
 Example:
 
-[fuseki]
-base_url = http://localhost:3030
-dataset = ds
-
-[minio]
-store = localhost:9000
-user = minio
-secret = miniosecret
-bucket = crates
+[api]
+host = 127.0.0.1
+port = 8000
 """
 
 from configparser import ConfigParser
@@ -65,12 +60,8 @@ def configure():
     CONFIG = ConfigParser()
     CONFIG.read(CONFIG_FILE_LOCATIONS)
     g = globals()
-    g["FUSEKI_BASE_URL"] = CONFIG.get("fuseki", "base_url", fallback="http://localhost:3030")
-    g["FUSEKI_DATASET"] = CONFIG.get("fuseki", "dataset", fallback="ds")
-    g["MINIO_STORE"] = CONFIG.get("minio", "store", fallback="localhost:9000")
-    g["MINIO_USER"] = CONFIG.get("minio", "user", fallback="minio")
-    g["MINIO_SECRET"] = CONFIG.get("minio", "secret", fallback="miniosecret")
-    g["MINIO_BUCKET"] = CONFIG.get("minio", "bucket", fallback="crates")
+    g["API_HOST"] = CONFIG.get("api", "host", fallback="localhost")
+    g["API_PORT"] = CONFIG.get("api", "port", fallback="8000")
 
 
 configure()

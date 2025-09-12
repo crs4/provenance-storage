@@ -1,0 +1,63 @@
+# Copyright © 2024-2025 CRS4
+# Copyright © 2025 BSC
+#
+# This file is part of ProvStor.
+#
+# ProvStor is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# ProvStor is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
+
+
+from fastapi import APIRouter, UploadFile, HTTPException
+import logging
+
+from utils.query import run_query
+from utils.queries import GRAPHS_QUERY, RDE_GRAPH_QUERY
+
+router = APIRouter()
+
+
+@router.get("/list-graphs/")
+def list_graphs():
+    try:
+        query_res = run_query(GRAPHS_QUERY)
+        output = []
+        for (i, item) in zip(range(len(query_res)), query_res):
+            output.append(item[0])
+        return {"result": output}
+    except Exception as e:
+        logging.error(f"Error fetching graphs: {e}")
+        raise HTTPException(status_code=502, detail=f"Failed to fetch graphs: {str(e)}")
+
+
+@router.get("/list-RDE-graphs/")
+def list_rde_graphs():
+    try:
+        query_res = run_query(RDE_GRAPH_QUERY)
+        output = [item for item in query_res]
+        return {"result": output}
+    except Exception as e:
+        logging.error(f"Error fetching RDE IDs: {e}")
+        raise HTTPException(status_code=502, detail=f"Failed to fetch RDE IDs: {str(e)}")
+
+
+@router.post("/run-query/")
+async def run_query_sparql(query_file: UploadFile, graph: str = None):
+    try:
+        content = await query_file.read()
+        query = content.decode("utf-8")
+        print(f"Query:\n{query}\n")
+        query_res = run_query(query, graph)
+        result_list = [item.toPython() if hasattr(item, 'toPython') else item for item in query_res]
+        return {"result": result_list}
+    except Exception as e:
+        logging.error(f"Error processing SPARQL query: {e}")
+        raise HTTPException(status_code=400, detail=f"Query failed: {str(e)}")

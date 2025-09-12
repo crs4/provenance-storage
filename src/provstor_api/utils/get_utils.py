@@ -1,4 +1,5 @@
 # Copyright © 2024-2025 CRS4
+# Copyright © 2025 BSC
 #
 # This file is part of ProvStor.
 #
@@ -14,14 +15,25 @@
 # You should have received a copy of the GNU General Public License
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
-from provstor.config import MINIO_STORE, MINIO_BUCKET
-from provstor.list import list_graphs
+
+from utils.queries import (
+    ACTIONS_FOR_RESULT_QUERY,
+    OBJECTS_FOR_ACTION_QUERY,
+    RESULTS_FOR_ACTION_QUERY
+)
+from utils.query import run_query
 
 
-def test_list_graphs(crate_map):
-    res = set(list_graphs())
-    assert res >= {
-        f"http://{MINIO_STORE}/{MINIO_BUCKET}/crate1.zip",
-        f"http://{MINIO_STORE}/{MINIO_BUCKET}/crate2.zip",
-        f"http://{MINIO_STORE}/{MINIO_BUCKET}/provcrate1.zip",
-    }
+def fetch_actions_for_result(result_id):
+    query_res = run_query(ACTIONS_FOR_RESULT_QUERY % result_id)
+    return [str(_[0]) for _ in query_res]
+
+
+def fetch_objects_for_action(action_id):
+    query_res = run_query(OBJECTS_FOR_ACTION_QUERY % {"action": action_id})
+    return [str(_[0]) for _ in query_res]
+
+
+def fetch_results_for_action(action_id):
+    query_res = run_query(RESULTS_FOR_ACTION_QUERY % {"action": action_id})
+    return [str(_[0]) for _ in query_res]
