@@ -22,10 +22,22 @@ from routes import upload, query, get, backtrack
 import os
 import uvicorn
 import logging
+from fastapi.middleware.cors import CORSMiddleware
+from config import ALLOWED_ORIGINS
 
 logging.getLogger().setLevel(logging.INFO)
 
 app = FastAPI(title="Provenance Storage API", version="1.0")
+
+allowed_origins = ALLOWED_ORIGINS.split(",") if ALLOWED_ORIGINS else []
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 app.include_router(upload.router, prefix="/upload", tags=["Upload"])
 app.include_router(query.router, prefix="/query", tags=["Query"])

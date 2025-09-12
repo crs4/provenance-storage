@@ -26,6 +26,7 @@ DEFAULT_ENV_VARS = {
     "MINIO_BUCKET": "crates",
     "FUSEKI_BASE_URL": "http://fuseki:3030",
     "FUSEKI_DATASET": "ds",
+    "ALLOWED_ORIGINS": "*",
 }
 
 
