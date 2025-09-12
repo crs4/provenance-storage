@@ -72,4 +72,5 @@ This work has been partially funded by the [Italian Research Center on High Perf
 
 ## Copyright
 
-Copyright © 2024-2025 [CRS4](https://www.crs4.it/)
+Copyright © 2024-2025 [CRS4](https://www.crs4.it/) \
+Copyright © 2025 [BSC](https://www.bsc.es/)
