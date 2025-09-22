@@ -23,6 +23,8 @@ import os
 import uvicorn
 import logging
 
+from config import DEV_MODE
+
 logging.getLogger().setLevel(logging.INFO)
 
 app = FastAPI(title="Provenance Storage API", version="1.0")
@@ -45,4 +47,4 @@ def favicon():
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=DEV_MODE)

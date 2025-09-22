@@ -1,5 +1,4 @@
-# Copyright © 2024-2025 CRS4
-# Copyright © 2025 BSC
+# Copyright © 2025 CRS4
 #
 # This file is part of ProvStor.
 #
@@ -16,29 +15,9 @@
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
 
-import os
-
-
-DEFAULT_ENV_VARS = {
-    "MINIO_STORE": "minio:9000",
-    "MINIO_USER": "minio",
-    "MINIO_SECRET": "miniosecret",
-    "MINIO_BUCKET": "crates",
-    "FUSEKI_BASE_URL": "http://fuseki:3030",
-    "FUSEKI_DATASET": "ds",
-    "DEV_MODE": "false"
-}
-
-
-def load_env_vars():
-    """\
-    Sets module-level variables according to environment variables.
-    """
-    g = globals()
-    for key, value in DEFAULT_ENV_VARS.items():
-        if key == "DEV_MODE":
-            value = value == "true"
-        g[key] = os.environ.get(key, value)
-
-
-load_env_vars()
+services:
+  api:
+    environment:
+      - DEV_MODE=true
+    volumes:
+      - ./src/provstor_api:/app/provstor_api
