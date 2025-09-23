@@ -36,6 +36,13 @@ On the server side, all environment variables are set in an `.env` file.
 An example configuration is provided in `.env.example`.
 
 
+### Dev mode
+
+```
+docker compose -f docker-compose.yaml -f docker-compose-dev.yaml up
+```
+
+
 ### CLI configuration
 
 Point the CLI to the API by editing `~/.config/provstor.config`, example:

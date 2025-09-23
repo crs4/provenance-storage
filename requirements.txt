@@ -2,6 +2,7 @@ fastapi~=0.116.1
 uvicorn~=0.35.0
 rdflib~=7.0.0
 pydantic~=2.11.7
+pydantic-settings~=2.10.1
 pycparser~=2.22
 python-multipart~=0.0.20
 arcp~=0.2.1
