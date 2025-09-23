@@ -29,10 +29,7 @@ from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 from rdflib.term import URIRef, Literal
 
 from utils.queries import RDE_QUERY
-from config import (
-    MINIO_STORE, MINIO_USER, MINIO_SECRET, MINIO_BUCKET,
-    FUSEKI_DATASET, FUSEKI_BASE_URL,
-)
+from config import settings
 
 router = APIRouter()
 
@@ -44,13 +41,13 @@ MINIO_BUCKET_POLICY = {
             "Effect": "Allow",
             "Principal": {"AWS": "*"},
             "Action": ["s3:GetBucketLocation", "s3:ListBucket"],
-            "Resource": f"arn:aws:s3:::{MINIO_BUCKET}",
+            "Resource": f"arn:aws:s3:::{settings.minio_bucket}",
         },
         {
             "Effect": "Allow",
             "Principal": {"AWS": "*"},
             "Action": "s3:GetObject",
-            "Resource": f"arn:aws:s3:::{MINIO_BUCKET}/*",
+            "Resource": f"arn:aws:s3:::{settings.minio_bucket}/*",
         },
     ],
 }
@@ -93,27 +90,27 @@ async def load_crate_metadata(crate_path: UploadFile):
             if not metadata_path:
                 raise HTTPException(status_code=404, detail="ro-crate-metadata.json not found in the zip file")
 
-            client = Minio(MINIO_STORE, MINIO_USER, MINIO_SECRET, secure=False)
-            if not client.bucket_exists(MINIO_BUCKET):
-                client.make_bucket(MINIO_BUCKET)
-                logging.info('created bucket "%s"', MINIO_BUCKET)
-                client.set_bucket_policy(MINIO_BUCKET, json.dumps(MINIO_BUCKET_POLICY))
+            client = Minio(settings.minio_store, settings.minio_user, settings.minio_secret, secure=False)
+            if not client.bucket_exists(settings.minio_bucket):
+                client.make_bucket(settings.minio_bucket)
+                logging.info('created bucket "%s"', settings.minio_bucket)
+                client.set_bucket_policy(settings.minio_bucket, json.dumps(MINIO_BUCKET_POLICY))
 
             await crate_path.seek(0)  # Reset file pointer to the beginning
             client.put_object(
-                MINIO_BUCKET,
+                settings.minio_bucket,
                 crate_path.filename,
                 crate_path.file,
                 length=-1,
                 part_size=50 * 1024 * 1024
             )
 
-            crate_url = f"http://{MINIO_STORE}/{MINIO_BUCKET}/{crate_path.filename}"
+            crate_url = f"http://{settings.minio_store}/{settings.minio_bucket}/{crate_path.filename}"
             logging.info("Crate URL: %s", crate_url)
 
             store = SPARQLUpdateStore()
-            query_endpoint = f"{FUSEKI_BASE_URL}/{FUSEKI_DATASET}/sparql"
-            update_endpoint = f"{FUSEKI_BASE_URL}/{FUSEKI_DATASET}/update"
+            query_endpoint = f"{settings.fuseki_base_url}/{settings.fuseki_dataset}/sparql"
+            update_endpoint = f"{settings.fuseki_base_url}/{settings.fuseki_dataset}/update"
             store.open((query_endpoint, update_endpoint))
             graph = Graph(store, identifier=URIRef(crate_url))
             loc = arcp.arcp_location(crate_url)

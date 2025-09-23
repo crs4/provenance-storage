@@ -23,7 +23,7 @@ import os
 import uvicorn
 import logging
 
-from config import DEV_MODE
+from config import settings
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -47,4 +47,4 @@ def favicon():
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=DEV_MODE)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=settings.dev_mode)

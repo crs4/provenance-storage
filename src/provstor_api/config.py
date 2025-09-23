@@ -15,30 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
-
-import os
-
-
-DEFAULT_ENV_VARS = {
-    "MINIO_STORE": "minio:9000",
-    "MINIO_USER": "minio",
-    "MINIO_SECRET": "miniosecret",
-    "MINIO_BUCKET": "crates",
-    "FUSEKI_BASE_URL": "http://fuseki:3030",
-    "FUSEKI_DATASET": "ds",
-    "DEV_MODE": "false"
-}
+from pydantic_settings import BaseSettings
 
 
-def load_env_vars():
-    """\
-    Sets module-level variables according to environment variables.
-    """
-    g = globals()
-    for key, value in DEFAULT_ENV_VARS.items():
-        if key == "DEV_MODE":
-            value = value == "true"
-        g[key] = os.environ.get(key, value)
+# Pydantic reads the environment variables in a case-insensitive way
+class Settings(BaseSettings):
+    minio_store: str = "minio:9000"
+    minio_user: str = "minio"
+    minio_secret: str = "miniosecret"
+    minio_bucket: str = "crates"
+    fuseki_base_url: str = "http://fuseki:3030"
+    fuseki_dataset: str = "ds"
+    dev_mode: bool = False
 
 
-load_env_vars()
+settings = Settings()
