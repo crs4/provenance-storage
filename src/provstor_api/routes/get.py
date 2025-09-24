@@ -73,7 +73,7 @@ async def get_crate(rde_id: str):
         raise
     except Exception as e:
         logging.error(f"Error downloading crate: {e}")
-        raise HTTPException(status_code=500, detail=f"Download failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Download failed: {e}")
 
 
 @router.get("/file/")
@@ -122,7 +122,7 @@ async def get_file(file_uri: str):
         raise
     except Exception as e:
         logging.error(f"Error downloading file: {e}")
-        raise HTTPException(status_code=500, detail=f"Download failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Download failed: {e}")
 
 
 @router.get("/graphs-for-file/")
@@ -132,8 +132,8 @@ def get_graphs_for_file(file_id: str):
         output = [str(_[0]) for _ in query_res]
         return {"result": output}
     except Exception as e:
-        logging.error(f"Error retrieving graph from input file: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
+        logging.error(f"Error retrieving graphs: {e}")
+        raise HTTPException(status_code=502, detail=f"Failed to retrieve graphs: {e}")
 
 
 @router.get("/graphs-for-result/")
@@ -143,8 +143,8 @@ def get_graphs_for_result(result_id: str):
         output = [str(_[0]) for _ in query_res]
         return {"result": output}
     except Exception as e:
-        logging.error(f"Error retrieving graph from input file: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
+        logging.error(f"Error retrieving graphs: {e}")
+        raise HTTPException(status_code=502, detail=f"Failed to retrieve graphs: {e}")
 
 
 @router.get("/workflow/")
@@ -154,8 +154,8 @@ def get_workflow(graph_id: str):
         output = [str(_[0]) for _ in query_res]
         return {"result": output}
     except Exception as e:
-        logging.error(f"Error retrieving graph from input file: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
+        logging.error(f"Error retrieving workflow: {e}")
+        raise HTTPException(status_code=502, detail=f"Failed to retrieve workflow: {e}")
 
 
 @router.get("/run-results/")
@@ -165,8 +165,8 @@ def get_run_results(graph_id: str):
         output = [str(_[0]) for _ in query_res]
         return {"result": output}
     except Exception as e:
-        logging.error(f"Error retrieving graph from input file: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
+        logging.error(f"Error retrieving run results: {e}")
+        raise HTTPException(status_code=502, detail=f"Failed to retrieve run results: {e}")
 
 
 @router.get("/run-objects/")
@@ -176,8 +176,8 @@ def get_run_objects(graph_id: str):
         output = [str(_[0]) for _ in query_res]
         return {"result": output}
     except Exception as e:
-        logging.error(f"Error retrieving graph from input file: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
+        logging.error(f"Error retrieving run objects: {e}")
+        raise HTTPException(status_code=502, detail=f"Failed to retrieve run objects: {e}")
 
 
 @router.get("/objects-for-result/")
@@ -187,8 +187,8 @@ def get_objects_for_result(result_id: str):
         output = [str(_[0]) for _ in query_res]
         return {"result": output}
     except Exception as e:
-        logging.error(f"Error retrieving graph from input file: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
+        logging.error(f"Error retrieving objects: {e}")
+        raise HTTPException(status_code=502, detail=f"Failed to retrieve objects: {e}")
 
 
 @router.get("/actions-for-result/")
@@ -197,8 +197,8 @@ def get_actions_for_result(result_id: str):
         output = fetch_actions_for_result(result_id)
         return {"result": output}
     except Exception as e:
-        logging.error(f"Error retrieving graph from input file: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
+        logging.error(f"Error retrieving actions: {e}")
+        raise HTTPException(status_code=502, detail=f"Failed to retrieve actions: {e}")
 
 
 @router.get("/objects-for-action/")
@@ -207,8 +207,8 @@ def get_objects_for_action(action_id: str):
         output = fetch_objects_for_action(action_id)
         return {"result": output}
     except Exception as e:
-        logging.error(f"Error retrieving graph from input file: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
+        logging.error(f"Error retrieving objects: {e}")
+        raise HTTPException(status_code=502, detail=f"Failed to retrieve objects: {e}")
 
 
 @router.get("/results-for-action/")
@@ -217,8 +217,8 @@ def get_results_for_action(action_id: str):
         output = fetch_results_for_action(action_id)
         return {"result": output}
     except Exception as e:
-        logging.error(f"Error retrieving graph from input file: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
+        logging.error(f"Error retrieving results: {e}")
+        raise HTTPException(status_code=502, detail=f"Failed to retrieve results: {e}")
 
 
 @router.get("/run-params/")
@@ -228,5 +228,5 @@ def get_run_params(graph_id: str):
         output = [(str(_.name), str(_.value)) for _ in query_res]
         return {"result": output}
     except Exception as e:
-        logging.error(f"Error retrieving graph from input file: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve graph from input file: {str(e)}")
+        logging.error(f"Error retrieving run params: {e}")
+        raise HTTPException(status_code=502, detail=f"Failed to retrieve run params: {e}")
