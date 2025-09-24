@@ -35,7 +35,7 @@ LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
 
 def get_base_api_url():
-    """Return the base URL for the connection to API."""
+    """Return the base URL for connection to the API."""
     # Refresh configuration to pick up any environment changes
     from provstor.config import API_HOST, API_PORT
     return f"http://{API_HOST}:{API_PORT}"
@@ -64,14 +64,12 @@ def load(crate):
 
     RO_CRATE: RO-Crate directory or ZIP archive.
     """
-    # check if the crate is a zip file or a directory, if it is a directory, zip it
     if zipfile.is_zipfile(crate):
         crate_path = crate
         crate_name = crate_path.name
     else:
         if not crate.is_dir():
-            sys.stdout.write("Crate must be either a zip file or a directory.\n")
-        # use the /tmp directory to store the zipped crate
+            raise click.ClickException("Crate must be either a zip file or a directory.")
         tmp_dir = Path(tempfile.mkdtemp(prefix="provstor_"))
         atexit.register(shutil.rmtree, tmp_dir)
         crate = crate.absolute()
@@ -79,14 +77,12 @@ def load(crate):
         crate_name = f"{crate.name}.zip"
         crate_path = shutil.make_archive(dest_path, 'zip', crate)
 
-    # print the path of the crate
     logging.info("Crate path: %s", crate_path)
 
     url = f"{get_base_api_url()}/upload/crate/"
 
     try:
         with open(crate_path, 'rb') as crate_to_upload:
-            # Send the crate file to the API
             logging.info("Uploading crate to %s", url)
             response = requests.post(
                 url,
@@ -120,7 +116,7 @@ def query(query_file, graph):
     """\
     Run the SPARQL query in the provided file on the Fuseki store.
 
-    QUERY_FILE: SPARQL query file pathname.
+    QUERY_FILE: SPARQL query file path.
     """
     query_text = query_file.read_text()
 
@@ -153,14 +149,15 @@ def get_crate(rde_id, outdir):
     """\
     Download the crate corresponding to the given root data entity id.
 
-    ROOT_DATA_ENTITY_ID: @id of the RO-Crate's Root Data Entity (RDE), e.g. "arcp://...".
+    ROOT_DATA_ENTITY_ID: @id of the RO-Crate's Root Data Entity (RDE),
+    e.g. "arcp://uuid,7dcc0072-ee6b-58c0-894b-d467e4141de3/".
     """
     url = f"{get_base_api_url()}/get/crate/"
 
     if outdir is None:
         outdir = Path.cwd()
     else:
-        outdir = Path(outdir).absolute()
+        outdir = Path(outdir)
         outdir.mkdir(parents=True, exist_ok=True)
 
     try:
@@ -183,7 +180,6 @@ def get_crate(rde_id, outdir):
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
 
-            # download_path = response.headers.get('download_path')
             logging.info("Crate downloaded to %s", download_path)
         else:
             raise RuntimeError(f"API returned status code {response.status_code}: {response.json()['detail']}")
@@ -206,14 +202,15 @@ def get_file(file_uri, outdir):
     """\
     Download the file corresponding to the given URI.
 
-    FILE_URI: URI of the file RDE (e.g. "arcp://...").
+    FILE_URI: URI of the file,
+    e.g. arcp://uuid,7dcc0072-ee6b-58c0-894b-d467e4141de3/readme.txt.
     """
     url = f"{get_base_api_url()}/get/file/"
 
     if outdir is None:
         outdir = Path.cwd()
     else:
-        outdir = Path(outdir).absolute()
+        outdir = Path(outdir)
         outdir.mkdir(parents=True, exist_ok=True)
 
     try:
@@ -560,7 +557,6 @@ def list_graphs():
         response = requests.get(url)
 
         if response.status_code == 200:
-            # sys.stdout.write(f"Query result:\n")
             for row in response.json()['result']:
                 sys.stdout.write(row + "\n")
         else:

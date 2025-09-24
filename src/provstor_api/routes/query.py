@@ -35,7 +35,7 @@ def list_graphs():
         return {"result": output}
     except Exception as e:
         logging.error(f"Error fetching graphs: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to fetch graphs: {str(e)}")
+        raise HTTPException(status_code=502, detail=f"Failed to fetch graphs: {e}")
 
 
 @router.get("/list-RDE-graphs/")
@@ -46,7 +46,7 @@ def list_rde_graphs():
         return {"result": output}
     except Exception as e:
         logging.error(f"Error fetching RDE IDs: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to fetch RDE IDs: {str(e)}")
+        raise HTTPException(status_code=502, detail=f"Failed to fetch RDE IDs: {e}")
 
 
 @router.post("/run-query/")
@@ -54,10 +54,9 @@ async def run_query_sparql(query_file: UploadFile, graph: str = None):
     try:
         content = await query_file.read()
         query = content.decode("utf-8")
-        print(f"Query:\n{query}\n")
         query_res = run_query(query, graph)
         result_list = [item.toPython() if hasattr(item, 'toPython') else item for item in query_res]
         return {"result": result_list}
     except Exception as e:
         logging.error(f"Error processing SPARQL query: {e}")
-        raise HTTPException(status_code=400, detail=f"Query failed: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Query failed: {e}")

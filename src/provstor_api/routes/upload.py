@@ -76,7 +76,6 @@ async def load_crate_metadata(crate_path: UploadFile):
             with zipfile.ZipFile(tmp_zip_path, 'r') as zip_ref:
                 for zip_info in zip_ref.infolist():
                     if os.path.basename(zip_info.filename) == metadata_filename:
-                        # Check if the file is too large
                         if zip_info.file_size > 50_000_000:
                             raise HTTPException(status_code=413, detail="Metadata file exceeds size limit (50 MB)")
 
@@ -96,7 +95,7 @@ async def load_crate_metadata(crate_path: UploadFile):
                 logging.info('created bucket "%s"', settings.minio_bucket)
                 client.set_bucket_policy(settings.minio_bucket, json.dumps(MINIO_BUCKET_POLICY))
 
-            await crate_path.seek(0)  # Reset file pointer to the beginning
+            await crate_path.seek(0)
             client.put_object(
                 settings.minio_bucket,
                 crate_path.filename,
@@ -127,5 +126,4 @@ async def load_crate_metadata(crate_path: UploadFile):
             return {"result": "success", "crate_url": crate_url}
 
     except Exception as e:
-        # Handle unexpected errors
-        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
