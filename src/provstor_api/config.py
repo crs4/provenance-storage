@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     minio_bucket: str = "crates"
     fuseki_base_url: str = "http://fuseki:3030"
     fuseki_dataset: str = "ds"
+    allowed_origins: str = "*"
     dev_mode: bool = False
 
 
