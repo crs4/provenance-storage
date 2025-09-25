@@ -23,15 +23,13 @@ import os
 import uvicorn
 import logging
 from fastapi.middleware.cors import CORSMiddleware
-from config import ALLOWED_ORIGINS
-
 from config import settings
 
 logging.getLogger().setLevel(logging.INFO)
 
 app = FastAPI(title="Provenance Storage API", version="1.0")
 
-allowed_origins = ALLOWED_ORIGINS.split(",") if ALLOWED_ORIGINS else []
+allowed_origins = settings.allowed_origins.split(",") if settings.allowed_origins else []
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
