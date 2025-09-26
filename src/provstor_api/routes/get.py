@@ -47,186 +47,133 @@ content_type_map = {
 
 @router.get("/crate/")
 async def get_crate(rde_id: str):
-    try:
-        rde_id = rde_id.rstrip("/") + "/"
-        qres = run_query(CRATE_URL_QUERY % rde_id)
+    rde_id = rde_id.rstrip("/") + "/"
+    qres = run_query(CRATE_URL_QUERY % rde_id)
 
-        if len(qres) < 1:
-            raise HTTPException(status_code=404, detail="Crate not found")
+    if len(qres) < 1:
+        raise HTTPException(status_code=404, detail="Crate not found")
 
-        crate_url = str(list(qres)[0][0])
-        logging.info("Internal crate URL: %s", crate_url)
-        file_to_download = crate_url.rsplit("/", 1)[-1]
-        logging.info("downloading file: %s", file_to_download)
+    crate_url = str(list(qres)[0][0])
+    logging.info("Internal crate URL: %s", crate_url)
+    file_to_download = crate_url.rsplit("/", 1)[-1]
+    logging.info("downloading file: %s", file_to_download)
 
-        with urlopen(crate_url) as response:
-            content_type = response.headers.get('Content-Type', 'application/zip')
+    with urlopen(crate_url) as response:
+        content_type = response.headers.get('Content-Type', 'application/zip')
 
-            return StreamingResponse(
-                io.BytesIO(response.read()),
-                media_type=content_type,
-                headers={
-                    "Content-Disposition": f"attachment; filename={file_to_download}",
-                }
-            )
-    except HTTPException:
-        raise
-    except Exception as e:
-        logging.error(f"Error downloading crate: {e}")
-        raise HTTPException(status_code=500, detail=f"Download failed: {e}")
+        return StreamingResponse(
+            io.BytesIO(response.read()),
+            media_type=content_type,
+            headers={
+                "Content-Disposition": f"attachment; filename={file_to_download}",
+            }
+        )
 
 
 @router.get("/file/")
 async def get_file(file_uri: str):
-    try:
-        res = urlsplit(file_uri)
+    res = urlsplit(file_uri)
 
-        if not res.scheme.startswith("arcp"):
-            raise HTTPException(status_code=400, detail=f"Unsupported protocol: {res.scheme}")
+    if not res.scheme.startswith("arcp"):
+        raise HTTPException(status_code=400, detail=f"Unsupported protocol: {res.scheme}")
 
-        rde_id = f"{res.scheme}://{res.netloc}/"
-        zip_member = res.path.lstrip("/")
-        file_to_download = zip_member.rsplit("/", 1)[-1]
-        logging.info("extracting: %s", zip_member)
+    rde_id = f"{res.scheme}://{res.netloc}/"
+    zip_member = res.path.lstrip("/")
+    file_to_download = zip_member.rsplit("/", 1)[-1]
+    logging.info("extracting: %s", zip_member)
 
-        rde_id = rde_id.rstrip("/") + "/"
-        qres = run_query(CRATE_URL_QUERY % rde_id)
-        if len(qres) < 1:
-            raise HTTPException(status_code=404, detail="Crate not found")
+    rde_id = rde_id.rstrip("/") + "/"
+    qres = run_query(CRATE_URL_QUERY % rde_id)
+    if len(qres) < 1:
+        raise HTTPException(status_code=404, detail="Crate not found")
 
-        crate_url = str(list(qres)[0][0])
-        with urlopen(crate_url) as zip_response:
-            zip_data = io.BytesIO(zip_response.read())
+    crate_url = str(list(qres)[0][0])
+    with urlopen(crate_url) as zip_response:
+        zip_data = io.BytesIO(zip_response.read())
 
-            with zipfile.ZipFile(zip_data, "r") as zipf:
-                try:
-                    file_data = zipf.read(zip_member)
-                    file_ext = file_to_download.rsplit('.', 1)[-1].lower()
-                    if file_ext in content_type_map:
-                        content_type = content_type_map[file_ext]
-                    else:
-                        content_type = 'application/octet-stream'
+        with zipfile.ZipFile(zip_data, "r") as zipf:
+            try:
+                file_data = zipf.read(zip_member)
+                file_ext = file_to_download.rsplit('.', 1)[-1].lower()
+                if file_ext in content_type_map:
+                    content_type = content_type_map[file_ext]
+                else:
+                    content_type = 'application/octet-stream'
 
-                    return StreamingResponse(
-                        io.BytesIO(file_data),
-                        media_type=content_type,
-                        headers={
-                            "Content-Disposition": f"attachment; filename={file_to_download}",
-                        }
-                    )
+                return StreamingResponse(
+                    io.BytesIO(file_data),
+                    media_type=content_type,
+                    headers={
+                        "Content-Disposition": f"attachment; filename={file_to_download}",
+                    }
+                )
 
-                except KeyError:
-                    raise HTTPException(status_code=404, detail=f"File {zip_member} not found in the crate")
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logging.error(f"Error downloading file: {e}")
-        raise HTTPException(status_code=500, detail=f"Download failed: {e}")
+            except KeyError:
+                raise HTTPException(status_code=404, detail=f"File {zip_member} not found in the crate")
 
 
 @router.get("/graphs-for-file/")
 def get_graphs_for_file(file_id: str):
-    try:
-        query_res = run_query(GRAPH_ID_FOR_FILE_QUERY % file_id)
-        output = [str(_[0]) for _ in query_res]
-        return {"result": output}
-    except Exception as e:
-        logging.error(f"Error retrieving graphs: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve graphs: {e}")
+    query_res = run_query(GRAPH_ID_FOR_FILE_QUERY % file_id)
+    output = [str(_[0]) for _ in query_res]
+    return {"result": output}
 
 
 @router.get("/graphs-for-result/")
 def get_graphs_for_result(result_id: str):
-    try:
-        query_res = run_query(GRAPH_ID_FOR_RESULT_QUERY % result_id)
-        output = [str(_[0]) for _ in query_res]
-        return {"result": output}
-    except Exception as e:
-        logging.error(f"Error retrieving graphs: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve graphs: {e}")
+    query_res = run_query(GRAPH_ID_FOR_RESULT_QUERY % result_id)
+    output = [str(_[0]) for _ in query_res]
+    return {"result": output}
 
 
 @router.get("/workflow/")
 def get_workflow(graph_id: str):
-    try:
-        query_res = run_query(WORKFLOW_QUERY, graph_id=graph_id)
-        output = [str(_[0]) for _ in query_res]
-        return {"result": output}
-    except Exception as e:
-        logging.error(f"Error retrieving workflow: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve workflow: {e}")
+    query_res = run_query(WORKFLOW_QUERY, graph_id=graph_id)
+    output = [str(_[0]) for _ in query_res]
+    return {"result": output}
 
 
 @router.get("/run-results/")
 def get_run_results(graph_id: str):
-    try:
-        query_res = run_query(WFRUN_RESULTS_QUERY, graph_id=graph_id)
-        output = [str(_[0]) for _ in query_res]
-        return {"result": output}
-    except Exception as e:
-        logging.error(f"Error retrieving run results: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve run results: {e}")
+    query_res = run_query(WFRUN_RESULTS_QUERY, graph_id=graph_id)
+    output = [str(_[0]) for _ in query_res]
+    return {"result": output}
 
 
 @router.get("/run-objects/")
 def get_run_objects(graph_id: str):
-    try:
-        query_res = run_query(WFRUN_OBJECTS_QUERY, graph_id=graph_id)
-        output = [str(_[0]) for _ in query_res]
-        return {"result": output}
-    except Exception as e:
-        logging.error(f"Error retrieving run objects: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve run objects: {e}")
+    query_res = run_query(WFRUN_OBJECTS_QUERY, graph_id=graph_id)
+    output = [str(_[0]) for _ in query_res]
+    return {"result": output}
 
 
 @router.get("/objects-for-result/")
 def get_objects_for_result(result_id: str):
-    try:
-        query_res = run_query(OBJECTS_FOR_RESULT_QUERY % result_id)
-        output = [str(_[0]) for _ in query_res]
-        return {"result": output}
-    except Exception as e:
-        logging.error(f"Error retrieving objects: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve objects: {e}")
+    query_res = run_query(OBJECTS_FOR_RESULT_QUERY % result_id)
+    output = [str(_[0]) for _ in query_res]
+    return {"result": output}
 
 
 @router.get("/actions-for-result/")
 def get_actions_for_result(result_id: str):
-    try:
-        output = fetch_actions_for_result(result_id)
-        return {"result": output}
-    except Exception as e:
-        logging.error(f"Error retrieving actions: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve actions: {e}")
+    output = fetch_actions_for_result(result_id)
+    return {"result": output}
 
 
 @router.get("/objects-for-action/")
 def get_objects_for_action(action_id: str):
-    try:
-        output = fetch_objects_for_action(action_id)
-        return {"result": output}
-    except Exception as e:
-        logging.error(f"Error retrieving objects: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve objects: {e}")
+    output = fetch_objects_for_action(action_id)
+    return {"result": output}
 
 
 @router.get("/results-for-action/")
 def get_results_for_action(action_id: str):
-    try:
-        output = fetch_results_for_action(action_id)
-        return {"result": output}
-    except Exception as e:
-        logging.error(f"Error retrieving results: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve results: {e}")
+    output = fetch_results_for_action(action_id)
+    return {"result": output}
 
 
 @router.get("/run-params/")
 def get_run_params(graph_id: str):
-    try:
-        query_res = run_query(WFRUN_PARAMS_QUERY, graph_id=graph_id)
-        output = [(str(_.name), str(_.value)) for _ in query_res]
-        return {"result": output}
-    except Exception as e:
-        logging.error(f"Error retrieving run params: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to retrieve run params: {e}")
+    query_res = run_query(WFRUN_PARAMS_QUERY, graph_id=graph_id)
+    output = [(str(_.name), str(_.value)) for _ in query_res]
+    return {"result": output}

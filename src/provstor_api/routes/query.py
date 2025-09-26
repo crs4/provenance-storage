@@ -16,8 +16,7 @@
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
 
-from fastapi import APIRouter, UploadFile, HTTPException
-import logging
+from fastapi import APIRouter, UploadFile
 
 from utils.query import run_query
 from utils.queries import GRAPHS_QUERY, RDE_GRAPH_QUERY
@@ -27,36 +26,24 @@ router = APIRouter()
 
 @router.get("/list-graphs/")
 def list_graphs():
-    try:
-        query_res = run_query(GRAPHS_QUERY)
-        output = []
-        for (i, item) in zip(range(len(query_res)), query_res):
-            output.append(item[0])
-        return {"result": output}
-    except Exception as e:
-        logging.error(f"Error fetching graphs: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to fetch graphs: {e}")
+    query_res = run_query(GRAPHS_QUERY)
+    output = []
+    for (i, item) in zip(range(len(query_res)), query_res):
+        output.append(item[0])
+    return {"result": output}
 
 
 @router.get("/list-RDE-graphs/")
 def list_rde_graphs():
-    try:
-        query_res = run_query(RDE_GRAPH_QUERY)
-        output = [item for item in query_res]
-        return {"result": output}
-    except Exception as e:
-        logging.error(f"Error fetching RDE IDs: {e}")
-        raise HTTPException(status_code=502, detail=f"Failed to fetch RDE IDs: {e}")
+    query_res = run_query(RDE_GRAPH_QUERY)
+    output = [item for item in query_res]
+    return {"result": output}
 
 
 @router.post("/run-query/")
 async def run_query_sparql(query_file: UploadFile, graph: str = None):
-    try:
-        content = await query_file.read()
-        query = content.decode("utf-8")
-        query_res = run_query(query, graph)
-        result_list = [item.toPython() if hasattr(item, 'toPython') else item for item in query_res]
-        return {"result": result_list}
-    except Exception as e:
-        logging.error(f"Error processing SPARQL query: {e}")
-        raise HTTPException(status_code=400, detail=f"Query failed: {e}")
+    content = await query_file.read()
+    query = content.decode("utf-8")
+    query_res = run_query(query, graph)
+    result_list = [item.toPython() if hasattr(item, 'toPython') else item for item in query_res]
+    return {"result": result_list}
