@@ -403,3 +403,12 @@ def test_cli_backtrack(crate_map):
     assert set(items[3][2]) >= {
         "file:///path/to/FOOBAR123.deepvariant.vcf.gz",
     }
+
+
+def test_cli_mv(crate_map):
+    src = "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    dest = "file:///a/b/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    runner = CliRunner()
+    args = ["mv", src, dest]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
