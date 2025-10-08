@@ -612,6 +612,40 @@ def backtrack(result_id):
 
 
 @cli.command()
+@click.argument(
+    "src_id",
+    metavar="SRC_ID"
+)
+@click.argument(
+    "dest_id",
+    metavar="DEST_ID"
+)
+def mv(src_id, dest_id):
+    """\
+    Record the movement of a file.
+
+    Generates a new Process Run Crate with an action that has the source as
+    object and the destination as result.
+
+    SRC_ID: RO-Crate id of the source file://.
+    DEST_ID: RO-Crate id of the destination file://.
+    """
+    url = f"{get_base_api_url()}/pathops/move/"
+
+    try:
+        response = requests.post(url, params={'src': src_id, 'dest': dest_id})
+
+        if response.status_code == 200:
+            json_res = response.json()
+            if json_res['result'] == "success":
+                logging.info("Generated crate url: %s", json_res['crate_url'])
+        else:
+            raise RuntimeError(f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
+
+
+@cli.command()
 def version():
     """\
     Print version string and exit.

@@ -23,7 +23,7 @@ import uvicorn
 import logging
 from fastapi.middleware.cors import CORSMiddleware
 
-from provstor_api.routes import upload, query, get, backtrack
+from provstor_api.routes import upload, query, get, backtrack, pathops
 from provstor_api.config import settings
 
 logging.getLogger().setLevel(logging.INFO)
@@ -45,6 +45,7 @@ app.include_router(upload.router, prefix="/upload", tags=["Upload"])
 app.include_router(query.router, prefix="/query", tags=["Query"])
 app.include_router(get.router, prefix="/get", tags=["Get"])
 app.include_router(backtrack.router, prefix="/backtrack", tags=["Backtrack"])
+app.include_router(pathops.router, prefix="/pathops", tags=["PathOps"])
 
 
 @app.get("/status/", tags=["Status"])
