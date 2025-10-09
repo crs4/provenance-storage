@@ -16,6 +16,7 @@
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
 import shutil
+import uuid
 
 from click.testing import CliRunner
 import pytest
@@ -412,3 +413,7 @@ def test_cli_mv(crate_map):
     args = ["mv", src, dest]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
+    missing_src = f"file:///{str(uuid.uuid4())}"
+    args = ["mv", missing_src, dest]
+    result = runner.invoke(cli, args)
+    assert result.exit_code != 0
