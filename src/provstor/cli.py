@@ -625,10 +625,12 @@ def mv(src_id, dest_id):
     Record the movement of a file.
 
     Generates a new Process Run Crate with an action that has the source as
-    object and the destination as result.
+    object and the destination as result. The crate is then loaded onto the
+    system in the same way as in the "load" command.
 
-    SRC_ID: RO-Crate id of the source file://.
-    DEST_ID: RO-Crate id of the destination file://.
+    \b
+    SRC_ID: RO-Crate id of the source file.
+    DEST_ID: RO-Crate id of the destination file.
     """
     url = f"{get_base_api_url()}/pathops/move/"
 
