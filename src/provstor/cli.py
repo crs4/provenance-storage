@@ -620,7 +620,13 @@ def backtrack(result_id):
     "dest_id",
     metavar="DEST_ID"
 )
-def mv(src_id, dest_id):
+@click.option(
+    "-w",
+    "--when",
+    metavar="STRING",
+    help="datetime when the move happened (ended)",
+)
+def mv(src_id, dest_id, when):
     """\
     Record the movement of a file.
 
@@ -633,9 +639,12 @@ def mv(src_id, dest_id):
     DEST_ID: RO-Crate id of the destination file.
     """
     url = f"{get_base_api_url()}/pathops/move/"
+    params = {'src': src_id, 'dest': dest_id}
+    if when:
+        params["when"] = when
 
     try:
-        response = requests.post(url, params={'src': src_id, 'dest': dest_id})
+        response = requests.post(url, params=params)
 
         if response.status_code == 200:
             json_res = response.json()

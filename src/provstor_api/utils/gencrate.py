@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
+from datetime import datetime, timezone
+
 from rocrate.model import ContextEntity, SoftwareApplication
 from rocrate.rocrate import ROCrate
 
@@ -24,10 +26,11 @@ PROFILES_VERSION = "0.5"
 
 class MoveCrateGenerator:
 
-    def __init__(self, src, dest, license=None):
+    def __init__(self, src, dest, when=None, license=None):
         self.src = src
         self.dest = dest
         self.license = license or DEFAULT_LICENSE
+        self.when = when or datetime.now(timezone.utc).replace(microsecond=0)
 
     def add_root_metadata(self, crate):
         crate.root_dataset["license"] = self.license
@@ -52,8 +55,9 @@ class MoveCrateGenerator:
         }))
         obj = crate.add_file(self.src)
         res = crate.add_file(self.dest)
-        # TODO: support specifying the end time
-        action = crate.add_action(instrument, object=obj, result=res)
+        action = crate.add_action(instrument, object=obj, result=res, properties={
+            "endTime": self.when.isoformat(),
+        })
         crate.root_dataset["mentions"] = action
 
     def generate(self):
