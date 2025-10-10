@@ -424,3 +424,6 @@ def test_cli_mv(crate_map):
     args = ["mv", d_src, d_dest]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
+    args = ["mv", dest, src, "--when", "2025-10-10T08:05:00Z"]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
