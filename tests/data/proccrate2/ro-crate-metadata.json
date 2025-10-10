@@ -30,6 +30,9 @@
                 },
                 {
                     "@id": "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+                },
+                {
+                    "@id": "file:///path/to/logs"
                 }
             ],
             "mentions": {
@@ -68,6 +71,9 @@
             "result": [
                 {
                     "@id": "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+                },
+                {
+                    "@id": "file:///path/to/logs"
                 }
             ]
         },
@@ -89,6 +95,11 @@
             "@id": "aux.txt",
             "@type": "File",
             "name": "aux.txt"
+        },
+        {
+            "@id": "file:///path/to/logs",
+            "@type": "Dataset",
+            "name": "logs"
         }
     ]
 }

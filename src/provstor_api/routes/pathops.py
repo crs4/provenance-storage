@@ -22,7 +22,7 @@ import uuid
 from fastapi import APIRouter, HTTPException, UploadFile
 from routes.upload import load_crate_metadata
 from utils.gencrate import MoveCrateGenerator
-from utils.queries import IS_FILE_QUERY
+from utils.queries import IS_FILE_OR_DIR_QUERY
 from utils.query import run_query
 
 router = APIRouter()
@@ -30,9 +30,9 @@ router = APIRouter()
 
 @router.post("/move/")
 async def move(src: str = None, dest: str = None):
-    qres = run_query(IS_FILE_QUERY % src)
+    qres = run_query(IS_FILE_OR_DIR_QUERY % src)
     if len(qres) < 1:
-        raise HTTPException(status_code=404, detail=f"File '{src}' not found")
+        raise HTTPException(status_code=404, detail=f"File or Dataset '{src}' not found")
     generator = MoveCrateGenerator(src, dest)
     crate = generator.generate()
     crate_filename = f"{str(uuid.uuid4())}.zip"
