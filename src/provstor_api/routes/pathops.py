@@ -29,7 +29,7 @@ router = APIRouter()
 
 
 @router.post("/move/")
-async def move(src: str = None, dest: str = None):
+async def move(src: str, dest: str):
     qres = run_query(IS_FILE_OR_DIR_QUERY % src)
     if len(qres) < 1:
         raise HTTPException(status_code=404, detail=f"File or Dataset '{src}' not found")
