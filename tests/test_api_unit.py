@@ -99,7 +99,7 @@ def mock_list_rde_graphs():
 
 @query_router.post("/run-query/")
 async def mock_run_query_sparql(query_file: UploadFile, graph: str = None):
-    content = await query_file.read()
+    await query_file.read()  # Read the file but don't store the content since it's not used in mock
     return {"result": ["result1", "result2"]}
 
 
