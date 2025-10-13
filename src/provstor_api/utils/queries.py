@@ -212,3 +212,13 @@ WHERE {
 }
 ORDER BY ?g
 """
+
+IS_FILE_OR_DIR_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?f
+WHERE {
+  { ?f a schema:MediaObject } UNION { ?f a schema:Dataset } .
+  FILTER(?f = <%s>)
+}
+"""

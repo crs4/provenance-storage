@@ -16,6 +16,7 @@
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
 import shutil
+import uuid
 
 from click.testing import CliRunner
 import pytest
@@ -291,6 +292,7 @@ def test_cli_get_results_for_action(crate_map):
     assert result.exit_code == 0, result.exception
     assert set(result.stdout.splitlines()) >= {
         "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz",
+        "file:///path/to/logs",
     }
     action_id = f"{proccrate1_rde_id}#annotation-1"
     args = ["get-results-for-action", action_id]
@@ -376,7 +378,8 @@ def test_cli_backtrack(crate_map):
         "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz"
     }
     assert set(items[0][2]) >= {
-        "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+        "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz",
+        "file:///path/to/logs",
     }
     assert items[1][0] == f"{proccrate1_rde_id}#annotation-1"
     assert set(items[1][1]) >= {
@@ -403,3 +406,24 @@ def test_cli_backtrack(crate_map):
     assert set(items[3][2]) >= {
         "file:///path/to/FOOBAR123.deepvariant.vcf.gz",
     }
+
+
+def test_cli_mv(crate_map):
+    src = "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    dest = "file:///a/b/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    runner = CliRunner()
+    args = ["mv", src, dest]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    missing_src = f"file:///{str(uuid.uuid4())}"
+    args = ["mv", missing_src, dest]
+    result = runner.invoke(cli, args)
+    assert result.exit_code != 0
+    d_src = "file:///path/to/logs"
+    d_dest = "file:///a/b/logs"
+    args = ["mv", d_src, d_dest]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    args = ["mv", dest, src, "--when", "2025-10-10T08:05:00Z"]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
