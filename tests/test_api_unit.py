@@ -24,10 +24,8 @@ import pytest
 import io
 import json
 import zipfile
-from unittest.mock import Mock, patch, MagicMock
 from fastapi import FastAPI, APIRouter, UploadFile, HTTPException
 from fastapi.testclient import TestClient
-from fastapi.responses import FileResponse
 
 
 # Mock the configuration
@@ -46,6 +44,7 @@ upload_router = APIRouter()
 query_router = APIRouter()
 get_router = APIRouter()
 backtrack_router = APIRouter()
+
 
 # Mock upload endpoint
 @upload_router.post("/crate/")
@@ -101,7 +100,6 @@ def mock_list_rde_graphs():
 @query_router.post("/run-query/")
 async def mock_run_query_sparql(query_file: UploadFile, graph: str = None):
     content = await query_file.read()
-    query = content.decode("utf-8")
     return {"result": ["result1", "result2"]}
 
 
