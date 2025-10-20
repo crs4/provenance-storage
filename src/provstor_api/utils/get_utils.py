@@ -16,12 +16,12 @@
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
 
-from utils.queries import (
+from provstor_api.utils.queries import (
     ACTIONS_FOR_RESULT_QUERY,
     OBJECTS_FOR_ACTION_QUERY,
     RESULTS_FOR_ACTION_QUERY
 )
-from utils.query import run_query
+from provstor_api.utils.query import run_query
 
 
 def fetch_actions_for_result(result_id):

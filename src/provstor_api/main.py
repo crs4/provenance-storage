@@ -18,12 +18,12 @@
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
-from routes import upload, query, get, backtrack
 import os
 import uvicorn
 import logging
 
-from config import settings
+from provstor_api.routes import upload, query, get, backtrack
+from provstor_api.config import settings
 
 logging.getLogger().setLevel(logging.INFO)
 

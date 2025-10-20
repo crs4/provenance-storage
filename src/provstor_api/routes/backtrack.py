@@ -16,11 +16,11 @@
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
 from fastapi import APIRouter, HTTPException
-from utils.get_utils import (
+from provstor_api.utils.get_utils import (
     fetch_actions_for_result, fetch_objects_for_action, fetch_results_for_action
 )
-from utils.queries import GRAPH_ID_FOR_FILE_QUERY, WFRUN_RESULTS_QUERY
-from utils.query import run_query
+from provstor_api.utils.queries import GRAPH_ID_FOR_FILE_QUERY, WFRUN_RESULTS_QUERY
+from provstor_api.utils.query import run_query
 
 router = APIRouter()
 

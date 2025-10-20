@@ -18,8 +18,8 @@
 
 from fastapi import APIRouter, UploadFile
 
-from utils.query import run_query
-from utils.queries import GRAPHS_QUERY, RDE_GRAPH_QUERY
+from provstor_api.utils.query import run_query
+from provstor_api.utils.queries import GRAPHS_QUERY, RDE_GRAPH_QUERY
 
 router = APIRouter()
 
