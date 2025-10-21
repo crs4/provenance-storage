@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with ProvStor. If not, see <https://www.gnu.org/licenses/>.
 
-import io, zipfile
+import io
+import zipfile
 import pytest
 from rdflib import URIRef
 from types import SimpleNamespace
