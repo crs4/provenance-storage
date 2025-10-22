@@ -292,10 +292,10 @@ def test_run_query_with_graph_param(monkeypatch):
 
     monkeypatch.setattr(query, "run_query", mock_run_query)
 
-    graph_param = TC.EXAMPLE_GRAPH_URI_1.replace(":", "%3A").replace("/", "%2F")
     r = client.post(
-        f"/query/run-query/?graph={graph_param}",
+        "/query/run-query/",
         files={"query_file": ("query.txt", TC.QUERY_CONSTRUCT.encode(), TC.CONTENT_TYPE_PLAIN)},
+        params={"graph": TC.EXAMPLE_GRAPH_URI_1}
     )
     assert r.status_code == 200
     assert r.json() == {"result": []}
