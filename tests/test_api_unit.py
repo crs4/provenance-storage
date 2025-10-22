@@ -213,7 +213,6 @@ def test_correct_path(mock_client):
 
 # Tests for list-graphs
 def test_list_graphs_ok(monkeypatch):
-    monkeypatch.setattr(query, "GRAPHS_QUERY", GRAPHS_QUERY)
 
     def mock_run_query(q):
         return [(TC.EXAMPLE_GRAPH_URI_1,), (TC.EXAMPLE_GRAPH_URI_2,)]
@@ -226,7 +225,6 @@ def test_list_graphs_ok(monkeypatch):
 
 
 def test_list_graphs_empty(monkeypatch):
-    monkeypatch.setattr(query, "GRAPHS_QUERY", GRAPHS_QUERY)
     monkeypatch.setattr(query, "run_query", lambda q: [])
 
     r = client.get("/query/list-graphs/")
@@ -236,7 +234,6 @@ def test_list_graphs_empty(monkeypatch):
 
 # Tests for list-rde-graphs
 def test_list_rde_graphs_ok(monkeypatch):
-    monkeypatch.setattr(query, "RDE_GRAPH_QUERY", RDE_GRAPH_QUERY)
 
     def mock_run_query(q):
         return [
@@ -257,7 +254,6 @@ def test_list_rde_graphs_ok(monkeypatch):
 
 
 def test_list_rde_graphs_empty(monkeypatch):
-    monkeypatch.setattr(query, "RDE_GRAPH_QUERY", RDE_GRAPH_QUERY)
     monkeypatch.setattr(query, "run_query", lambda q: [])
 
     r = client.get("/query/list-RDE-graphs/")
