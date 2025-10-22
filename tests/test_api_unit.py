@@ -27,7 +27,6 @@ import provstor_api.routes.upload as upload
 import provstor_api.routes.query as query
 import provstor_api.routes.backtrack as backtrack
 import provstor_api.routes.get as get
-from provstor_api.utils.queries import GRAPHS_QUERY, RDE_GRAPH_QUERY
 
 
 # Test Constants
