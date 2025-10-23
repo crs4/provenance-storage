@@ -310,16 +310,14 @@ def test_backtrack_requires_param():
 
 def test_backtrack_file_uri_no_graphs(monkeypatch):
     monkeypatch.setattr(backtrack, "GRAPH_ID_FOR_FILE_QUERY", TC.QUERY_PLACEHOLDER_Q1)
-    monkeypatch.setattr(backtrack, "WFRUN_RESULTS_QUERY", TC.QUERY_PLACEHOLDER_Q2)
 
-    def mock_run_query(q, graph_id=None, **_):
+    def mock_run_query(q, graph_id=None):
         assert q.startswith("Q1:")
         return []
 
     monkeypatch.setattr(backtrack, "run_query", mock_run_query)
 
-    file_uri_encoded = TC.EXAMPLE_FILE_URI.replace(":", "%3A").replace("/", "%2F")
-    r = client.get(f"/backtrack/?file_uri={file_uri_encoded}")
+    r = client.get("/backtrack/", params={"file_uri": TC.EXAMPLE_FILE_URI})
     assert r.status_code == 404
     assert r.json()["detail"] == "No graphs found for the given file"
 
@@ -328,7 +326,7 @@ def test_backtrack_file_uri_no_results(monkeypatch):
     monkeypatch.setattr(backtrack, "GRAPH_ID_FOR_FILE_QUERY", TC.QUERY_PLACEHOLDER_Q1)
     monkeypatch.setattr(backtrack, "WFRUN_RESULTS_QUERY", TC.QUERY_PLACEHOLDER_Q2)
 
-    def mock_run_query(q, graph_id=None, **_):
+    def mock_run_query(q, graph_id=None):
         if q.startswith("Q1:"):
             return [(TC.GRAPH_ID_1,)]
         assert q == TC.QUERY_PLACEHOLDER_Q2
@@ -337,15 +335,14 @@ def test_backtrack_file_uri_no_results(monkeypatch):
 
     monkeypatch.setattr(backtrack, "run_query", mock_run_query)
 
-    file_uri_encoded = TC.EXAMPLE_FILE_URI.replace(":", "%3A").replace("/", "%2F")
-    r = client.get(f"/backtrack/?file_uri={file_uri_encoded}")
+    r = client.get("/backtrack/", params={"file_uri": TC.EXAMPLE_FILE_URI})
     assert r.status_code == 404
     assert r.json()["detail"] == "No results found for the file"
 
 
 def test_backtrack_result_id_no_backtrack(monkeypatch):
     monkeypatch.setattr(backtrack, "_backtrack_recursive", lambda rid: [])
-    r = client.get(f"/backtrack/?result_id={TC.RESULT_ID_123}")
+    r = client.get("/backtrack/", params={"result_id": TC.RESULT_ID_123})
     assert r.status_code == 404
     assert r.json()["detail"] == "No backtrack results found"
 
@@ -354,7 +351,7 @@ def test_backtrack_success_with_file_uri(monkeypatch):
     monkeypatch.setattr(backtrack, "GRAPH_ID_FOR_FILE_QUERY", TC.QUERY_PLACEHOLDER_Q1)
     monkeypatch.setattr(backtrack, "WFRUN_RESULTS_QUERY", TC.QUERY_PLACEHOLDER_Q2)
 
-    def mock_run_query(q, graph_id=None, **_):
+    def mock_run_query(q, graph_id=None):
         if q.startswith("Q1:"):
             return [(TC.GRAPH_ID_1,)]
         assert q == TC.QUERY_PLACEHOLDER_Q2 and graph_id == TC.GRAPH_ID_1
@@ -364,8 +361,7 @@ def test_backtrack_success_with_file_uri(monkeypatch):
 
     monkeypatch.setattr(backtrack, "_backtrack_recursive", lambda rid: [{"id": rid, "ok": True}])
 
-    file_uri_encoded = TC.EXAMPLE_FILE_URI.replace(":", "%3A").replace("/", "%2F")
-    r = client.get(f"/backtrack/?file_uri={file_uri_encoded}")
+    r = client.get("/backtrack/", params={"file_uri": TC.EXAMPLE_FILE_URI})
     assert r.status_code == 200
     assert r.json() == {"result": [{"id": TC.RESULT_ID_XYZ, "ok": True}]}
 
@@ -379,7 +375,7 @@ def test_backtrack_success_with_result_id(monkeypatch):
 
     monkeypatch.setattr(backtrack, "_backtrack_recursive", mock_bt)
 
-    r = client.get(f"/backtrack/?result_id={TC.RESULT_ID_ABC}")
+    r = client.get("/backtrack/", params={"result_id": TC.RESULT_ID_ABC})
     assert r.status_code == 200
     assert r.json() == {"result": [{"id": TC.RESULT_ID_ABC, "steps": 3}]}
     assert captured["rid"] == TC.RESULT_ID_ABC
