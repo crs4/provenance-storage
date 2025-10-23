@@ -386,7 +386,7 @@ def test_get_crate_not_found(monkeypatch):
     monkeypatch.setattr(get, "CRATE_URL_QUERY", "SELECT ... %s ...")
     monkeypatch.setattr(get, "run_query", lambda q: [])
 
-    r = client.get(f"/get/crate/?rde_id={TC.RESULT_ID_123}")
+    r = client.get("/get/crate/", params={"rde_id": TC.RESULT_ID_123})
     assert r.status_code == 404
     assert r.json()["detail"] == "Crate not found"
 
@@ -416,7 +416,7 @@ def test_get_crate_ok_with_content_type(monkeypatch):
 
     monkeypatch.setattr(get, "urlopen", lambda url: MockResp())
 
-    r = client.get(f"/get/crate/?rde_id={TC.RESULT_ID_123}")
+    r = client.get("/get/crate/", params={"rde_id": TC.RESULT_ID_123})
     assert r.status_code == 200
     assert r.content == TC.ZIP_DATA
     assert r.headers["Content-Disposition"] == f"attachment; filename={TC.CRATE_ZIP}"
@@ -444,9 +444,7 @@ def test_get_crate_ok_defaults_content_type(monkeypatch):
 
     monkeypatch.setattr(get, "urlopen", lambda url: MockRespNoCT())
 
-    rde_with_slash = f"{TC.EXAMPLE_URI}/rde/42/"
-    rde_encoded = rde_with_slash.replace(":", "%3A").replace("/", "%2F")
-    r = client.get(f"/get/crate/?rde_id={rde_encoded}")
+    r = client.get("/get/crate/", params={"rde_id": f"{TC.EXAMPLE_URI}/rde/42/"})
     assert r.status_code == 200
     assert r.content == TC.GENERIC_DATA
     assert r.headers["Content-Disposition"] == f"attachment; filename={TC.ANOTHER_ZIP}"
@@ -455,8 +453,7 @@ def test_get_crate_ok_defaults_content_type(monkeypatch):
 
 # Tests for get file
 def test_get_file_unsupported_protocol():
-    http_uri = TC.EXAMPLE_FILE_URI.replace(":", "%3A").replace("/", "%2F")
-    r = client.get(f"/get/file/?file_uri={http_uri}")
+    r = client.get("/get/file/", params={"file_uri": TC.EXAMPLE_FILE_URI})
     assert r.status_code == 400
     assert r.json()["detail"] == "Unsupported protocol: http"
 
@@ -465,8 +462,7 @@ def test_get_file_crate_not_found(monkeypatch):
     monkeypatch.setattr(get, "CRATE_URL_QUERY", "Q:%s")
     monkeypatch.setattr(get, "run_query", lambda q: [])
 
-    arcp_encoded = TC.ARCP_FILE_TXT.replace(":", "%3A").replace("/", "%2F")
-    r = client.get(f"/get/file/?file_uri={arcp_encoded}")
+    r = client.get("/get/file/", params={"file_uri": TC.ARCP_FILE_TXT})
     assert r.status_code == 404
     assert r.json()["detail"] == "Crate not found"
 
@@ -493,8 +489,7 @@ def test_get_file_ok_with_mapped_content_type(monkeypatch):
 
     monkeypatch.setattr(get, "urlopen", lambda url: MockResp())
 
-    arcp_encoded = TC.ARCP_FILE_TXT.replace(":", "%3A").replace("/", "%2F")
-    r = client.get(f"/get/file/?file_uri={arcp_encoded}")
+    r = client.get("/get/file/", params={"file_uri": TC.ARCP_FILE_TXT})
     assert r.status_code == 200
     assert r.content == TC.FILE_CONTENT
     assert r.headers["Content-Disposition"] == "attachment; filename=file.txt"
@@ -523,8 +518,7 @@ def test_get_file_ok_default_content_type(monkeypatch):
 
     monkeypatch.setattr(get, "urlopen", lambda url: MockResp())
 
-    arcp_encoded = TC.ARCP_FILE_DAT.replace(":", "%3A").replace("/", "%2F")
-    r = client.get(f"/get/file/?file_uri={arcp_encoded}")
+    r = client.get("/get/file/", params={"file_uri": TC.ARCP_FILE_DAT})
     assert r.status_code == 200
     assert r.content == TC.BINARY_CONTENT
     assert r.headers["Content-Disposition"] == "attachment; filename=file.dat"
