@@ -546,8 +546,7 @@ def test_get_file_member_missing(monkeypatch):
 
     monkeypatch.setattr(get, "urlopen", lambda url: MockResp())
 
-    arcp_encoded = TC.ARCP_FILE_MISSING.replace(":", "%3A").replace("/", "%2F")
-    r = client.get(f"/get/file/?file_uri={arcp_encoded}")
+    r = client.get("/get/file/", params={"file_uri": TC.ARCP_FILE_MISSING})
     assert r.status_code == 404
     assert r.json()["detail"] == "File dir/missing.txt not found in the crate"
 
@@ -555,14 +554,14 @@ def test_get_file_member_missing(monkeypatch):
 # Tests for get graphs-for-file
 def test_graphs_for_file_ok(monkeypatch):
     monkeypatch.setattr(get, "run_query", lambda q: [(TC.GRAPH_ID_1,), (TC.GRAPH_ID_2,)])
-    r = client.get(f"/get/graphs-for-file/?file_id={TC.FILE_ID_123}")
+    r = client.get("/get/graphs-for-file/", params={"file_id": TC.FILE_ID_123})
     assert r.status_code == 200
     assert r.json() == {"result": [TC.GRAPH_ID_1, TC.GRAPH_ID_2]}
 
 
 def test_graphs_for_file_empty(monkeypatch):
     monkeypatch.setattr(get, "run_query", lambda q: [])
-    r = client.get(f"/get/graphs-for-file/?file_id={TC.FILE_ID_123}")
+    r = client.get("/get/graphs-for-file/", params={"file_id": TC.FILE_ID_123})
     assert r.status_code == 200
     assert r.json() == {"result": []}
 
@@ -570,14 +569,14 @@ def test_graphs_for_file_empty(monkeypatch):
 # Tests for get graphs-for-result
 def test_graphs_for_result_ok(monkeypatch):
     monkeypatch.setattr(get, "run_query", lambda q: [("grA",), ("grB",)])
-    r = client.get(f"/get/graphs-for-result/?result_id={TC.RESULT_ID_42}")
+    r = client.get("/get/graphs-for-result/", params={"result_id": TC.RESULT_ID_42})
     assert r.status_code == 200
     assert r.json() == {"result": ["grA", "grB"]}
 
 
 def test_graphs_for_result_empty(monkeypatch):
     monkeypatch.setattr(get, "run_query", lambda q: [])
-    r = client.get(f"/get/graphs-for-result/?result_id={TC.RESULT_ID_42}")
+    r = client.get("/get/graphs-for-result/", params={"result_id": TC.RESULT_ID_42})
     assert r.status_code == 200
     assert r.json() == {"result": []}
 
@@ -591,7 +590,7 @@ def test_workflow_ok_and_graph_id_forwarded(monkeypatch):
         return [(TC.WORKFLOW_1,), (TC.WORKFLOW_2,)]
 
     monkeypatch.setattr(get, "run_query", mock_run_query)
-    r = client.get(f"/get/workflow/?graph_id={TC.GRAPH_ID_1}")
+    r = client.get("/get/workflow/", params={"graph_id": TC.GRAPH_ID_1})
     assert r.status_code == 200
     assert r.json() == {"result": [TC.WORKFLOW_1, TC.WORKFLOW_2]}
     assert seen["graph_id"] == TC.GRAPH_ID_1
@@ -599,23 +598,22 @@ def test_workflow_ok_and_graph_id_forwarded(monkeypatch):
 
 def test_workflow_empty(monkeypatch):
     monkeypatch.setattr(get, "run_query", lambda q, graph_id=None: [])
-    r = client.get(f"/get/workflow/?graph_id={TC.GRAPH_ID_1}")
+    r = client.get("/get/workflow/", params={"graph_id": TC.GRAPH_ID_1})
     assert r.status_code == 200
     assert r.json() == {"result": []}
 
 
 # Tests for get run-results
 def test_run_results_ok(monkeypatch):
-    import provstor_api.routes.get as mod
     seen = {}
 
     def mock_run_query(q, graph_id=None):
         seen["graph_id"] = graph_id
         return [("r1",), ("r2",)]
 
-    monkeypatch.setattr(mod, "run_query", mock_run_query)
+    monkeypatch.setattr(get, "run_query", mock_run_query)
 
-    r = client.get(f"/get/run-results/?graph_id={TC.GRAPH_ID_2}")
+    r = client.get("/get/run-results/", params={"graph_id": TC.GRAPH_ID_2})
     assert r.status_code == 200
     assert r.json() == {"result": ["r1", "r2"]}
     assert seen["graph_id"] == TC.GRAPH_ID_2
@@ -623,7 +621,7 @@ def test_run_results_ok(monkeypatch):
 
 def test_run_results_empty(monkeypatch):
     monkeypatch.setattr(get, "run_query", lambda q, graph_id=None: [])
-    r = client.get(f"/get/run-results/?graph_id={TC.GRAPH_ID_2}")
+    r = client.get("/get/run-results/", params={"graph_id": TC.GRAPH_ID_2})
     assert r.status_code == 200
     assert r.json() == {"result": []}
 
@@ -637,7 +635,7 @@ def test_run_objects_ok(monkeypatch):
         return [("o1",), ("o2",)]
 
     monkeypatch.setattr(get, "run_query", mock_run_query)
-    r = client.get(f"/get/run-objects/?graph_id={TC.GRAPH_ID_3}")
+    r = client.get("/get/run-objects/", params={"graph_id": TC.GRAPH_ID_3})
     assert r.status_code == 200
     assert r.json() == {"result": ["o1", "o2"]}
     assert seen["graph_id"] == TC.GRAPH_ID_3
@@ -645,7 +643,7 @@ def test_run_objects_ok(monkeypatch):
 
 def test_run_objects_empty(monkeypatch):
     monkeypatch.setattr(get, "run_query", lambda q, graph_id=None: [])
-    r = client.get(f"/get/run-objects/?graph_id={TC.GRAPH_ID_3}")
+    r = client.get("/get/run-objects/", params={"graph_id": TC.GRAPH_ID_3})
     assert r.status_code == 200
     assert r.json() == {"result": []}
 
@@ -653,14 +651,14 @@ def test_run_objects_empty(monkeypatch):
 # Tests for get objects-for-result
 def test_objects_for_result_ok(monkeypatch):
     monkeypatch.setattr(get, "run_query", lambda q: [("objA",), ("objB",)])
-    r = client.get(f"/get/objects-for-result/?result_id={TC.RESULT_ID_7}")
+    r = client.get("/get/objects-for-result/", params={"result_id": TC.RESULT_ID_7})
     assert r.status_code == 200
     assert r.json() == {"result": ["objA", "objB"]}
 
 
 def test_objects_for_result_empty(monkeypatch):
     monkeypatch.setattr(get, "run_query", lambda q: [])
-    r = client.get(f"/get/objects-for-result/?result_id={TC.RESULT_ID_7}")
+    r = client.get("/get/objects-for-result/", params={"result_id": TC.RESULT_ID_7})
     assert r.status_code == 200
     assert r.json() == {"result": []}
 
@@ -668,14 +666,14 @@ def test_objects_for_result_empty(monkeypatch):
 # Tests for get actions-for-result
 def test_actions_for_result_ok(monkeypatch):
     monkeypatch.setattr(get, "fetch_actions_for_result", lambda rid: ["a1", "a2"])
-    r = client.get(f"/get/actions-for-result/?result_id={TC.RESULT_ID_8}")
+    r = client.get("/get/actions-for-result/", params={"result_id": TC.RESULT_ID_8})
     assert r.status_code == 200
     assert r.json() == {"result": ["a1", "a2"]}
 
 
 def test_actions_for_result_empty(monkeypatch):
     monkeypatch.setattr(get, "fetch_actions_for_result", lambda rid: [])
-    r = client.get(f"/get/actions-for-result/?result_id={TC.RESULT_ID_8}")
+    r = client.get("/get/actions-for-result/", params={"result_id": TC.RESULT_ID_8})
     assert r.status_code == 200
     assert r.json() == {"result": []}
 
@@ -683,14 +681,14 @@ def test_actions_for_result_empty(monkeypatch):
 # Tests for get objects-for-action
 def test_objects_for_action_ok(monkeypatch):
     monkeypatch.setattr(get, "fetch_objects_for_action", lambda aid: ["oX", "oY"])
-    r = client.get(f"/get/objects-for-action/?action_id={TC.ACTION_ID_1}")
+    r = client.get("/get/objects-for-action/", params={"action_id": TC.ACTION_ID_1})
     assert r.status_code == 200
     assert r.json() == {"result": ["oX", "oY"]}
 
 
 def test_objects_for_action_empty(monkeypatch):
     monkeypatch.setattr(get, "fetch_objects_for_action", lambda aid: [])
-    r = client.get(f"/get/objects-for-action/?action_id={TC.ACTION_ID_1}")
+    r = client.get("/get/objects-for-action/", params={"action_id": TC.ACTION_ID_1})
     assert r.status_code == 200
     assert r.json() == {"result": []}
 
@@ -698,14 +696,14 @@ def test_objects_for_action_empty(monkeypatch):
 # Tests for get results-for-action
 def test_results_for_action_ok(monkeypatch):
     monkeypatch.setattr(get, "fetch_results_for_action", lambda aid: ["rX", "rY"])
-    r = client.get(f"/get/results-for-action/?action_id={TC.ACTION_ID_2}")
+    r = client.get("/get/results-for-action/", params={"action_id": TC.ACTION_ID_2})
     assert r.status_code == 200
     assert r.json() == {"result": ["rX", "rY"]}
 
 
 def test_results_for_action_empty(monkeypatch):
     monkeypatch.setattr(get, "fetch_results_for_action", lambda aid: [])
-    r = client.get(f"/get/results-for-action/?action_id={TC.ACTION_ID_2}")
+    r = client.get("/get/results-for-action/", params={"action_id": TC.ACTION_ID_2})
     assert r.status_code == 200
     assert r.json() == {"result": []}
 
@@ -721,7 +719,7 @@ def test_run_params_ok(monkeypatch):
 
     monkeypatch.setattr(get, "run_query", mock_run_query)
 
-    r = client.get(f"/get/run-params/?graph_id={TC.GRAPH_ID_9}")
+    r = client.get("/get/run-params/", params={"graph_id": TC.GRAPH_ID_9})
     assert r.status_code == 200
     assert r.json() == {"result": [["p1", "v1"], ["p2", "v2"]]}
     assert seen["graph_id"] == TC.GRAPH_ID_9
@@ -729,6 +727,6 @@ def test_run_params_ok(monkeypatch):
 
 def test_run_params_empty(monkeypatch):
     monkeypatch.setattr(get, "run_query", lambda q, graph_id=None: [])
-    r = client.get(f"/get/run-params/?graph_id={TC.GRAPH_ID_9}")
+    r = client.get("/get/run-params/", params={"graph_id": TC.GRAPH_ID_9})
     assert r.status_code == 200
     assert r.json() == {"result": []}
