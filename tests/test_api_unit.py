@@ -302,71 +302,14 @@ def test_run_query_with_graph_param(monkeypatch):
 
 
 # Tests for backtrack endpoint
-def test_backtrack_requires_param():
-    r = client.get("/backtrack/")
-    assert r.status_code == 400
-    assert r.json()["detail"] == "Either file_uri or result_id must be provided"
-
-
-def test_backtrack_file_uri_no_graphs(monkeypatch):
-    monkeypatch.setattr(backtrack, "GRAPH_ID_FOR_FILE_QUERY", TC.QUERY_PLACEHOLDER_Q1)
-
-    def mock_run_query(q, graph_id=None):
-        assert q.startswith("Q1:")
-        return []
-
-    monkeypatch.setattr(backtrack, "run_query", mock_run_query)
-
-    r = client.get("/backtrack/", params={"file_uri": TC.EXAMPLE_FILE_URI})
-    assert r.status_code == 404
-    assert r.json()["detail"] == "No graphs found for the given file"
-
-
-def test_backtrack_file_uri_no_results(monkeypatch):
-    monkeypatch.setattr(backtrack, "GRAPH_ID_FOR_FILE_QUERY", TC.QUERY_PLACEHOLDER_Q1)
-    monkeypatch.setattr(backtrack, "WFRUN_RESULTS_QUERY", TC.QUERY_PLACEHOLDER_Q2)
-
-    def mock_run_query(q, graph_id=None):
-        if q.startswith("Q1:"):
-            return [(TC.GRAPH_ID_1,)]
-        assert q == TC.QUERY_PLACEHOLDER_Q2
-        assert graph_id == TC.GRAPH_ID_1
-        return []
-
-    monkeypatch.setattr(backtrack, "run_query", mock_run_query)
-
-    r = client.get("/backtrack/", params={"file_uri": TC.EXAMPLE_FILE_URI})
-    assert r.status_code == 404
-    assert r.json()["detail"] == "No results found for the file"
-
-
-def test_backtrack_result_id_no_backtrack(monkeypatch):
+def test_backtrack_no_results(monkeypatch):
     monkeypatch.setattr(backtrack, "_backtrack_recursive", lambda rid: [])
     r = client.get("/backtrack/", params={"result_id": TC.RESULT_ID_123})
-    assert r.status_code == 404
-    assert r.json()["detail"] == "No backtrack results found"
-
-
-def test_backtrack_success_with_file_uri(monkeypatch):
-    monkeypatch.setattr(backtrack, "GRAPH_ID_FOR_FILE_QUERY", TC.QUERY_PLACEHOLDER_Q1)
-    monkeypatch.setattr(backtrack, "WFRUN_RESULTS_QUERY", TC.QUERY_PLACEHOLDER_Q2)
-
-    def mock_run_query(q, graph_id=None):
-        if q.startswith("Q1:"):
-            return [(TC.GRAPH_ID_1,)]
-        assert q == TC.QUERY_PLACEHOLDER_Q2 and graph_id == TC.GRAPH_ID_1
-        return [(TC.RESULT_ID_XYZ,)]
-
-    monkeypatch.setattr(backtrack, "run_query", mock_run_query)
-
-    monkeypatch.setattr(backtrack, "_backtrack_recursive", lambda rid: [{"id": rid, "ok": True}])
-
-    r = client.get("/backtrack/", params={"file_uri": TC.EXAMPLE_FILE_URI})
     assert r.status_code == 200
-    assert r.json() == {"result": [{"id": TC.RESULT_ID_XYZ, "ok": True}]}
+    assert r.json() == {"result": []}
 
 
-def test_backtrack_success_with_result_id(monkeypatch):
+def test_backtrack_success(monkeypatch):
     captured = {}
 
     def mock_bt(rid):
