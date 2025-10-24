@@ -19,7 +19,7 @@
 from rdflib.term import URIRef
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 
-from config import settings
+from provstor_api.config import settings
 
 
 def run_query(query, graph_id=None):

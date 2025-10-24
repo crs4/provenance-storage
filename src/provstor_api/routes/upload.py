@@ -28,8 +28,8 @@ from rdflib import Graph
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 from rdflib.term import URIRef, Literal
 
-from utils.queries import RDE_QUERY
-from config import settings
+from provstor_api.utils.queries import RDE_QUERY
+from provstor_api.config import settings
 
 router = APIRouter()
 

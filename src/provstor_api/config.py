@@ -21,8 +21,8 @@ from pydantic_settings import BaseSettings
 # Pydantic reads the environment variables in a case-insensitive way
 class Settings(BaseSettings):
     minio_store: str = "minio:9000"
-    minio_user: str = "minio"
-    minio_secret: str = "miniosecret"
+    minio_user: str = "minioadmin"
+    minio_secret: str = "minioadmin"
     minio_bucket: str = "crates"
     fuseki_base_url: str = "http://fuseki:3030"
     fuseki_dataset: str = "ds"
