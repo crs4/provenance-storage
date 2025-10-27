@@ -48,7 +48,8 @@ services:
     restart: "no"
 
   api:
-    image: provstor-api:1.0
+    image: provstor-api:1.1
+    user: "1000"
     build:
       context: .
       dockerfile: api.Dockerfile

@@ -18,8 +18,8 @@
 
 from fastapi import APIRouter, UploadFile
 
-from utils.query import run_query
-from utils.queries import GRAPHS_QUERY, RDE_GRAPH_QUERY
+from provstor_api.utils.query import run_query
+from provstor_api.utils.queries import GRAPHS_QUERY, RDE_GRAPH_QUERY
 
 router = APIRouter()
 
@@ -27,9 +27,7 @@ router = APIRouter()
 @router.get("/list-graphs/")
 def list_graphs():
     query_res = run_query(GRAPHS_QUERY)
-    output = []
-    for (i, item) in zip(range(len(query_res)), query_res):
-        output.append(item[0])
+    output = [item[0] for item in query_res]
     return {"result": output}
 
 
@@ -45,5 +43,5 @@ async def run_query_sparql(query_file: UploadFile, graph: str = None):
     content = await query_file.read()
     query = content.decode("utf-8")
     query_res = run_query(query, graph)
-    result_list = [item.toPython() if hasattr(item, 'toPython') else item for item in query_res]
+    result_list = [item for item in query_res]
     return {"result": result_list}
