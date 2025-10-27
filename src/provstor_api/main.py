@@ -23,6 +23,7 @@ import os
 import uvicorn
 import logging
 from fastapi.middleware.cors import CORSMiddleware
+
 from config import settings
 
 logging.getLogger().setLevel(logging.INFO)
