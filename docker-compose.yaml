@@ -63,6 +63,7 @@ services:
       - MINIO_USER=${MINIO_USER}
       - MINIO_SECRET=${MINIO_SECRET}
       - MINIO_BUCKET=${MINIO_BUCKET}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
     depends_on:
       - fuseki
       - minio
