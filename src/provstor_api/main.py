@@ -21,6 +21,7 @@ from fastapi.responses import FileResponse
 import os
 import uvicorn
 import logging
+from fastapi.middleware.cors import CORSMiddleware
 
 from provstor_api.routes import upload, query, get, backtrack
 from provstor_api.config import settings
@@ -28,6 +29,17 @@ from provstor_api.config import settings
 logging.getLogger().setLevel(logging.INFO)
 
 app = FastAPI(title="Provenance Storage API", version="1.0")
+
+allowed_origins = settings.cors_allowed_origins.split(",") if settings.cors_allowed_origins else []
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["Content-Disposition"],
+)
+
 
 app.include_router(upload.router, prefix="/upload", tags=["Upload"])
 app.include_router(query.router, prefix="/query", tags=["Query"])
