@@ -34,13 +34,13 @@ export function DownloadPanel({ api, toast, setToast }: DownloadPanelProps) {
     <Section title="Download">
       <div className="grid md:grid-cols-2 gap-4">
         <Section title="Crate">
-          <Row label="result_id (rde_id)">
-            <Input value={resultId} onChange={e => setResultId(e.target.value)} placeholder="file://… or arcp://…" />
+          <Row label="RDE id">
+            <Input value={resultId} onChange={e => setResultId(e.target.value)} placeholder="arcp://…" />
           </Row>
           <Button onClick={downloadCrate}>Download crate</Button>
         </Section>
         <Section title="File">
-          <Row label="file_uri (RDE URI)">
+          <Row label="File URI">
             <Input value={fileUri} onChange={e => setFileUri(e.target.value)} placeholder="arcp://…" />
           </Row>
           <Button onClick={downloadFile}>Download file</Button>
