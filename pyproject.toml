@@ -22,6 +22,7 @@ dependencies = [
     "python-multipart~=0.0.20",
     "requests~=2.32.0",
     "httpx~=0.25.0",
+    "rocrate~=0.14.0",
 ]
 dynamic = ["version"]
 

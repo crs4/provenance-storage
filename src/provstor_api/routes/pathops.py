@@ -21,10 +21,11 @@ import uuid
 from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, UploadFile
-from routes.upload import load_crate_metadata
-from utils.gencrate import MoveCrateGenerator
-from utils.queries import IS_FILE_OR_DIR_QUERY
-from utils.query import run_query
+
+from provstor_api.routes.upload import load_crate_metadata
+from provstor_api.utils.gencrate import MoveCrateGenerator
+from provstor_api.utils.queries import IS_FILE_OR_DIR_QUERY
+from provstor_api.utils.query import run_query
 
 router = APIRouter()
 
