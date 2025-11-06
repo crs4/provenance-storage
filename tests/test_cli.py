@@ -415,6 +415,10 @@ def test_cli_mv(crate_map):
     args = ["mv", src, dest]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
+    bad_src = "arcp://uuid,9498d061-370c-53cb-a1ce-a575c5c76f64/"
+    args = ["mv", bad_src, dest]
+    result = runner.invoke(cli, args)
+    assert result.exit_code != 0
     missing_src = f"file:///{str(uuid.uuid4())}"
     args = ["mv", missing_src, dest]
     result = runner.invoke(cli, args)
