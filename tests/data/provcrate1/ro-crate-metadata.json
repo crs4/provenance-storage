@@ -401,19 +401,28 @@
             "@id": "file:///path/to/FOOBAR123_1.fastq.gz",
             "@type": "File",
             "name": "FOOBAR123_1.fastq.gz",
-            "encodingFormat": "application/gzip"
+            "encodingFormat": "application/gzip",
+            "sha256": "5fa6c1450c5231d83f2bc15ac452a64faafde448aba858a17e681f0f6757aefe",
+            "contentSize": 21362533459,
+            "sdDatePublished": "2025-11-07T11:06:40+00:00"
         },
         {
             "@id": "file:///path/to/FOOBAR123_2.fastq.gz",
             "@type": "File",
             "name": "FOOBAR123_2.fastq.gz",
-            "encodingFormat": "application/gzip"
+            "encodingFormat": "application/gzip",
+            "sha256": "f44a5ff25d2b0a44e5792fa6c1ef2768a165222f24c13d9cc5223df6e9804dd8",
+            "contentSize": 22851352183,
+            "sdDatePublished": "2025-11-07T11:09:08+00:00"
         },
         {
             "@id": "file:///path/to/pipeline_info/software_versions.yml",
             "@type": "File",
             "name": "software_versions.yml",
-            "encodingFormat": "application/yaml"
+            "encodingFormat": "application/yaml",
+            "sha256": "54362ffbee00672b102b6389ff1e9a0c423ed92ab88ec51cdad1cf608e82a712",
+            "contentSize": 789,
+            "sdDatePublished": "2025-11-07T11:09:08+00:00"
         },
         {
             "@id": "http://example.com/fooconfig.yml",
@@ -432,14 +441,16 @@
             "@type": "File",
             "name": "FOOBAR123.deepvariant.vcf.gz.tbi",
             "sha256": "38fdf473549d817821bfc8e78242b592ac2d9f02fd2213cf955c5e409135fc7e",
-            "contentSize": 3950691
+            "contentSize": 3950691,
+            "sdDatePublished": "2025-11-07T11:24:57+00:00"
         },
         {
             "@id": "file:///path/to/FOOBAR123.deepvariant.vcf.gz",
             "@type": "File",
             "name": "FOOBAR123.deepvariant.vcf.gz",
             "sha256": "bf48e57bad6e0fc56e976b4344da8a386319a4bfafc285cb200564451a503158",
-            "contentSize": 31871057156
+            "contentSize": 31871057156,
+            "sdDatePublished": "2025-11-07T11:25:00+00:00"
         }
     ]
 }
