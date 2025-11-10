@@ -30,6 +30,20 @@ from provstor_api.utils.query import run_query
 router = APIRouter()
 
 
+FILEINFO_QUERY = """\
+PREFIX schema: <http://schema.org/>
+PREFIX wfrun: <https://w3id.org/ro/terms/workflow-run#>
+
+SELECT DISTINCT ?checksum ?size
+WHERE {
+  ?id a schema:MediaObject .
+  ?id wfrun:sha256 ?checksum .
+  ?id schema:contentSize ?size .
+  FILTER(?id = <%s>)
+}
+"""
+
+
 @router.post("/move/")
 async def move(src: str, dest: str, when: datetime = None):
     if not src.startswith("file:/"):
@@ -37,7 +51,13 @@ async def move(src: str, dest: str, when: datetime = None):
     qres = run_query(IS_FILE_OR_DIR_QUERY % src)
     if len(qres) < 1:
         raise HTTPException(status_code=404, detail=f"File or Dataset '{src}' not found")
-    generator = MoveCrateGenerator(src, dest, when=when)
+    qres = run_query(FILEINFO_QUERY % src)
+    kwargs = {"when": when}
+    if len(qres) >= 1:
+        # raise if > 1 ? (multiple checksums or sizes for an id)
+        r = list(qres)[0]
+        kwargs.update({"checksum": r.checksum.value, "size": r.size.value})
+    generator = MoveCrateGenerator(src, dest, **kwargs)
     crate = generator.generate()
     crate_filename = f"{str(uuid.uuid4())}.zip"
     logging.info("move crate name: %s", crate_filename)

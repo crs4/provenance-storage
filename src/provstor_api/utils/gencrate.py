@@ -22,15 +22,18 @@ from rocrate.rocrate import ROCrate
 DEFAULT_LICENSE = "GPL-3.0"
 PROFILES_BASE = "https://w3id.org/ro/wfrun"
 PROFILES_VERSION = "0.5"
+WRROC_CONTEXT = "https://w3id.org/ro/terms/workflow-run/context"
 
 
 class MoveCrateGenerator:
 
-    def __init__(self, src, dest, when=None, license=None):
+    def __init__(self, src, dest, when=None, license=None, checksum=None, size=None):
         self.src = src
         self.dest = dest
         self.license = license or DEFAULT_LICENSE
         self.when = when or datetime.now(timezone.utc).replace(microsecond=0)
+        self.checksum = checksum
+        self.size = size
 
     def add_root_metadata(self, crate):
         crate.root_dataset["license"] = self.license
@@ -55,6 +58,12 @@ class MoveCrateGenerator:
         }))
         obj = crate.add_file(self.src)
         res = crate.add_file(self.dest)
+        if self.checksum:
+            crate.metadata.extra_contexts.append(WRROC_CONTEXT)
+            obj["sha256"] = res["sha256"] = self.checksum
+        if self.size:
+            obj["contentSize"] = res["contentSize"] = self.size
+        obj["sdDatePublished"] = res["sdDatePublished"] = self.when.isoformat()
         action = crate.add_action(instrument, object=obj, result=res, properties={
             "endTime": self.when.isoformat(),
         })
