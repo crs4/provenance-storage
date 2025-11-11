@@ -18,7 +18,7 @@ import logging
 import os
 import tempfile
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException, UploadFile
 
@@ -46,6 +46,11 @@ WHERE {
 
 @router.post("/move/")
 async def move(src: str, dest: str, when: datetime = None):
+    now = datetime.now(timezone.utc).replace(microsecond=0)
+    if when is None:
+        when = now
+    if when > now:
+        raise HTTPException(status_code=422, detail=f"datetime {when} is in the future")
     if not src.startswith("file:/"):
         raise HTTPException(status_code=422, detail="Can only move a 'file:/' File or Dataset")
     qres = run_query(IS_FILE_OR_DIR_QUERY % src)
