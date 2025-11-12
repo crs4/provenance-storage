@@ -432,10 +432,6 @@ def test_cli_mv(crate_map):
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
 
-    # don't move dest back to src to avoid errors in
-    # test_cli_get_objects_for_result when it's executed after this test
-    # (e.g., in two consecutive runs of the whole test suite)
-
     dest2 = "file:///b/c/FOOBAR123.deepvariant.ann.norm.vcf.gz"
     args = ["mv", dest, dest2, "--when", "2025-10-10T08:05:00Z"]
     result = runner.invoke(cli, args)

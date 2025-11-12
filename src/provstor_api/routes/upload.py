@@ -29,6 +29,7 @@ from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 from rdflib.term import URIRef, Literal
 
 from provstor_api.utils.queries import RDE_QUERY
+from provstor_api.utils.query import run_query
 from provstor_api.config import settings
 
 router = APIRouter()
@@ -51,6 +52,18 @@ MINIO_BUCKET_POLICY = {
         },
     ],
 }
+
+EXTERNAL_RESULTS_QUERY = """\
+PREFIX schema: <http://schema.org/>
+SELECT ?f ?c
+WHERE {
+  ?f a ?c .
+  { ?f a schema:MediaObject } UNION { ?f a schema:Dataset } .
+  FILTER(STRSTARTS(STR(?f), "file://")) .
+  ?a a schema:CreateAction .
+  ?a schema:result ?f .
+}
+"""
 
 
 @router.post("/crate/")
@@ -87,6 +100,16 @@ async def load_crate_metadata(crate_path: UploadFile):
 
         if not metadata_path:
             raise HTTPException(status_code=404, detail="ro-crate-metadata.json not found in the zip file")
+
+        local_graph = Graph()
+        local_graph.parse(metadata_path)
+        qres = local_graph.query(EXTERNAL_RESULTS_QUERY)
+        new_results = set(str(r[0]) for r in qres)
+        qres = run_query(EXTERNAL_RESULTS_QUERY)
+        existing_results = set(str(r[0]) for r in qres)
+        common_results = new_results & existing_results
+        if common_results:
+            raise HTTPException(status_code=422, detail=f"these results already exist: {common_results}")
 
         client = Minio(settings.minio_store, settings.minio_user, settings.minio_secret, secure=False)
         if not client.bucket_exists(settings.minio_bucket):

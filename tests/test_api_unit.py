@@ -145,7 +145,7 @@ def mock_client(monkeypatch):
             self.endpoints = endpoints
 
     class MockGraph:
-        def __init__(self, store, identifier=None):
+        def __init__(self, store=None, identifier=None):
             self.store = store
             self.identifier = identifier
 
@@ -161,6 +161,7 @@ def mock_client(monkeypatch):
     monkeypatch.setattr(upload, "Minio", MockMinio)
     monkeypatch.setattr(upload, "SPARQLUpdateStore", MockStore)
     monkeypatch.setattr(upload, "Graph", MockGraph)
+    monkeypatch.setattr(upload, "run_query", lambda q: [])
     monkeypatch.setattr(upload.arcp, "arcp_location", lambda url: TC.ARCP_LOCATION)
 
     upload.settings.minio_store = TC.MINIO_STORE
@@ -208,6 +209,15 @@ def test_correct_path(mock_client):
     body = r.json()
     assert body["result"] == "success"
     assert body["crate_url"] == f"{TC.MINIO_URL}/{TC.MINIO_BUCKET}/{TC.CRATE_ZIP}"
+
+
+def test_upload_existing_result(mock_client, monkeypatch):
+    buf = make_zip(with_metadata=True)
+    monkeypatch.setattr(upload, "run_query", lambda q: [(URIRef(TC.EXAMPLE_RDE_URI),)])
+    r = mock_client.post("/upload/crate/",
+                         files={"crate_path": (TC.CRATE_ZIP, buf.getvalue(), TC.CONTENT_TYPE_ZIP)})
+    assert r.status_code == 422
+    assert r.json()["detail"] == f"these results already exist: {{'{TC.EXAMPLE_RDE_URI}'}}"
 
 
 # Tests for list-graphs
