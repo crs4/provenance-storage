@@ -50,7 +50,7 @@ async def move(src: str, dest: str, when: datetime = None):
     if when is None:
         when = now
     if when > now:
-        raise HTTPException(status_code=422, detail=f"datetime {when} is in the future")
+        raise HTTPException(status_code=422, detail=f"datetime {when.isoformat()} is in the future")
     if not src.startswith("file:/"):
         raise HTTPException(status_code=422, detail="Can only move a 'file:/' File or Dataset")
     qres = run_query(IS_FILE_OR_DIR_QUERY % src)

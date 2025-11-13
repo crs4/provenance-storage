@@ -27,6 +27,7 @@ import provstor_api.routes.upload as upload
 import provstor_api.routes.query as query
 import provstor_api.routes.backtrack as backtrack
 import provstor_api.routes.get as get
+import provstor_api.routes.pathops as pathops
 
 
 # Test Constants
@@ -53,6 +54,10 @@ class TestConstants:
     ARCP_FILE_TXT = f"{ARCP_RDE_1}/dir/file.txt"
     ARCP_FILE_DAT = f"{ARCP_RDE_1}/x/y/file.dat"
     ARCP_FILE_MISSING = f"{ARCP_RDE_1}/dir/missing.txt"
+
+    # file:/ URIs
+    FILE_URI_A = "file:/a/f.txt"
+    FILE_URI_B = "file:/b/f.txt"
 
     # File names and paths
     CRATE_ZIP = "crate.zip"
@@ -683,3 +688,43 @@ def test_run_params_empty(monkeypatch):
     r = client.get("/get/run-params/", params={"graph_id": TC.GRAPH_ID_9})
     assert r.status_code == 200
     assert r.json() == {"result": []}
+
+
+# Tests for pathops/move
+def test_move_future_datetime(mock_client):
+    future_date = "9999-10-10T08:05:00+00:00"
+    r = client.post(
+        "/pathops/move/",
+        params={
+            "src": TC.FILE_URI_A,
+            "dest": TC.FILE_URI_B,
+            "when": future_date,
+        }
+    )
+    assert r.status_code == 422
+    assert r.json()["detail"] == f"datetime {future_date} is in the future"
+
+
+def test_move_not_fileuri(mock_client):
+    r = client.post(
+        "/pathops/move/",
+        params={
+            "src": TC.ARCP_FILE_TXT,
+            "dest": TC.FILE_URI_B,
+        }
+    )
+    assert r.status_code == 422
+    assert r.json()["detail"] == "Can only move a 'file:/' File or Dataset"
+
+
+def test_move_missing_src(mock_client, monkeypatch):
+    monkeypatch.setattr(pathops, "run_query", lambda q: [])
+    r = client.post(
+        "/pathops/move/",
+        params={
+            "src": TC.FILE_URI_A,
+            "dest": TC.FILE_URI_B,
+        }
+    )
+    assert r.status_code == 404
+    assert r.json()["detail"] == f"File or Dataset '{TC.FILE_URI_A}' not found"

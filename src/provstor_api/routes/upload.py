@@ -59,7 +59,7 @@ SELECT ?f ?c
 WHERE {
   ?f a ?c .
   { ?f a schema:MediaObject } UNION { ?f a schema:Dataset } .
-  FILTER(STRSTARTS(STR(?f), "file://")) .
+  FILTER(STRSTARTS(STR(?f), "file:/")) .
   ?a a schema:CreateAction .
   ?a schema:result ?f .
 }
