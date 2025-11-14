@@ -24,7 +24,7 @@ from fastapi import APIRouter, HTTPException, UploadFile
 
 from provstor_api.routes.upload import load_crate_metadata
 from provstor_api.utils.gencrate import MoveCrateGenerator
-from provstor_api.utils.queries import IS_FILE_OR_DIR_QUERY
+from provstor_api.utils.queries import IS_FILE_OR_DIR_QUERY, MOVE_DEST_QUERY
 from provstor_api.utils.query import run_query
 
 router = APIRouter()
@@ -75,3 +75,30 @@ async def move(src: str, dest: str, when: datetime = None):
             })
             result = await load_crate_metadata(upload_file)
     return result
+
+
+def _movechain_recursive(path_id, visited=None):
+    if visited is None:
+        visited = set()
+
+    if path_id in visited:
+        return []
+
+    visited.add(path_id)
+    results = []
+
+    qres = run_query(MOVE_DEST_QUERY % path_id)
+
+    if len(qres):
+        logging.info("qres: %s", qres)
+        dest_id = str(list(qres)[0][0])
+        results.append(dest_id)
+        nested_results = _movechain_recursive(dest_id, visited)
+        results.extend(nested_results)
+
+    return results
+
+
+@router.get("/movechain")
+def movechain(path_id: str):
+    return {"result": _movechain_recursive(path_id)}

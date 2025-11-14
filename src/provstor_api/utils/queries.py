@@ -222,3 +222,18 @@ WHERE {
   FILTER(?f = <%s>)
 }
 """
+
+
+MOVE_DEST_QUERY = """\
+PREFIX schema: <http://schema.org/>
+SELECT DISTINCT ?dest
+WHERE {
+  { ?src a schema:MediaObject } UNION { ?src a schema:Dataset } .
+  { ?dest a schema:MediaObject } UNION { ?dest a schema:Dataset } .
+  ?a a schema:CreateAction .
+  ?a schema:object ?src .
+  ?a schema:result ?dest .
+  ?a schema:instrument <https://example.org/ro/terms/provstor#MV> .
+  FILTER(?src = <%s>)
+}
+"""
