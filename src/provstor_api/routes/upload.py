@@ -141,10 +141,14 @@ async def load_crate_metadata(crate_path: UploadFile):
             part_size=50 * 1024 * 1024
         )
 
-        store = SPARQLUpdateStore()
-        query_endpoint = f"{settings.fuseki_base_url}/{settings.fuseki_dataset}/sparql"
-        update_endpoint = f"{settings.fuseki_base_url}/{settings.fuseki_dataset}/update"
-        store.open((query_endpoint, update_endpoint))
-        graph = Graph(store, identifier=URIRef(crate_url))
-        graph.update(INSERT_QUERY % metadata)
+        try:
+            store = SPARQLUpdateStore()
+            query_endpoint = f"{settings.fuseki_base_url}/{settings.fuseki_dataset}/sparql"
+            update_endpoint = f"{settings.fuseki_base_url}/{settings.fuseki_dataset}/update"
+            store.open((query_endpoint, update_endpoint))
+            graph = Graph(store, identifier=URIRef(crate_url))
+            graph.update(INSERT_QUERY % metadata)
+        except Exception as e:
+            client.remove_object(settings.minio_bucket, crate_path.filename)
+            raise HTTPException(status_code=500, detail=f"Failed to upload metadata to the store: {e}")
         return {"result": "success", "crate_url": crate_url}
