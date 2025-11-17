@@ -163,6 +163,12 @@ def mock_client(monkeypatch):
         def add(self, triple):
             self.added = triple
 
+        def serialize(self, format="nt"):
+            return "Lorem Ipsum"
+
+        def update(self, insert_query):
+            self.insert_query = insert_query
+
     monkeypatch.setattr(upload, "Minio", MockMinio)
     monkeypatch.setattr(upload, "SPARQLUpdateStore", MockStore)
     monkeypatch.setattr(upload, "Graph", MockGraph)

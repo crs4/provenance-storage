@@ -237,3 +237,10 @@ WHERE {
   FILTER(?src = <%s>)
 }
 """
+
+
+INSERT_QUERY = """
+INSERT DATA {
+%s
+}
+"""
