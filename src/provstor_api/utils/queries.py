@@ -233,7 +233,7 @@ WHERE {
   ?a a schema:CreateAction .
   ?a schema:object ?src .
   ?a schema:result ?dest .
-  ?a schema:instrument <https://example.org/ro/terms/provstor#MV> .
+  ?a schema:instrument <https://w3id.org/ro/terms/provstor#MoveTool> .
   FILTER(?src = <%s>)
 }
 """
