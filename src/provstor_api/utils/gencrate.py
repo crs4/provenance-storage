@@ -25,7 +25,7 @@ PROFILES_VERSION = "0.5"
 WRROC_CONTEXT = "https://w3id.org/ro/terms/workflow-run/context"
 
 
-class MoveCrateGenerator:
+class CopyOrMoveCrateGenerator:
 
     def __init__(self, src, dest, when=None, license=None, checksum=None, size=None):
         self.src = src
@@ -48,10 +48,14 @@ class MoveCrateGenerator:
         }))
         crate.root_dataset["conformsTo"] = profile
 
-    def add_action(self, crate):
-        # TODO: add instrument id to ro-terms
-        instrument_id = "https://example.org/ro/terms/provstor#MV"
-        instrument_name = "mv"
+    def add_action(self, crate, op="cp"):
+        if op == "cp":
+            instrument_id = "https://w3id.org/ro/terms/provstor#CopyTool"
+        elif op == "mv":
+            instrument_id = "https://w3id.org/ro/terms/provstor#MoveTool"
+        else:
+            raise ValueError("op must be either 'cp' or 'mv'")
+        instrument_name = op
         instrument = crate.add(SoftwareApplication(crate, instrument_id, properties={
             "name": instrument_name,
             "url": {"@id": "https://www.gnu.org/software/coreutils/"}
@@ -74,3 +78,15 @@ class MoveCrateGenerator:
         self.add_root_metadata(crate)
         self.add_action(crate)
         return crate
+
+
+class CopyCrateGenerator(CopyOrMoveCrateGenerator):
+
+    def add_action(self, crate):
+        super().add_action(crate, op="cp")
+
+
+class MoveCrateGenerator(CopyOrMoveCrateGenerator):
+
+    def add_action(self, crate):
+        super().add_action(crate, op="mv")
