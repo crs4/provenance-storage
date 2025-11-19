@@ -23,6 +23,7 @@ from types import SimpleNamespace
 
 from fastapi.testclient import TestClient
 from provstor_api.main import app
+from provstor_api.utils.queries import IS_FILE_OR_DIR_QUERY
 import provstor_api.routes.upload as upload
 import provstor_api.routes.query as query
 import provstor_api.routes.backtrack as backtrack
@@ -698,7 +699,7 @@ def test_run_params_empty(monkeypatch):
 
 # Tests for pathops/copy and pathops/move
 @pytest.mark.parametrize("op", ["copy", "move"])
-def test_cpmv_future_datetime(mock_client, op):
+def test_cpmv_future_datetime(op):
     future_date = "9999-10-10T08:05:00+00:00"
     r = client.post(
         f"/pathops/{op}/",
@@ -713,7 +714,7 @@ def test_cpmv_future_datetime(mock_client, op):
 
 
 @pytest.mark.parametrize("op", ["copy", "move"])
-def test_cpmv_not_fileuri(mock_client, op):
+def test_cpmv_not_fileuri(op):
     r = client.post(
         f"/pathops/{op}/",
         params={
@@ -726,7 +727,7 @@ def test_cpmv_not_fileuri(mock_client, op):
 
 
 @pytest.mark.parametrize("op", ["copy", "move"])
-def test_cpmv_missing_src(mock_client, monkeypatch, op):
+def test_cpmv_missing_src(monkeypatch, op):
     monkeypatch.setattr(pathops, "run_query", lambda q: [])
     r = client.post(
         f"/pathops/{op}/",
@@ -737,3 +738,51 @@ def test_cpmv_missing_src(mock_client, monkeypatch, op):
     )
     assert r.status_code == 404
     assert r.json()["detail"] == f"File or Dataset '{TC.FILE_URI_A}' not found"
+
+
+def test_mv_already_moved(monkeypatch):
+    chain = ["file:///foo"]
+    monkeypatch.setattr(pathops, "movechain", lambda p: {"result": chain})
+    monkeypatch.setattr(pathops, "run_query", lambda q: [(URIRef(TC.FILE_URI_A),)])
+    r = client.post(
+        "/pathops/move/",
+        params={
+            "src": TC.FILE_URI_A,
+            "dest": TC.FILE_URI_B,
+        }
+    )
+    assert r.status_code == 422
+    assert r.json()["detail"] == f"'{TC.FILE_URI_A}' has already been moved to: {chain}"
+
+
+@pytest.mark.parametrize("op", ["copy", "move"])
+def test_cpmv_ok(monkeypatch, op):
+
+    def mock_run_query(q):
+        if q == IS_FILE_OR_DIR_QUERY % TC.FILE_URI_A:
+            return [(URIRef(TC.FILE_URI_A),)]
+        return []
+
+    monkeypatch.setattr(pathops, "run_query", mock_run_query)
+
+    async def mock_load_crate_metadata(f):
+        return {
+            "result": "success",
+            "crate_url": crate_url,
+        }
+
+    monkeypatch.setattr(pathops, "load_crate_metadata", mock_load_crate_metadata)
+
+    crate_url = "http://minio:9000/crates/foo.zip"
+    monkeypatch.setattr(pathops, "movechain", lambda p: {"result": []})
+    r = client.post(
+        "/pathops/move/",
+        params={
+            "src": TC.FILE_URI_A,
+            "dest": TC.FILE_URI_B,
+        }
+    )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["result"] == "success"
+    assert body["crate_url"] == crate_url
