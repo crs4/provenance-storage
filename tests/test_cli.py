@@ -453,3 +453,39 @@ def test_cli_mv(crate_map):
         "file:///a/b/FOOBAR123.deepvariant.ann.norm.vcf.gz",
         "file:///b/c/FOOBAR123.deepvariant.ann.norm.vcf.gz",
     ]
+
+
+def test_cli_cp(crate_map):
+    src = "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    dest = "file:///cp1/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    runner = CliRunner()
+    args = ["cp", src, dest]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+
+    dest2 = "file:///cp2/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    runner = CliRunner()
+    args = ["cp", src, dest2]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+
+    bad_src = "arcp://uuid,9498d061-370c-53cb-a1ce-a575c5c76f64/"
+    args = ["cp", bad_src, dest]
+    result = runner.invoke(cli, args)
+    assert result.exit_code != 0
+
+    missing_src = f"file:///{str(uuid.uuid4())}"
+    args = ["cp", missing_src, dest]
+    result = runner.invoke(cli, args)
+    assert result.exit_code != 0
+
+    d_src = "file:///path/to/logs"
+    d_dest = "file:///cp1/logs"
+    args = ["cp", d_src, d_dest]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+
+    future_date = "9999-10-10T08:05:00Z"
+    args = ["cp", src, "file:///q", "--when", future_date]
+    result = runner.invoke(cli, args)
+    assert result.exit_code != 0
