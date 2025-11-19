@@ -23,7 +23,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, UploadFile
 
 from provstor_api.routes.upload import load_crate_metadata
-from provstor_api.utils.gencrate import MoveCrateGenerator
+from provstor_api.utils.gencrate import CopyCrateGenerator, MoveCrateGenerator
 from provstor_api.utils.queries import IS_FILE_OR_DIR_QUERY, MOVE_DEST_QUERY
 from provstor_api.utils.query import run_query
 
@@ -44,31 +44,42 @@ WHERE {
 """
 
 
+@router.post("/copy/")
+async def copy(src: str, dest: str, when: datetime = None):
+    return await _copy_or_move(src, dest, when=when, op="cp")
+
+
 @router.post("/move/")
 async def move(src: str, dest: str, when: datetime = None):
+    return await _copy_or_move(src, dest, when=when, op="mv")
+
+
+async def _copy_or_move(src: str, dest: str, when: datetime = None, op="cp"):
     now = datetime.now(timezone.utc).replace(microsecond=0)
     if when is None:
         when = now
     if when > now:
         raise HTTPException(status_code=422, detail=f"datetime {when.isoformat()} is in the future")
     if not src.startswith("file:/"):
-        raise HTTPException(status_code=422, detail="Can only move a 'file:/' File or Dataset")
+        raise HTTPException(status_code=422, detail="Can only operate on a 'file:/' File or Dataset")
     qres = run_query(IS_FILE_OR_DIR_QUERY % src)
     if len(qres) < 1:
         raise HTTPException(status_code=404, detail=f"File or Dataset '{src}' not found")
-    chain = movechain(src)["result"]
-    if chain:
-        raise HTTPException(status_code=422, detail=f"'{src}' has already been moved to: {chain}")
+    if op == "mv":
+        chain = movechain(src)["result"]
+        if chain:
+            raise HTTPException(status_code=422, detail=f"'{src}' has already been moved to: {chain}")
     qres = run_query(FILEINFO_QUERY % src)
     kwargs = {"when": when}
     if len(qres) >= 1:
         # raise if > 1 ? (multiple checksums or sizes for an id)
         r = list(qres)[0]
         kwargs.update({"checksum": r.checksum.value, "size": r.size.value})
-    generator = MoveCrateGenerator(src, dest, **kwargs)
+    gen_class = CopyCrateGenerator if op == "cp" else MoveCrateGenerator
+    generator = gen_class(src, dest, **kwargs)
     crate = generator.generate()
     crate_filename = f"{str(uuid.uuid4())}.zip"
-    logging.info("move crate name: %s", crate_filename)
+    logging.info("%s crate name: %s", op, crate_filename)
     with tempfile.TemporaryDirectory() as tmp_dir:
         crate_path = os.path.join(tmp_dir, crate_filename)
         crate.write_zip(crate_path)

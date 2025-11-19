@@ -624,6 +624,36 @@ def backtrack(result_id):
     "-w",
     "--when",
     metavar="STRING",
+    help="datetime when the copy happened (ended)",
+)
+def cp(src_id, dest_id, when):
+    """\
+    Record the copying of a file.
+
+    Generates a new Process Run Crate with an action that has the source as
+    object and the destination as result. The crate is then loaded onto the
+    system in the same way as in the "load" command.
+
+    \b
+    SRC_ID: RO-Crate id of the source file.
+    DEST_ID: RO-Crate id of the destination file.
+    """
+    _cp_or_mv(src_id, dest_id, when, op="copy")
+
+
+@cli.command()
+@click.argument(
+    "src_id",
+    metavar="SRC_ID"
+)
+@click.argument(
+    "dest_id",
+    metavar="DEST_ID"
+)
+@click.option(
+    "-w",
+    "--when",
+    metavar="STRING",
     help="datetime when the move happened (ended)",
 )
 def mv(src_id, dest_id, when):
@@ -638,7 +668,11 @@ def mv(src_id, dest_id, when):
     SRC_ID: RO-Crate id of the source file.
     DEST_ID: RO-Crate id of the destination file.
     """
-    url = f"{get_base_api_url()}/pathops/move/"
+    _cp_or_mv(src_id, dest_id, when, op="move")
+
+
+def _cp_or_mv(src_id, dest_id, when, op="copy"):
+    url = f"{get_base_api_url()}/pathops/{op}/"
     params = {'src': src_id, 'dest': dest_id}
     if when:
         params["when"] = when

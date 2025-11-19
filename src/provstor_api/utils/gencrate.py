@@ -35,9 +35,9 @@ class CopyOrMoveCrateGenerator:
         self.checksum = checksum
         self.size = size
 
-    def add_root_metadata(self, crate):
+    def add_root_metadata(self, crate, op="cp"):
         crate.root_dataset["license"] = self.license
-        name = f"mv {self.src} {self.dest}"
+        name = f"{op} {self.src} {self.dest}"
         crate.root_dataset["name"] = name
         crate.root_dataset["description"] = name
         profile_id = f"{PROFILES_BASE}/process/{PROFILES_VERSION}"
@@ -82,11 +82,17 @@ class CopyOrMoveCrateGenerator:
 
 class CopyCrateGenerator(CopyOrMoveCrateGenerator):
 
+    def add_root_metadata(self, crate):
+        super().add_root_metadata(crate, op="cp")
+
     def add_action(self, crate):
         super().add_action(crate, op="cp")
 
 
 class MoveCrateGenerator(CopyOrMoveCrateGenerator):
+
+    def add_root_metadata(self, crate):
+        super().add_root_metadata(crate, op="mv")
 
     def add_action(self, crate):
         super().add_action(crate, op="mv")

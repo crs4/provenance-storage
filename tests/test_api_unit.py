@@ -696,11 +696,12 @@ def test_run_params_empty(monkeypatch):
     assert r.json() == {"result": []}
 
 
-# Tests for pathops/move
-def test_move_future_datetime(mock_client):
+# Tests for pathops/copy and pathops/move
+@pytest.mark.parametrize("op", ["copy", "move"])
+def test_cpmv_future_datetime(mock_client, op):
     future_date = "9999-10-10T08:05:00+00:00"
     r = client.post(
-        "/pathops/move/",
+        f"/pathops/{op}/",
         params={
             "src": TC.FILE_URI_A,
             "dest": TC.FILE_URI_B,
@@ -711,22 +712,24 @@ def test_move_future_datetime(mock_client):
     assert r.json()["detail"] == f"datetime {future_date} is in the future"
 
 
-def test_move_not_fileuri(mock_client):
+@pytest.mark.parametrize("op", ["copy", "move"])
+def test_cpmv_not_fileuri(mock_client, op):
     r = client.post(
-        "/pathops/move/",
+        f"/pathops/{op}/",
         params={
             "src": TC.ARCP_FILE_TXT,
             "dest": TC.FILE_URI_B,
         }
     )
     assert r.status_code == 422
-    assert r.json()["detail"] == "Can only move a 'file:/' File or Dataset"
+    assert r.json()["detail"] == "Can only operate on a 'file:/' File or Dataset"
 
 
-def test_move_missing_src(mock_client, monkeypatch):
+@pytest.mark.parametrize("op", ["copy", "move"])
+def test_cpmv_missing_src(mock_client, monkeypatch, op):
     monkeypatch.setattr(pathops, "run_query", lambda q: [])
     r = client.post(
-        "/pathops/move/",
+        f"/pathops/{op}/",
         params={
             "src": TC.FILE_URI_A,
             "dest": TC.FILE_URI_B,
