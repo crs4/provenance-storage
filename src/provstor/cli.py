@@ -691,6 +691,31 @@ def _cp_or_mv(src_id, dest_id, when, op="copy"):
 
 
 @cli.command()
+@click.argument(
+    "path_id",
+    metavar="PATH_ID"
+)
+def movechain(path_id):
+    """\
+    Recursively get the list of paths where the given path has been moved.
+
+    PATH_ID: RO-Crate id of the starting path (e.g. "file://...").
+    """
+    url = f"{get_base_api_url()}/pathops/movechain/"
+
+    try:
+        response = requests.get(url, params={'path_id': path_id})
+
+        if response.status_code == 200:
+            for item in response.json()['result']:
+                sys.stdout.write(item + "\n")
+        else:
+            raise RuntimeError(f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
+
+
+@cli.command()
 def version():
     """\
     Print version string and exit.

@@ -443,3 +443,13 @@ def test_cli_mv(crate_map):
     args = ["mv", dest2, "file:///q", "--when", future_date]
     result = runner.invoke(cli, args)
     assert result.exit_code != 0
+
+    args = ["movechain", src]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    lines = result.stdout.splitlines()
+    assert len(lines) >= 2
+    assert lines[:2] == [
+        "file:///a/b/FOOBAR123.deepvariant.ann.norm.vcf.gz",
+        "file:///b/c/FOOBAR123.deepvariant.ann.norm.vcf.gz",
+    ]
