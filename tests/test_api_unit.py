@@ -59,6 +59,7 @@ class TestConstants:
     # file:/ URIs
     FILE_URI_A = "file:/a/f.txt"
     FILE_URI_B = "file:/b/f.txt"
+    FILE_URI_C = "file:/c/f.txt"
 
     # File names and paths
     CRATE_ZIP = "crate.zip"
@@ -786,3 +787,25 @@ def test_cpmv_ok(monkeypatch, op):
     body = r.json()
     assert body["result"] == "success"
     assert body["crate_url"] == crate_url
+
+
+def test_movechain(monkeypatch):
+    move_dest_query_results = [
+        [(URIRef(TC.FILE_URI_C),)],
+        [(URIRef(TC.FILE_URI_B),)],
+    ]
+
+    def mock_run_query(q):
+        try:
+            return move_dest_query_results.pop()
+        except IndexError:
+            return []
+
+    monkeypatch.setattr(pathops, "run_query", mock_run_query)
+
+    r = client.get(
+        "/pathops/movechain/",
+        params={"path_id": TC.FILE_URI_A}
+    )
+    assert r.status_code == 200
+    assert r.json() == {"result": [TC.FILE_URI_B, TC.FILE_URI_C]}

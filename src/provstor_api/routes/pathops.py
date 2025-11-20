@@ -104,8 +104,8 @@ def _movechain_recursive(path_id, visited=None):
     qres = run_query(MOVE_DEST_QUERY % path_id)
 
     if len(qres):
-        logging.info("qres: %s", qres)
         dest_id = str(list(qres)[0][0])
+        logging.info("dest_id: %s", dest_id)
         results.append(dest_id)
         nested_results = _movechain_recursive(dest_id, visited)
         results.extend(nested_results)
