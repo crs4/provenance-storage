@@ -28,7 +28,8 @@ from rdflib import Graph
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 from rdflib.term import URIRef, Literal
 
-from provstor_api.utils.queries import RDE_QUERY
+from provstor_api.utils.queries import RDE_QUERY, INSERT_QUERY
+from provstor_api.utils.query import run_query
 from provstor_api.config import settings
 
 router = APIRouter()
@@ -52,6 +53,18 @@ MINIO_BUCKET_POLICY = {
     ],
 }
 
+EXTERNAL_RESULTS_QUERY = """\
+PREFIX schema: <http://schema.org/>
+SELECT ?f ?c
+WHERE {
+  ?f a ?c .
+  { ?f a schema:MediaObject } UNION { ?f a schema:Dataset } .
+  FILTER(STRSTARTS(STR(?f), "file:/")) .
+  ?a a schema:CreateAction .
+  ?a schema:result ?f .
+}
+"""
+
 
 @router.post("/crate/")
 async def load_crate_metadata(crate_path: UploadFile):
@@ -62,6 +75,11 @@ async def load_crate_metadata(crate_path: UploadFile):
 
     if not content:
         raise HTTPException(status_code=400, detail="Empty file uploaded.")
+
+    crate_url = f"http://{settings.minio_store}/{settings.minio_bucket}/{crate_path.filename}"
+    logging.info("Crate URL: %s", crate_url)
+    loc = arcp.arcp_location(crate_url)
+    logging.info("ARCP location: %s", loc)
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_zip_path = os.path.join(tmp_dir, crate_path.filename)
@@ -88,6 +106,26 @@ async def load_crate_metadata(crate_path: UploadFile):
         if not metadata_path:
             raise HTTPException(status_code=404, detail="ro-crate-metadata.json not found in the zip file")
 
+        local_graph = Graph()
+        local_graph.parse(metadata_path, publicID=loc)
+        qres = local_graph.query(EXTERNAL_RESULTS_QUERY)
+        new_results = set(str(r[0]) for r in qres)
+        qres = run_query(EXTERNAL_RESULTS_QUERY)
+        existing_results = set(str(r[0]) for r in qres)
+        common_results = new_results & existing_results
+        if common_results:
+            raise HTTPException(status_code=422, detail=f"these results already exist: {common_results}")
+        # store crate url as root data entity "url"
+        qres = local_graph.query(RDE_QUERY)
+        if not qres:
+            raise HTTPException(status_code=500, detail="Failed to store crate metadata in the graph")
+        assert len(qres) == 1
+        rde = list(qres)[0][0]
+        local_graph.add((rde, URIRef("http://schema.org/url"), Literal(crate_url)))
+        metadata = local_graph.serialize(format="nt")
+        if isinstance(metadata, bytes):
+            metadata = metadata.decode()
+
         client = Minio(settings.minio_store, settings.minio_user, settings.minio_secret, secure=False)
         if not client.bucket_exists(settings.minio_bucket):
             client.make_bucket(settings.minio_bucket)
@@ -103,23 +141,14 @@ async def load_crate_metadata(crate_path: UploadFile):
             part_size=50 * 1024 * 1024
         )
 
-        crate_url = f"http://{settings.minio_store}/{settings.minio_bucket}/{crate_path.filename}"
-        logging.info("Crate URL: %s", crate_url)
-
-        store = SPARQLUpdateStore()
-        query_endpoint = f"{settings.fuseki_base_url}/{settings.fuseki_dataset}/sparql"
-        update_endpoint = f"{settings.fuseki_base_url}/{settings.fuseki_dataset}/update"
-        store.open((query_endpoint, update_endpoint))
-        graph = Graph(store, identifier=URIRef(crate_url))
-        loc = arcp.arcp_location(crate_url)
-        logging.info("ARCP location: %s", loc)
-        graph.parse(metadata_path, publicID=loc)
-        # store crate url as root data entity "url"
-        qres = graph.query(RDE_QUERY)
-        if not qres:
-            raise HTTPException(status_code=500, detail="Failed to store crate metadata in the graph")
-
-        assert len(qres) == 1
-        rde = list(qres)[0][0]
-        graph.add((rde, URIRef("http://schema.org/url"), Literal(crate_url)))
+        try:
+            store = SPARQLUpdateStore()
+            query_endpoint = f"{settings.fuseki_base_url}/{settings.fuseki_dataset}/sparql"
+            update_endpoint = f"{settings.fuseki_base_url}/{settings.fuseki_dataset}/update"
+            store.open((query_endpoint, update_endpoint))
+            graph = Graph(store, identifier=URIRef(crate_url))
+            graph.update(INSERT_QUERY % metadata)
+        except Exception as e:
+            client.remove_object(settings.minio_bucket, crate_path.filename)
+            raise HTTPException(status_code=500, detail=f"Failed to upload metadata to the store: {e}")
         return {"result": "success", "crate_url": crate_url}

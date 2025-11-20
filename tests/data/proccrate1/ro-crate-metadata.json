@@ -78,14 +78,16 @@
             "@type": "File",
             "name": "FOOBAR123.deepvariant.vcf.gz",
             "sha256": "bf48e57bad6e0fc56e976b4344da8a386319a4bfafc285cb200564451a503158",
-            "contentSize": 31871057156
+            "contentSize": 31871057156,
+            "sdDatePublished": "2025-11-07T11:27:00+00:00"
         },
         {
             "@id": "file:///path/to/FOOBAR123.deepvariant.ann.vcf.gz",
             "@type": "File",
             "name": "FOOBAR123.deepvariant.ann.vcf.gz",
             "sha256": "8ecc09cbcbe3a58c74a6584fde4381ff437c782361d50ea3ee18387c3c709794",
-            "contentSize": 42891067253
+            "contentSize": 42891067253,
+            "sdDatePublished": "2025-11-07T11:27:18+00:00"
         },
         {
             "@id": "aux.vcf",

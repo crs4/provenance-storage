@@ -612,6 +612,110 @@ def backtrack(result_id):
 
 
 @cli.command()
+@click.argument(
+    "src_id",
+    metavar="SRC_ID"
+)
+@click.argument(
+    "dest_id",
+    metavar="DEST_ID"
+)
+@click.option(
+    "-w",
+    "--when",
+    metavar="STRING",
+    help="datetime when the copy happened (ended)",
+)
+def cp(src_id, dest_id, when):
+    """\
+    Record the copying of a file.
+
+    Generates a new Process Run Crate with an action that has the source as
+    object and the destination as result. The crate is then loaded onto the
+    system in the same way as in the "load" command.
+
+    \b
+    SRC_ID: RO-Crate id of the source file.
+    DEST_ID: RO-Crate id of the destination file.
+    """
+    _cp_or_mv(src_id, dest_id, when, op="copy")
+
+
+@cli.command()
+@click.argument(
+    "src_id",
+    metavar="SRC_ID"
+)
+@click.argument(
+    "dest_id",
+    metavar="DEST_ID"
+)
+@click.option(
+    "-w",
+    "--when",
+    metavar="STRING",
+    help="datetime when the move happened (ended)",
+)
+def mv(src_id, dest_id, when):
+    """\
+    Record the movement of a file.
+
+    Generates a new Process Run Crate with an action that has the source as
+    object and the destination as result. The crate is then loaded onto the
+    system in the same way as in the "load" command.
+
+    \b
+    SRC_ID: RO-Crate id of the source file.
+    DEST_ID: RO-Crate id of the destination file.
+    """
+    _cp_or_mv(src_id, dest_id, when, op="move")
+
+
+def _cp_or_mv(src_id, dest_id, when, op="copy"):
+    url = f"{get_base_api_url()}/pathops/{op}/"
+    params = {'src': src_id, 'dest': dest_id}
+    if when:
+        params["when"] = when
+
+    try:
+        response = requests.post(url, params=params)
+
+        if response.status_code == 200:
+            json_res = response.json()
+            if json_res['result'] == "success":
+                logging.info("Generated crate url: %s", json_res['crate_url'])
+        else:
+            raise RuntimeError(f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
+
+
+@cli.command()
+@click.argument(
+    "path_id",
+    metavar="PATH_ID"
+)
+def movechain(path_id):
+    """\
+    Recursively get the list of paths where the given path has been moved.
+
+    PATH_ID: RO-Crate id of the starting path (e.g. "file://...").
+    """
+    url = f"{get_base_api_url()}/pathops/movechain/"
+
+    try:
+        response = requests.get(url, params={'path_id': path_id})
+
+        if response.status_code == 200:
+            for item in response.json()['result']:
+                sys.stdout.write(item + "\n")
+        else:
+            raise RuntimeError(f"API returned status code {response.status_code}: {responses[response.status_code]}")
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"API is not reachable: {e}")
+
+
+@cli.command()
 def version():
     """\
     Print version string and exit.

@@ -212,3 +212,35 @@ WHERE {
 }
 ORDER BY ?g
 """
+
+IS_FILE_OR_DIR_QUERY = """\
+PREFIX schema: <http://schema.org/>
+
+SELECT ?f
+WHERE {
+  { ?f a schema:MediaObject } UNION { ?f a schema:Dataset } .
+  FILTER(?f = <%s>)
+}
+"""
+
+
+MOVE_DEST_QUERY = """\
+PREFIX schema: <http://schema.org/>
+SELECT DISTINCT ?dest
+WHERE {
+  { ?src a schema:MediaObject } UNION { ?src a schema:Dataset } .
+  { ?dest a schema:MediaObject } UNION { ?dest a schema:Dataset } .
+  ?a a schema:CreateAction .
+  ?a schema:object ?src .
+  ?a schema:result ?dest .
+  ?a schema:instrument <https://w3id.org/ro/terms/provstor#MoveTool> .
+  FILTER(?src = <%s>)
+}
+"""
+
+
+INSERT_QUERY = """
+INSERT DATA {
+%s
+}
+"""

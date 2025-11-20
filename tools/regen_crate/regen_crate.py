@@ -26,13 +26,15 @@ import os
 import shutil
 
 from rocrate.rocrate import ROCrate
-from rocrate.utils import as_list
+from rocrate.utils import as_list, iso_now
 
 CHUNK_SIZE = 16384
 WRROC_CONTEXT = "https://w3id.org/ro/terms/workflow-run/context"
 
 
 def as_file_uri(id_, crate_path):
+    if id_.startswith("file:/"):
+        return id_
     return "file://" + str((crate_path / id_).resolve())
 
 
@@ -91,15 +93,19 @@ def regen_metadata(in_crate_path, out_crate_path, results, checksums=False):
     if WRROC_CONTEXT not in context:
         metadata["@context"] = context + [WRROC_CONTEXT]
     for entity in metadata["@graph"]:
-        if entity["@id"] in results:
+        if entity["@id"] in results or entity["@id"].startswith("file:/"):
             if checksums:
-                path = in_crate_path / entity["@id"]
+                if entity["@id"].startswith("file:/"):
+                    path = Path(entity["@id"].split(":", 1)[-1])
+                else:
+                    path = in_crate_path / entity["@id"]
                 if path.is_file():
                     print("computing sha256 checksum:", entity["@id"])
                     cs, size = sha256sum(path)
                     entity["sha256"] = cs
                     entity["contentSize"] = size
             entity["@id"] = as_file_uri(entity["@id"], in_crate_path)
+            entity["sdDatePublished"] = iso_now()
         for k, values in entity.items():
             if k.startswith("@"):
                 continue
