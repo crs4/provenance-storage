@@ -210,7 +210,7 @@ def test_rejects_missing_metadata(mock_client):
     buf = make_zip(with_metadata=False)
     r = mock_client.post("/upload/crate/",
                          files={"crate_path": (TC.CRATE_ZIP, buf.getvalue(), TC.CONTENT_TYPE_ZIP)})
-    assert r.status_code == 404
+    assert r.status_code == 422
     assert r.json()["detail"] == f"{TC.METADATA_JSON} not found in the zip file"
 
 
@@ -354,7 +354,7 @@ def test_get_crate_not_found(monkeypatch):
 
     r = client.get("/get/crate/", params={"rde_id": TC.RESULT_ID_123})
     assert r.status_code == 404
-    assert r.json()["detail"] == "Crate not found"
+    assert r.json()["detail"] == f"No crate found for '{TC.RESULT_ID_123}/'"
 
 
 def test_get_crate_ok_with_content_type(monkeypatch):
@@ -430,7 +430,7 @@ def test_get_file_crate_not_found(monkeypatch):
 
     r = client.get("/get/file/", params={"file_uri": TC.ARCP_FILE_TXT})
     assert r.status_code == 404
-    assert r.json()["detail"] == "Crate not found"
+    assert r.json()["detail"] == f"No crate found for '{TC.ARCP_RDE_1}/'"
 
 
 def test_get_file_ok_with_mapped_content_type(monkeypatch):
@@ -514,7 +514,7 @@ def test_get_file_member_missing(monkeypatch):
 
     r = client.get("/get/file/", params={"file_uri": TC.ARCP_FILE_MISSING})
     assert r.status_code == 404
-    assert r.json()["detail"] == "File dir/missing.txt not found in the crate"
+    assert r.json()["detail"] == "File 'dir/missing.txt' not found in the crate"
 
 
 # Tests for get graphs-for-file

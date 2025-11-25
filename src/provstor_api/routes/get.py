@@ -51,7 +51,7 @@ async def get_crate(rde_id: str):
     qres = run_query(CRATE_URL_QUERY % rde_id)
 
     if len(qres) < 1:
-        raise HTTPException(status_code=404, detail="Crate not found")
+        raise HTTPException(status_code=404, detail=f"No crate found for '{rde_id}'")
 
     crate_url = str(list(qres)[0][0])
     logging.info("Internal crate URL: %s", crate_url)
@@ -85,7 +85,7 @@ async def get_file(file_uri: str):
     rde_id = rde_id.rstrip("/") + "/"
     qres = run_query(CRATE_URL_QUERY % rde_id)
     if len(qres) < 1:
-        raise HTTPException(status_code=404, detail="Crate not found")
+        raise HTTPException(status_code=404, detail=f"No crate found for '{rde_id}'")
 
     crate_url = str(list(qres)[0][0])
     with urlopen(crate_url) as zip_response:
@@ -109,7 +109,7 @@ async def get_file(file_uri: str):
                 )
 
             except KeyError:
-                raise HTTPException(status_code=404, detail=f"File {zip_member} not found in the crate")
+                raise HTTPException(status_code=404, detail=f"File '{zip_member}' not found in the crate")
 
 
 @router.get("/graphs-for-file/")

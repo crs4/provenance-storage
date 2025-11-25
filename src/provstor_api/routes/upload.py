@@ -104,7 +104,7 @@ async def load_crate_metadata(crate_path: UploadFile):
                     break
 
         if not metadata_path:
-            raise HTTPException(status_code=404, detail="ro-crate-metadata.json not found in the zip file")
+            raise HTTPException(status_code=422, detail="ro-crate-metadata.json not found in the zip file")
 
         local_graph = Graph()
         local_graph.parse(metadata_path, publicID=loc)
