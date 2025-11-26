@@ -104,7 +104,7 @@ async def load_crate_metadata(crate_path: UploadFile):
                     break
 
         if not metadata_path:
-            raise HTTPException(status_code=404, detail="ro-crate-metadata.json not found in the zip file")
+            raise HTTPException(status_code=422, detail="ro-crate-metadata.json not found in the zip file")
 
         local_graph = Graph()
         local_graph.parse(metadata_path, publicID=loc)
@@ -126,17 +126,25 @@ async def load_crate_metadata(crate_path: UploadFile):
         if isinstance(metadata, bytes):
             metadata = metadata.decode()
 
-        client = Minio(settings.minio_store, settings.minio_user, settings.minio_secret, secure=False)
-        if not client.bucket_exists(settings.minio_bucket):
-            client.make_bucket(settings.minio_bucket)
+        client = Minio(
+            endpoint=settings.minio_store,
+            access_key=settings.minio_user,
+            secret_key=settings.minio_secret,
+            secure=False
+        )
+        if not client.bucket_exists(bucket_name=settings.minio_bucket):
+            client.make_bucket(bucket_name=settings.minio_bucket)
             logging.info('created bucket "%s"', settings.minio_bucket)
-            client.set_bucket_policy(settings.minio_bucket, json.dumps(MINIO_BUCKET_POLICY))
+            client.set_bucket_policy(
+                bucket_name=settings.minio_bucket,
+                policy=json.dumps(MINIO_BUCKET_POLICY)
+            )
 
         await crate_path.seek(0)
         client.put_object(
-            settings.minio_bucket,
-            crate_path.filename,
-            crate_path.file,
+            bucket_name=settings.minio_bucket,
+            object_name=crate_path.filename,
+            data=crate_path.file,
             length=-1,
             part_size=50 * 1024 * 1024
         )
@@ -149,6 +157,9 @@ async def load_crate_metadata(crate_path: UploadFile):
             graph = Graph(store, identifier=URIRef(crate_url))
             graph.update(INSERT_QUERY % metadata)
         except Exception as e:
-            client.remove_object(settings.minio_bucket, crate_path.filename)
+            client.remove_object(
+                bucket_name=settings.minio_bucket,
+                object_name=crate_path.filename
+            )
             raise HTTPException(status_code=500, detail=f"Failed to upload metadata to the store: {e}")
         return {"result": "success", "crate_url": crate_url}
