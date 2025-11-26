@@ -19,7 +19,6 @@
 import atexit
 import logging
 import sys
-from http.client import responses
 from pathlib import Path
 import requests
 import tempfile
