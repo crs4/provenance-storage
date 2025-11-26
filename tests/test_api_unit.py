@@ -132,19 +132,19 @@ def make_zip_bytes(files: dict[str, bytes]) -> bytes:
 @pytest.fixture
 def mock_client(monkeypatch):
     class MockMinio:
-        def __init__(self, *a, **kw):
+        def __init__(self, **kw):
             pass
 
-        def bucket_exists(self, b):
+        def bucket_exists(self, **kw):
             return True
 
-        def make_bucket(self, b):
+        def make_bucket(self, **kw):
             pass
 
-        def set_bucket_policy(self, b, pol):
+        def set_bucket_policy(self, **kw):
             pass
 
-        def put_object(self, *a, **kw):
+        def put_object(self, **kw):
             pass
 
     class MockStore:
