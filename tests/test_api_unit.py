@@ -86,6 +86,8 @@ class TestConstants:
     FILE_ID_123 = "file-123"
     ACTION_ID_1 = "act-1"
     ACTION_ID_2 = "act-2"
+    OBJECT_ID_1 = "obj-1"
+    OBJECT_ID_2 = "obj-2"
     WORKFLOW_1 = "wf1"
     WORKFLOW_2 = "wf2"
 
@@ -325,26 +327,61 @@ def test_run_query_with_graph_param(monkeypatch):
 
 
 # Tests for backtrack endpoint
-def test_backtrack_no_results(monkeypatch):
-    monkeypatch.setattr(backtrack, "_backtrack_recursive", lambda rid: [])
-    r = client.get("/backtrack/", params={"result_id": TC.RESULT_ID_123})
+def test_backtrack(monkeypatch):
+    actions_for_result_query_results = [
+        [TC.ACTION_ID_1],
+        [TC.ACTION_ID_2],
+    ]
+
+    def mock_fetch_actions_for_result(rid):
+        try:
+            return actions_for_result_query_results.pop()
+        except IndexError:
+            return []
+
+    objects_for_action_query_results = [
+        [TC.OBJECT_ID_1],
+        [TC.OBJECT_ID_2],
+    ]
+
+    def mock_fetch_objects_for_action(aid):
+        try:
+            return objects_for_action_query_results.pop()
+        except IndexError:
+            return []
+
+    results_for_action_query_results = [
+        [TC.RESULT_ID_7],
+        [TC.RESULT_ID_8],
+    ]
+
+    def mock_fetch_results_for_action(aid):
+        try:
+            return results_for_action_query_results.pop()
+        except IndexError:
+            return []
+
+    monkeypatch.setattr(backtrack, "fetch_actions_for_result", mock_fetch_actions_for_result)
+    monkeypatch.setattr(backtrack, "fetch_objects_for_action", mock_fetch_objects_for_action)
+    monkeypatch.setattr(backtrack, "fetch_results_for_action", mock_fetch_results_for_action)
+
+    r = client.get(
+        "/backtrack/",
+        params={"result_id": TC.RESULT_ID_42}
+    )
     assert r.status_code == 200
-    assert r.json() == {"result": []}
-
-
-def test_backtrack_success(monkeypatch):
-    captured = {}
-
-    def mock_bt(rid):
-        captured["rid"] = rid
-        return [{"id": rid, "steps": 3}]
-
-    monkeypatch.setattr(backtrack, "_backtrack_recursive", mock_bt)
-
-    r = client.get("/backtrack/", params={"result_id": TC.RESULT_ID_ABC})
-    assert r.status_code == 200
-    assert r.json() == {"result": [{"id": TC.RESULT_ID_ABC, "steps": 3}]}
-    assert captured["rid"] == TC.RESULT_ID_ABC
+    assert r.json() == {"result": [
+        {
+            "action": TC.ACTION_ID_2,
+            "objects": [TC.OBJECT_ID_2],
+            "results": [TC.RESULT_ID_8],
+        },
+        {
+            "action": TC.ACTION_ID_1,
+            "objects": [TC.OBJECT_ID_1],
+            "results": [TC.RESULT_ID_7],
+        },
+    ]}
 
 
 # Tests for get crate
