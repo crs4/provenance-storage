@@ -1,5 +1,5 @@
-# Copyright © 2024-2025 CRS4
-# Copyright © 2025 BSC
+# Copyright © 2024-2026 CRS4
+# Copyright © 2025-2026 BSC
 
 [build-system]
 requires = ["setuptools>=61.2"]

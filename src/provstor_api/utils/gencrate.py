@@ -1,4 +1,4 @@
-# Copyright © 2024-2025 CRS4
+# Copyright © 2024-2026 CRS4
 #
 # This file is part of ProvStor.
 #
