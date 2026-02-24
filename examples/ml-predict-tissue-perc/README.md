@@ -1,6 +1,6 @@
 # Tissue detection in digital pathology slides
 
-One possible way to use ProvStor is to load multiple Workflow Run RO-Crates[^1] corresponding to separate executions of the same workflow, with varying values of one or more input parameters, and run a query that shows how this affects the output.
+One possible way to use ProvStor is to load multiple [Workflow Run RO-Crates](https://www.researchobject.org/workflow-run-crate/)[^1] corresponding to separate executions of the same workflow, with varying values of one or more input parameters, and run a query that shows how this affects the output.
 
 In this example, a [CWL](https://www.commonwl.org/) workflow for the detection of tissue and tumor regions in prostate cancer digital pathology slides[^2] is run repeatedly on a Mirax test image, using increasing values of an input parameter. The [original workflow](https://github.com/crs4/deephealth-pipelines/tree/c54840df08742e3aa454394e0e74d15fbd640f07/cwl) has three steps:
 
@@ -48,6 +48,6 @@ provstor query query.txt
 Alternatively, you can copy the query from `query.txt` and paste it into the Fuseki web UI (http://localhost:3030/#/dataset/ds/query if you have it running on localhost). The resulting table should show the workflow name on the first column, the tissue percentage on the second, and the input `tissue_high_level` on the third. Note that this result is made possible by the fact that the query runs on the merged graph that contains metadata from all 8 crates.
 
 
-[^1]: Leo et al. (2024) "Recording provenance of workflow runs with RO-Crate". PLoS ONE 19(9): e0309210.
+[^1]: Leo et al. (2024) "Recording provenance of workflow runs with RO-Crate". PLoS ONE 19(9): e0309210. http://dx.doi.org/10.1371/journal.pone.0309210.
 
-[^2]: Del Rio et al. (2022) "AI Support for Accelerating Histopathological Slide Examinations of Prostate Cancer in Clinical Studies". Image Analysis and Processing. ICIAP 2022 Workshops. ICIAP 2022. Lecture Notes in Computer Science 2022;13373.
+[^2]: Del Rio et al. (2022) "AI Support for Accelerating Histopathological Slide Examinations of Prostate Cancer in Clinical Studies". Image Analysis and Processing. ICIAP 2022 Workshops. ICIAP 2022. Lecture Notes in Computer Science 2022;13373. http://dx.doi.org/10.1007/978-3-031-13321-3_48.
