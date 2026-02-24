@@ -67,6 +67,18 @@ provstor load tests/data/crate2
 provstor query tests/data/query.txt
 ```
 
+#### Backtracking on chained Workflow Run RO-Crates
+
+```
+provstor load tests/data/provcrate1
+provstor load tests/data/proccrate1
+provstor load tests/data/proccrate2
+provstor backtrack file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz
+```
+
+The RO-Crates loaded above describe a mock variant calling pipeline (provcrate1) followed by an annotation (proccrate1) and a normalization (proccrate2). The result of the normalization `file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz` is linked back to the inputs of the pipeline with the `backtrack` command, whose output consists of (action, objects, results) tuples.
+
+
 ## License
 
 This code is distributed under the terms of the [GNU GPL-3.0 license](https://opensource.org/license/GPL-3.0).  See [COPYING](./COPYING) for details.
