@@ -69,6 +69,8 @@ provstor query tests/data/query.txt
 
 #### Backtracking on chained Workflow Run RO-Crates
 
+[Workflow Run RO-Crate](https://www.researchobject.org/workflow-run-crate/) (WRROC) is a set of RO-Crate [profiles](https://www.researchobject.org/ro-crate/specification/1.2/profiles.html) for capturing the provenance of the execution of computational workflows. Crates that follow the WRROC model use (subclasses of) [Action](https://schema.org/Action) to represent a workflow run, with [object](https://schema.org/object) and [result](https://schema.org/result) pointing, respectively, to the inputs and outputs. Such crates can be "chained" in the sense that the `result` of a workflow execution can be used as `object` in another run. One of the main uses of computational provenance information is the ability to follow the history of digital objects back to the original inputs from which the chain of computations started. ProvStor has a `backtrack` functionality that can be used for this purpose.
+
 ```
 provstor load tests/data/provcrate1
 provstor load tests/data/proccrate1
@@ -76,7 +78,7 @@ provstor load tests/data/proccrate2
 provstor backtrack file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz
 ```
 
-The RO-Crates loaded above describe a mock variant calling pipeline (provcrate1) followed by an annotation (proccrate1) and a normalization (proccrate2). The result of the normalization `file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz` is linked back to the inputs of the pipeline with the `backtrack` command, whose output consists of (action, objects, results) tuples.
+The RO-Crates loaded above describe a mock variant calling pipeline (provcrate1) followed by an annotation (proccrate1) and a normalization (proccrate2). The result of the normalization, `file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz`, is linked back to the inputs of the pipeline with the `backtrack` command, whose output consists of (action, objects, results) tuples.
 
 
 ## License
