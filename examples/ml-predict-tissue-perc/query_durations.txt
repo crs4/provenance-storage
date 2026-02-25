@@ -1,0 +1,20 @@
+PREFIX bioschemas: <https://bioschemas.org/>
+PREFIX schema: <http://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?instrument ?duration ?thl_value
+WHERE {
+  ?action a schema:CreateAction .
+  ?action schema:instrument ?instrument .
+  ?instrument a bioschemas:ComputationalWorkflow .
+  ?action schema:object ?thl .
+  ?thl a schema:PropertyValue .
+  ?thl schema:name "tissue-high-level" .
+  ?thl schema:value ?thl_value .
+  ?action schema:endTime ?end_str .
+  ?action schema:startTime ?start_str .
+  BIND(xsd:dateTime(?end_str) AS ?end) .
+  BIND(xsd:dateTime(?start_str) AS ?start) .
+  BIND(?end - ?start AS ?duration) .
+}
+ORDER BY DESC(?duration)
