@@ -13,9 +13,11 @@ cp .env.example .env
 docker compose up
 ```
 
-* Open http://localhost:3030 in a browser window to access the Fuseki web UI. The admin password is set in `docker-compose.yaml`.
-* Open http://localhost:9001 to access the MinIO web UI. The username is `minio` and the password `miniosecret`
+* Open http://localhost:3030 in a browser window to access the Fuseki web UI. The username is `admin` and the password is `admin`.
+* Open http://localhost:9001 to access the MinIO web UI. The username is `minioadmin` and the password `minioadmin`.
 * Open http://localhost:8000/docs to access the FastAPI Swagger UI.
+
+To change passwords and other configuration values, edit the `.env` file before running `docker compose up`.
 
 Switch to another terminal window.
 
