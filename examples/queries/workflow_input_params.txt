@@ -1,0 +1,17 @@
+PREFIX schema: <http://schema.org/>
+
+SELECT DISTINCT ?name ?value
+WHERE {
+  ?md a schema:CreativeWork .
+  FILTER(contains(str(?md), "ro-crate-metadata.json")) .
+  ?md schema:about ?rde .
+  ?rde schema:mainEntity ?workflow .
+  ?action a schema:CreateAction .
+  ?action schema:instrument ?workflow .
+  ?action schema:object ?pv .
+  ?pv a schema:PropertyValue .
+  ?pv schema:value ?value .
+  ?pv schema:exampleOfWork ?param .
+  ?param schema:name ?name .
+}
+ORDER BY ?name

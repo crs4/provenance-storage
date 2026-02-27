@@ -1,0 +1,10 @@
+PREFIX schema: <http://schema.org/>
+
+SELECT DISTINCT ?name
+WHERE {
+  ?action a schema:CreateAction .
+  ?action schema:instrument ?instrument .
+  ?instrument a schema:SoftwareApplication .
+  ?instrument schema:name ?name .
+}
+ORDER BY ?name
