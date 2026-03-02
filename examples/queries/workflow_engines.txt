@@ -1,0 +1,14 @@
+PREFIX bioschemas: <https://bioschemas.org/>
+PREFIX schema: <http://schema.org/>
+
+SELECT DISTINCT ?workflow ?engine_name
+WHERE {
+  ?workflow a bioschemas:ComputationalWorkflow .
+  ?workflow_execution a schema:CreateAction .
+  ?workflow_execution schema:instrument ?workflow .
+  ?engine_execution schema:result ?workflow_execution .
+  ?engine_execution schema:instrument ?engine .
+  ?engine schema:name ?engine_name .
+  ?step a schema:HowToStep .
+}
+ORDER BY ?engine_name

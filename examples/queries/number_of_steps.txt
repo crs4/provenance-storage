@@ -1,0 +1,11 @@
+PREFIX bioschemas: <https://bioschemas.org/>
+PREFIX schema: <http://schema.org/>
+
+SELECT DISTINCT ?workflow (COUNT(?step) as ?nstep)
+WHERE {
+  ?workflow a bioschemas:ComputationalWorkflow .
+  ?workflow schema:step ?step .
+  ?step a schema:HowToStep .
+}
+GROUP BY ?workflow
+ORDER BY DESC(?nstep)
