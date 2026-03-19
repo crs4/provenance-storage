@@ -4,7 +4,7 @@ SELECT DISTINCT ?name
 WHERE {
   ?action a schema:CreateAction .
   ?action schema:instrument ?instrument .
-  ?instrument a schema:SoftwareApplication .
+  { ?instrument a schema:SoftwareApplication } UNION { ?instrument a schema:SoftwareSourceCode } UNION { ?instrument a schema:ComputationalWorkflow } .
   ?instrument schema:name ?name .
 }
 ORDER BY ?name
