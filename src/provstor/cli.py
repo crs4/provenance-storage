@@ -69,7 +69,7 @@ def cli(log_level):
 )
 def load(crate):
     """\
-    Load RO-Crate metadata into Fuseki and upload zipped crate to MinIO.
+    Load RO-Crate metadata into Fuseki and upload zipped crate to SeaweedFS.
 
     RO_CRATE: RO-Crate directory or ZIP archive.
     """

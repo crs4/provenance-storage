@@ -6,6 +6,6 @@ pydantic-settings~=2.10.1
 pycparser~=2.22
 python-multipart~=0.0.20
 arcp~=0.2.1
-minio~=7.2.16
+boto3~=1.42.71
 httpx~=0.28.0
 rocrate~=0.14.0

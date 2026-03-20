@@ -17,13 +17,12 @@
 
 
 from fastapi import APIRouter, UploadFile, HTTPException
-import json
 import logging
 import tempfile
 import zipfile
 import os
 import arcp
-from minio import Minio
+import boto3
 from rdflib import Graph
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 from rdflib.term import URIRef, Literal
@@ -34,24 +33,6 @@ from provstor_api.config import settings
 
 router = APIRouter()
 
-# anonymous read-only policy, see https://github.com/minio/minio-py/blob/88f4244fe89fb9f23de4f183bdf79524c712deaa/examples/set_bucket_policy.py#L27
-MINIO_BUCKET_POLICY = {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Principal": {"AWS": "*"},
-            "Action": ["s3:GetBucketLocation", "s3:ListBucket"],
-            "Resource": f"arn:aws:s3:::{settings.minio_bucket}",
-        },
-        {
-            "Effect": "Allow",
-            "Principal": {"AWS": "*"},
-            "Action": "s3:GetObject",
-            "Resource": f"arn:aws:s3:::{settings.minio_bucket}/*",
-        },
-    ],
-}
 
 EXTERNAL_RESULTS_QUERY = """\
 PREFIX schema: <http://schema.org/>
@@ -76,7 +57,7 @@ async def load_crate_metadata(crate_path: UploadFile):
     if not content:
         raise HTTPException(status_code=400, detail="Empty file uploaded.")
 
-    crate_url = f"http://{settings.minio_store}/{settings.minio_bucket}/{crate_path.filename}"
+    crate_url = f"http://{settings.seaweedfs_filer}/buckets/{settings.seaweedfs_bucket}/{crate_path.filename}"
     logging.info("Crate URL: %s", crate_url)
     loc = arcp.arcp_location(crate_url)
     logging.info("ARCP location: %s", loc)
@@ -126,27 +107,24 @@ async def load_crate_metadata(crate_path: UploadFile):
         if isinstance(metadata, bytes):
             metadata = metadata.decode()
 
-        client = Minio(
-            endpoint=settings.minio_store,
-            access_key=settings.minio_user,
-            secret_key=settings.minio_secret,
-            secure=False
+        client = boto3.client(
+            "s3",
+            endpoint_url=f"http://{settings.seaweedfs_store}",
+            aws_access_key_id=settings.seaweedfs_access_key,
+            aws_secret_access_key=settings.seaweedfs_secret_key,
         )
-        if not client.bucket_exists(bucket_name=settings.minio_bucket):
-            client.make_bucket(bucket_name=settings.minio_bucket)
-            logging.info('created bucket "%s"', settings.minio_bucket)
-            client.set_bucket_policy(
-                bucket_name=settings.minio_bucket,
-                policy=json.dumps(MINIO_BUCKET_POLICY)
-            )
+        try:
+            client.create_bucket(Bucket=settings.seaweedfs_bucket)
+        except client.exceptions.BucketAlreadyExists:
+            pass
+        else:
+            logging.info('created bucket "%s"', settings.seaweedfs_bucket)
 
         await crate_path.seek(0)
         client.put_object(
-            bucket_name=settings.minio_bucket,
-            object_name=crate_path.filename,
-            data=crate_path.file,
-            length=-1,
-            part_size=50 * 1024 * 1024
+            Bucket=settings.seaweedfs_bucket,
+            Key=crate_path.filename,
+            Body=crate_path.file,
         )
 
         try:
@@ -157,9 +135,9 @@ async def load_crate_metadata(crate_path: UploadFile):
             graph = Graph(store, identifier=URIRef(crate_url))
             graph.update(INSERT_QUERY % metadata)
         except Exception as e:
-            client.remove_object(
-                bucket_name=settings.minio_bucket,
-                object_name=crate_path.filename
+            client.delete_object(
+                Bucket=settings.seaweedfs_bucket,
+                Key=crate_path.filename,
             )
             raise HTTPException(status_code=500, detail=f"Failed to upload metadata to the store: {e}")
         return {"result": "success", "crate_url": crate_url}

@@ -13,7 +13,7 @@ authors = [{name = "CRS4", email = "ro-crate@elixir-europe.org"}, {name = "RO-Cr
 requires-python = ">=3.12, <4"
 dependencies = [
     "rdflib~=7.0.0",
-    "minio~=7.2.0",
+    "boto3~=1.42.71",
     "arcp==0.2.1",
     "click~=8.1",
     "fastapi~=0.116.1",
