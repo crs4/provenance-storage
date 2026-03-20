@@ -34,9 +34,9 @@ import provstor_api.routes.pathops as pathops
 # Test Constants
 class TestConstants:
     # URLs and URIs
-    MINIO_URL = "http://minio:9000"
-    MINIO_STORE = "minio:9000"
-    MINIO_BUCKET = "crates"
+    SEAWEEDFS_FILER = "seaweedfs-s3:8888"
+    SEAWEEDFS_STORE = "seaweedfs-s3:8333"
+    SEAWEEDFS_BUCKET = "crates"
     FUSEKI_URL = "http://fuseki:3030"
     FUSEKI_DATASET = "ds"
 
@@ -133,17 +133,11 @@ def make_zip_bytes(files: dict[str, bytes]) -> bytes:
 
 @pytest.fixture
 def mock_client(monkeypatch):
-    class MockMinio:
-        def __init__(self, **kw):
+    class MockClient:
+        def __init__(self, *args, **kw):
             pass
 
-        def bucket_exists(self, **kw):
-            return True
-
-        def make_bucket(self, **kw):
-            pass
-
-        def set_bucket_policy(self, **kw):
+        def create_bucket(self, **kw):
             pass
 
         def put_object(self, **kw):
@@ -173,14 +167,14 @@ def mock_client(monkeypatch):
         def update(self, insert_query):
             self.insert_query = insert_query
 
-    monkeypatch.setattr(upload, "Minio", MockMinio)
+    monkeypatch.setattr(upload.boto3, "client", MockClient)
     monkeypatch.setattr(upload, "SPARQLUpdateStore", MockStore)
     monkeypatch.setattr(upload, "Graph", MockGraph)
     monkeypatch.setattr(upload, "run_query", lambda q: [])
     monkeypatch.setattr(upload.arcp, "arcp_location", lambda url: TC.ARCP_LOCATION)
 
-    upload.settings.minio_store = TC.MINIO_STORE
-    upload.settings.minio_bucket = TC.MINIO_BUCKET
+    upload.settings.seaweedfs_store = TC.SEAWEEDFS_STORE
+    upload.settings.seaweedfs_bucket = TC.SEAWEEDFS_BUCKET
     upload.settings.fuseki_base_url = TC.FUSEKI_URL
     upload.settings.fuseki_dataset = TC.FUSEKI_DATASET
 
@@ -223,7 +217,7 @@ def test_correct_path(mock_client):
     assert r.status_code == 200
     body = r.json()
     assert body["result"] == "success"
-    assert body["crate_url"] == f"{TC.MINIO_URL}/{TC.MINIO_BUCKET}/{TC.CRATE_ZIP}"
+    assert body["crate_url"] == f"http://{TC.SEAWEEDFS_FILER}/buckets/{TC.SEAWEEDFS_BUCKET}/{TC.CRATE_ZIP}"
 
 
 def test_upload_existing_result(mock_client, monkeypatch):
@@ -400,7 +394,7 @@ def test_get_crate_ok_with_content_type(monkeypatch):
 
     def mock_run_query(q):
         called["query"] = q
-        return [(f"{TC.MINIO_URL}/{TC.MINIO_BUCKET}/{TC.CRATE_ZIP}",)]
+        return [(f"http://{TC.SEAWEEDFS_FILER}/buckets/{TC.SEAWEEDFS_BUCKET}/{TC.CRATE_ZIP}",)]
 
     monkeypatch.setattr(get, "run_query", mock_run_query)
 
@@ -430,7 +424,7 @@ def test_get_crate_ok_with_content_type(monkeypatch):
 def test_get_crate_ok_defaults_content_type(monkeypatch):
     monkeypatch.setattr(get, "CRATE_URL_QUERY", "Q:%s")
     monkeypatch.setattr(get, "run_query",
-                        lambda q: [(f"{TC.MINIO_URL}/{TC.MINIO_BUCKET}/{TC.ANOTHER_ZIP}",)])
+                        lambda q: [(f"http://{TC.SEAWEEDFS_FILER}/buckets/{TC.SEAWEEDFS_BUCKET}/{TC.ANOTHER_ZIP}",)])
 
     class MockRespNoCT:
         def __init__(self):
@@ -473,7 +467,7 @@ def test_get_file_crate_not_found(monkeypatch):
 def test_get_file_ok_with_mapped_content_type(monkeypatch):
     monkeypatch.setattr(get, "CRATE_URL_QUERY", "Q:%s")
     monkeypatch.setattr(get, "run_query",
-                        lambda q: [(f"{TC.MINIO_URL}/{TC.MINIO_BUCKET}/{TC.CRATE_ZIP}",)])
+                        lambda q: [(f"http://{TC.SEAWEEDFS_FILER}/buckets/{TC.SEAWEEDFS_BUCKET}/{TC.CRATE_ZIP}",)])
     monkeypatch.setattr(get, "content_type_map", {"txt": TC.CONTENT_TYPE_PLAIN})
 
     zip_bytes = make_zip_bytes({"dir/file.txt": TC.FILE_CONTENT})
@@ -502,7 +496,7 @@ def test_get_file_ok_with_mapped_content_type(monkeypatch):
 def test_get_file_ok_default_content_type(monkeypatch):
     monkeypatch.setattr(get, "CRATE_URL_QUERY", "Q:%s")
     monkeypatch.setattr(get, "run_query",
-                        lambda q: [(f"{TC.MINIO_URL}/{TC.MINIO_BUCKET}/{TC.ANOTHER_ZIP}",)])
+                        lambda q: [(f"http://{TC.SEAWEEDFS_FILER}/buckets/{TC.SEAWEEDFS_BUCKET}/{TC.ANOTHER_ZIP}",)])
     monkeypatch.setattr(get, "content_type_map", {"txt": TC.CONTENT_TYPE_PLAIN})
 
     zip_bytes = make_zip_bytes({"x/y/file.dat": TC.BINARY_CONTENT})
@@ -531,7 +525,7 @@ def test_get_file_ok_default_content_type(monkeypatch):
 def test_get_file_member_missing(monkeypatch):
     monkeypatch.setattr(get, "CRATE_URL_QUERY", "Q:%s")
     monkeypatch.setattr(get, "run_query",
-                        lambda q: [(f"{TC.MINIO_URL}/{TC.MINIO_BUCKET}/miss.zip",)])
+                        lambda q: [(f"http://{TC.SEAWEEDFS_FILER}/buckets/{TC.SEAWEEDFS_BUCKET}/miss.zip",)])
 
     zip_bytes = make_zip_bytes({"dir/other.txt": b"nope"})
 
@@ -811,7 +805,7 @@ def test_cpmv_ok(monkeypatch, op):
 
     monkeypatch.setattr(pathops, "load_crate_metadata", mock_load_crate_metadata)
 
-    crate_url = "http://minio:9000/crates/foo.zip"
+    crate_url = f"http://{TC.SEAWEEDFS_FILER}/buckets/{TC.SEAWEEDFS_BUCKET}/foo.zip"
     monkeypatch.setattr(pathops, "movechain", lambda p: {"result": []})
     r = client.post(
         "/pathops/move/",

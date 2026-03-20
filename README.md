@@ -14,22 +14,10 @@ docker compose up
 ```
 
 * Open http://localhost:3030 in a browser window to access the Fuseki web UI. The username is `admin` and the password is `admin`.
-* Open http://localhost:9001 to access the MinIO web UI. The username is `minioadmin` and the password `minioadmin`.
+* Open http://localhost:8888 to access the SeaweedFS Filer web UI.
 * Open http://localhost:8000/docs to access the FastAPI Swagger UI.
 
 To change passwords and other configuration values, edit the `.env` file before running `docker compose up`.
-
-Switch to another terminal window.
-
-Install the MinIO client command line tool `mc` following the [MinIO Quickstart](https://min.io/docs/minio/linux/reference/minio-mc.html#quickstart).
-
-Create an alias:
-
-```
-mc alias set localstore http://localhost:9000 minio miniosecret
-```
-
-The above modifies `~/.mc/config.json`, so it does not need to be re-executed if you wipe out `minio-data`.
 
 
 ### Environment Configuration

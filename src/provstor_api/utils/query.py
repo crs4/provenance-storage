@@ -28,7 +28,7 @@ def run_query(query, graph_id=None):
     store.open(query_endpoint)
     if graph_id:
         if not graph_id.startswith("http://"):
-            graph_id = f"http://{settings.minio_store}/{settings.minio_bucket}/{graph_id}.zip"
+            graph_id = f"http://{settings.seaweedfs_filer}/buckets/{settings.seaweedfs_bucket}/{graph_id}.zip"
         graph_id = URIRef(graph_id)
     qres = store.query(query, queryGraph=graph_id)
     return qres

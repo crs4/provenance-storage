@@ -20,10 +20,12 @@ from pydantic_settings import BaseSettings
 
 # Pydantic reads the environment variables in a case-insensitive way
 class Settings(BaseSettings):
-    minio_store: str = "minio:9000"
-    minio_user: str = "minioadmin"
-    minio_secret: str = "minioadmin"
-    minio_bucket: str = "crates"
+    seaweedfs_store: str = "seaweedfs-s3:8333"
+    seaweedfs_filer: str = "seaweedfs-s3:8888"
+    seaweedfs_bucket: str = "crates"
+    seaweedfs_user: str = "admin"
+    seaweedfs_access_key: str = "admin_access_key"
+    seaweedfs_secret_key: str = "admin_secret_key"
     fuseki_base_url: str = "http://fuseki:3030"
     fuseki_dataset: str = "ds"
     cors_allowed_origins: str = ""
