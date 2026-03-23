@@ -39,19 +39,28 @@ def data_dir():
 @pytest.fixture(scope="session")
 def crate_map(data_dir):
     m = {}
-    api_url = F"http://{API_HOST}:{API_PORT}/upload/crate/"
+    base_api_url = f"http://{API_HOST}:{API_PORT}"
     tmp_dir = Path(tempfile.mkdtemp(prefix="provstor_"))
     atexit.register(shutil.rmtree, tmp_dir)
+    response = requests.get(f"{base_api_url}/query/list-graphs/")
+    response.raise_for_status()
+    existing_crates = {_.rsplit("/", 1)[-1]: _ for _ in response.json()["result"]}
     for c in ["crate1", "crate2", "provcrate1", "proccrate1", "proccrate2"]:
+        crate_name = f"{c}.zip"
         crate_path = data_dir / c
-        zip_path = shutil.make_archive(tmp_dir / crate_path.name, 'zip', crate_path)
-        crate_name = Path(zip_path).name
-        with open(zip_path, 'rb') as crate_file:
-            response = requests.post(api_url, files={'crate_path': (crate_name, crate_file, 'application/zip')})
-        if response.status_code == 200 and response.json().get('result') == "success":
-            crate_url = response.json().get('crate_url')
+        if crate_name not in existing_crates:
+            zip_path = shutil.make_archive(tmp_dir / crate_name, 'zip', crate_path)
+            with open(zip_path, 'rb') as crate_file:
+                response = requests.post(
+                    f"{base_api_url}/upload/crate/",
+                    files={'crate_path': (crate_name, crate_file, 'application/zip')}
+                )
+            if response.status_code == 200 and response.json().get('result') == "success":
+                crate_url = response.json().get('crate_url')
+            else:
+                response.raise_for_status()
         else:
-            response.raise_for_status()
+            crate_url = existing_crates[crate_name]
         m[c] = {
             "path": crate_path,
             "url": crate_url,
