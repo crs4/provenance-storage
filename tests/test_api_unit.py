@@ -772,12 +772,13 @@ def test_cpmv_missing_src(monkeypatch, op):
     assert r.json()["detail"] == f"File or Dataset '{TC.FILE_URI_A}' not found"
 
 
-def test_mv_already_moved(monkeypatch):
+@pytest.mark.parametrize("op", ["copy", "move"])
+def test_cpmv_already_moved(monkeypatch, op):
     chain = ["file:///foo"]
     monkeypatch.setattr(pathops, "movechain", lambda p: {"result": chain})
     monkeypatch.setattr(pathops, "run_query", lambda q: [(URIRef(TC.FILE_URI_A),)])
     r = client.post(
-        "/pathops/move/",
+        f"/pathops/{op}/",
         params={
             "src": TC.FILE_URI_A,
             "dest": TC.FILE_URI_B,
