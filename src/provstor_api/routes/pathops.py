@@ -65,10 +65,9 @@ async def _copy_or_move(src: str, dest: str, when: datetime = None, op="cp"):
     qres = run_query(IS_FILE_OR_DIR_QUERY % src)
     if len(qres) < 1:
         raise HTTPException(status_code=404, detail=f"File or Dataset '{src}' not found")
-    if op == "mv":
-        chain = movechain(src)["result"]
-        if chain:
-            raise HTTPException(status_code=422, detail=f"'{src}' has already been moved to: {chain}")
+    chain = movechain(src)["result"]
+    if chain:
+        raise HTTPException(status_code=422, detail=f"'{src}' has already been moved to: {chain}")
     qres = run_query(FILEINFO_QUERY % src)
     kwargs = {"when": when}
     if len(qres) >= 1:

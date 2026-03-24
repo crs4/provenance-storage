@@ -38,5 +38,7 @@ jobs:
         pip install pytest
         sleep 5
         pytest -sv tests
+        # run again to check that the test dataset has not been altered by mv
+        pytest -sv tests
     - name: Docker teardown
       run: docker compose down -v

@@ -410,65 +410,21 @@ def test_cli_backtrack(crate_map):
     }
 
 
-def test_cli_mv(crate_map):
-    src = "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
-    dest = "file:///a/b/FOOBAR123.deepvariant.ann.norm.vcf.gz"
-    runner = CliRunner()
-    args = ["mv", src, dest]
-    result = runner.invoke(cli, args)
-    assert result.exit_code == 0, result.exception
-
-    bad_src = "arcp://uuid,9498d061-370c-53cb-a1ce-a575c5c76f64/"
-    args = ["mv", bad_src, dest]
-    result = runner.invoke(cli, args)
-    assert result.exit_code != 0
-
-    missing_src = f"file:///{str(uuid.uuid4())}"
-    args = ["mv", missing_src, dest]
-    result = runner.invoke(cli, args)
-    assert result.exit_code != 0
-
-    d_src = "file:///path/to/logs"
-    d_dest = "file:///a/b/logs"
-    args = ["mv", d_src, d_dest]
-    result = runner.invoke(cli, args)
-    assert result.exit_code == 0, result.exception
-
-    dest2 = "file:///b/c/FOOBAR123.deepvariant.ann.norm.vcf.gz"
-    args = ["mv", dest, dest2, "--when", "2025-10-10T08:05:00Z"]
-    result = runner.invoke(cli, args)
-    assert result.exit_code == 0, result.exception
-
-    future_date = "9999-10-10T08:05:00Z"
-    args = ["mv", dest2, "file:///q", "--when", future_date]
-    result = runner.invoke(cli, args)
-    assert result.exit_code != 0
-
-    args = ["movechain", src]
-    result = runner.invoke(cli, args)
-    assert result.exit_code == 0, result.exception
-    lines = result.stdout.splitlines()
-    assert len(lines) >= 2
-    assert lines[:2] == [
-        "file:///a/b/FOOBAR123.deepvariant.ann.norm.vcf.gz",
-        "file:///b/c/FOOBAR123.deepvariant.ann.norm.vcf.gz",
-    ]
-
-
 def test_cli_cp(crate_map):
     src = "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
-    dest = "file:///cp1/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    dest = f"file:///{str(uuid.uuid4())}/FOOBAR123.deepvariant.ann.norm.vcf.gz"
     runner = CliRunner()
     args = ["cp", src, dest]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
 
-    dest2 = "file:///cp2/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    dest2 = f"file:///{str(uuid.uuid4())}/FOOBAR123.deepvariant.ann.norm.vcf.gz"
     runner = CliRunner()
     args = ["cp", src, dest2]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
 
+    # does not start with "file:/"
     bad_src = "arcp://uuid,9498d061-370c-53cb-a1ce-a575c5c76f64/"
     args = ["cp", bad_src, dest]
     result = runner.invoke(cli, args)
@@ -480,7 +436,7 @@ def test_cli_cp(crate_map):
     assert result.exit_code != 0
 
     d_src = "file:///path/to/logs"
-    d_dest = "file:///cp1/logs"
+    d_dest = f"file:///{str(uuid.uuid4())}/logs"
     args = ["cp", d_src, d_dest]
     result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.exception
@@ -489,3 +445,58 @@ def test_cli_cp(crate_map):
     args = ["cp", src, "file:///q", "--when", future_date]
     result = runner.invoke(cli, args)
     assert result.exit_code != 0
+
+
+def test_cli_mv(crate_map):
+    src = "file:///path/to/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    # copy to a randomly named path so we don't alter the test data
+    src_copy = f"file:///{str(uuid.uuid4())}/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    runner = CliRunner()
+    args = ["cp", src, src_copy]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+
+    dest = f"file:///{str(uuid.uuid4())}/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    runner = CliRunner()
+    args = ["mv", src_copy, dest]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+
+    # does not start with "file:/"
+    bad_src = "arcp://uuid,9498d061-370c-53cb-a1ce-a575c5c76f64/"
+    args = ["mv", bad_src, dest]
+    result = runner.invoke(cli, args)
+    assert result.exit_code != 0
+
+    missing_src = f"file:///{str(uuid.uuid4())}"
+    args = ["mv", missing_src, dest]
+    result = runner.invoke(cli, args)
+    assert result.exit_code != 0
+
+    d_src = "file:///path/to/logs"
+    # copy to a randomly named path so we don't alter the test data
+    d_src_copy = f"file:///{str(uuid.uuid4())}/logs"
+    args = ["cp", d_src, d_src_copy]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+
+    d_dest = f"file:///{str(uuid.uuid4())}/logs"
+    args = ["mv", d_src_copy, d_dest]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+
+    dest2 = f"file:///{str(uuid.uuid4())}/FOOBAR123.deepvariant.ann.norm.vcf.gz"
+    args = ["mv", dest, dest2, "--when", "2025-10-10T08:05:00Z"]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+
+    future_date = "9999-10-10T08:05:00Z"
+    args = ["mv", dest2, "file:///q", "--when", future_date]
+    result = runner.invoke(cli, args)
+    assert result.exit_code != 0
+
+    args = ["movechain", src_copy]
+    result = runner.invoke(cli, args)
+    assert result.exit_code == 0, result.exception
+    lines = result.stdout.splitlines()
+    assert lines == [dest, dest2]
